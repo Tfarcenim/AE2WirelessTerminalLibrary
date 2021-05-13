@@ -23,20 +23,20 @@ import appeng.core.Api;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.MEInventoryUpdatePacket;
 import appeng.me.helpers.PlayerSource;
-import de.mari_023.fabric.ae2wtlib.util.ContainerHelper;
-import de.mari_023.fabric.ae2wtlib.wct.WCTContainer;
-import de.mari_023.fabric.ae2wtlib.wct.WCTGuiObject;
-import de.mari_023.fabric.ae2wtlib.wpt.WPTContainer;
-import de.mari_023.fabric.ae2wtlib.wpt.WPTGuiObject;
+import tfar.ae2wtlib.util.ContainerHelper;
+import tfar.ae2wtlib.wct.WCTContainer;
+import tfar.ae2wtlib.wct.WCTGuiObject;
+import tfar.ae2wtlib.wpt.WPTContainer;
+import tfar.ae2wtlib.wpt.WPTGuiObject;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.ScreenHandlerListener;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.IContainerListener;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 import java.io.IOException;
@@ -44,12 +44,12 @@ import java.util.concurrent.Future;
 
 public class WirelessCraftConfirmContainer extends AEBaseContainer implements CraftingCPUCyclingContainer {
 
-    public static ScreenHandlerType<WirelessCraftConfirmContainer> TYPE;
+    public static ContainerType<WirelessCraftConfirmContainer> TYPE;
 
     private static final ContainerHelper<WirelessCraftConfirmContainer, ITerminalHost> helper = new ContainerHelper<>(
             WirelessCraftConfirmContainer::new, ITerminalHost.class, SecurityPermissions.CRAFT);
 
-    public static WirelessCraftConfirmContainer fromNetwork(int windowId, PlayerInventory inv, PacketByteBuf buf) {
+    public static WirelessCraftConfirmContainer fromNetwork(int windowId, PlayerInventory inv, PacketBuffer buf) {
         return helper.fromNetwork(windowId, inv, buf);
     }
 
@@ -81,7 +81,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
     @GuiSync(2)
     public int cpuCoProcessors;
     @GuiSync(7)
-    public Text cpuName;
+    public ITextComponent cpuName;
 
     public WirelessCraftConfirmContainer(int id, PlayerInventory ip, ITerminalHost te) {
         super(TYPE, id, ip, te);
@@ -96,14 +96,15 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
     }
 
     @Override
-    public void sendContentUpdates() {
+    public void detectAndSendChanges() {
+
         if(isClient()) {
             return;
         }
 
         cpuCycler.detectAndSendChanges(getGrid());
 
-        super.sendContentUpdates();
+        super.detectAndSendChanges();
 
         if(getJob() != null && getJob().isDone()) {
             try {
@@ -178,7 +179,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
                     }
                 } catch(final IOException ignored) {}
             } catch(final Throwable e) {
-                getPlayerInv().player.sendSystemMessage(new LiteralText("Error: " + e.toString()), Util.NIL_UUID);
+                getPlayerInv().player.sendMessage(new StringTextComponent("Error: " + e.toString()), Util.DUMMY_UUID);
                 AELog.debug(e);
                 setValidContainer(false);
                 result = null;
@@ -198,7 +199,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
     }
 
     public void startJob() {
-        ScreenHandlerType<?> originalGui = null;
+        ContainerType<?> originalGui = null;
 
         final IActionHost ah = getActionHost();
 
@@ -225,7 +226,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
     }
 
     @Override
-    public void removeListener(final ScreenHandlerListener c) {
+    public void removeListener(final IContainerListener c) {
         super.removeListener(c);
         if(getJob() != null) {
             getJob().cancel(true);
@@ -234,8 +235,8 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
     }
 
     @Override
-    public void close(final PlayerEntity par1PlayerEntity) {
-        super.close(par1PlayerEntity);
+    public void onContainerClosed(final PlayerEntity par1PlayerEntity) {
+        super.onContainerClosed(par1PlayerEntity);
         if(getJob() != null) {
             getJob().cancel(true);
             setJob(null);
@@ -286,7 +287,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
         return cpuCoProcessors;
     }
 
-    public Text getName() {
+    public ITextComponent getName() {
         return cpuName;
     }
 
