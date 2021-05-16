@@ -8,7 +8,7 @@ import appeng.client.gui.widgets.TabButton;
 import appeng.core.localization.GuiText;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.text.ITextComponent;
-import tfar.ae2wtlib.net.C2SGeneralPacket;
+import tfar.ae2wtlib.net.server.C2SGeneralPacket;
 import tfar.ae2wtlib.net.PacketHandler;
 import tfar.ae2wtlib.wut.CycleTerminalButton;
 import tfar.ae2wtlib.wut.IUniversalTerminalCapable;

@@ -15,7 +15,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
 
 public class WirelessCraftAmountContainer extends AEBaseContainer {
@@ -23,7 +22,7 @@ public class WirelessCraftAmountContainer extends AEBaseContainer {
     public static ContainerType<WirelessCraftAmountContainer> TYPE;
 
     private static final ContainerHelper<WirelessCraftAmountContainer, ITerminalHost> helper = new ContainerHelper<>(
-            WirelessCraftAmountContainer::new, ITerminalHost.class);
+            WirelessCraftAmountContainer::new);
 
     private final Slot craftingItem;
     private IAEItemStack itemToCreate;
@@ -35,8 +34,8 @@ public class WirelessCraftAmountContainer extends AEBaseContainer {
         addSlot(getCraftingItem());
     }
 
-    public static WirelessCraftAmountContainer fromNetwork(int windowId, PlayerInventory inv, PacketBuffer buf) {
-        return helper.fromNetwork(windowId, inv, buf);
+    public static WirelessCraftAmountContainer fromNetwork(int windowId, PlayerInventory inv) {
+        return helper.fromNetwork(windowId, inv);
     }
 
     public static boolean open(PlayerEntity player, ContainerLocator locator) {

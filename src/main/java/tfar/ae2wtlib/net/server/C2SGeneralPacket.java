@@ -1,4 +1,4 @@
-package tfar.ae2wtlib.net;
+package tfar.ae2wtlib.net.server;
 
 import tfar.ae2wtlib.wct.WCTContainer;
 import tfar.ae2wtlib.wct.magnet_card.MagnetMode;
@@ -60,8 +60,7 @@ public class C2SGeneralPacket {
                 }
             } else if (name.startsWith("CraftingTerminal.") && c instanceof WCTContainer) {
                 final WCTContainer container = (WCTContainer) c;
-                if (name.equals("CraftingTerminal.Delete")) container.deleteTrashSlot();
-                else if (name.equals("CraftingTerminal.SetMagnetMode")) {
+                if (name.equals("CraftingTerminal.SetMagnetMode")) {
                     container.getMagnetSettings().magnetMode = MagnetMode.fromInt(value);
                     container.saveMagnetSettings();
                 }

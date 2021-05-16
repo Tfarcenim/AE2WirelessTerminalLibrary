@@ -27,7 +27,6 @@ import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -35,7 +34,7 @@ import net.minecraftforge.items.IItemHandler;
 import tfar.ae2wtlib.Config;
 import tfar.ae2wtlib.net.PacketHandler;
 import tfar.ae2wtlib.net.client.S2CInterfaceTerminalPacket;
-import tfar.ae2wtlib.terminal.FixedWTInv;
+import tfar.ae2wtlib.terminal.WTInventoryHandler;
 import tfar.ae2wtlib.terminal.IWTInvHolder;
 import tfar.ae2wtlib.util.ContainerHelper;
 import tfar.ae2wtlib.wut.ItemWUT;
@@ -47,10 +46,10 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
     public static ContainerType<WITContainer> TYPE;
 
-    public static final ContainerHelper<WITContainer, WITGuiObject> helper = new ContainerHelper<>(WITContainer::new, WITGuiObject.class);
+    public static final ContainerHelper<WITContainer, WITGuiObject> helper = new ContainerHelper<>(WITContainer::new);
 
-    public static WITContainer fromNetwork(int windowId, PlayerInventory inv, PacketBuffer buf) {
-        return helper.fromNetwork(windowId, inv, buf);
+    public static WITContainer fromNetwork(int windowId, PlayerInventory inv) {
+        return helper.fromNetwork(windowId, inv);
     }
 
     public static boolean open(PlayerEntity player, ContainerLocator locator) {
@@ -74,8 +73,8 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
         bindPlayerInventory(ip, 0, 222 - /* height of player inventory */82);
 
-        final FixedWTInv fixedWITInv = new FixedWTInv(getPlayerInv(), witGUIObject.getItemStack(), this);
-        addSlot(new AppEngSlot(fixedWITInv, FixedWTInv.INFINITY_BOOSTER_CARD, 173, 129));
+        final WTInventoryHandler fixedWITInv = new WTInventoryHandler(getPlayerInv(), witGUIObject.getItemStack(), this);
+        addSlot(new AppEngSlot(fixedWITInv, WTInventoryHandler.INFINITY_BOOSTER_CARD, 173, 129));
     }
 
     private double powerMultiplier = 1;

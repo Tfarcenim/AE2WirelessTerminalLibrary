@@ -3,21 +3,25 @@ package tfar.ae2wtlib;
 import appeng.container.implementations.WirelessCraftConfirmContainer;
 import appeng.container.implementations.WirelessCraftingStatusContainer;
 import appeng.core.Api;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import tfar.ae2wtlib.client.ae2wtlibclient;
+import tfar.ae2wtlib.net.PacketHandler;
 import tfar.ae2wtlib.terminal.ItemInfinityBooster;
 import tfar.ae2wtlib.util.WirelessCraftAmountContainer;
 import tfar.ae2wtlib.wct.ItemWCT;
@@ -55,10 +59,15 @@ public class AE2WirelessTerminals {
         bus.addGenericListener(Item.class,this::items);
         bus.addGenericListener(ContainerType.class,this::menus);
         MinecraftForge.EVENT_BUS.addListener(Events::serverTick);
+        bus.addListener(this::common);
         if (FMLEnvironment.dist.isClient()) {
             MinecraftForge.EVENT_BUS.addListener(ae2wtlibclient::clientTick);
             bus.addListener(ae2wtlibclient::setup);
         }
+    }
+
+    private void common(FMLCommonSetupEvent e) {
+        PacketHandler.registerPackets();
     }
 
 
@@ -73,13 +82,14 @@ public class AE2WirelessTerminals {
     }
 
     public void menus(RegistryEvent.Register<ContainerType<?>> e) {
-        WCTContainer.TYPE = (ContainerType<WCTContainer>) register("wireless_crafting_terminal", IForgeContainerType.create((windowId, inv, buf) -> WCTContainer.fromNetwork(windowId, inv, buf)),e.getRegistry());
-        WPatternTContainer.TYPE = (ContainerType<WPatternTContainer>) register( "wireless_pattern_terminal", IForgeContainerType.create(WPatternTContainer::fromNetwork),e.getRegistry());
-        WITContainer.TYPE = (ContainerType<WITContainer>) register( "wireless_interface_terminal",IForgeContainerType.create(WITContainer::fromNetwork),e.getRegistry());
+        WCTContainer.TYPE = (ContainerType<WCTContainer>) register("wireless_crafting_terminal", new ContainerType<>(WCTContainer::fromNetwork),e.getRegistry());
+        WPatternTContainer.TYPE = (ContainerType<WPatternTContainer>) register( "wireless_pattern_terminal", IForgeContainerType.create((windowId1, inv1, buf1) -> WPatternTContainer.fromNetwork(windowId1, inv1)),e.getRegistry());
+        WITContainer.TYPE = (ContainerType<WITContainer>) register( "wireless_interface_terminal",IForgeContainerType.create((int windowId1, PlayerInventory inv1, PacketBuffer inv12) -> WITContainer.fromNetwork(windowId1, inv1)),e.getRegistry());
 
-        WirelessCraftingStatusContainer.TYPE = (ContainerType<WirelessCraftingStatusContainer>) register( "wireless_crafting_status",IForgeContainerType.create(WirelessCraftingStatusContainer::fromNetwork),e.getRegistry());
-        WirelessCraftAmountContainer.TYPE = (ContainerType<WirelessCraftAmountContainer>) register( "wireless_craft_amount", IForgeContainerType.create(WirelessCraftAmountContainer::fromNetwork),e.getRegistry());
-        WirelessCraftConfirmContainer.TYPE = (ContainerType<WirelessCraftConfirmContainer>) register( "wireless_craft_confirm",IForgeContainerType.create(WirelessCraftConfirmContainer::fromNetwork),e.getRegistry());
+        WirelessCraftingStatusContainer.TYPE = (ContainerType<WirelessCraftingStatusContainer>) register( "wireless_crafting_status",new
+                ContainerType<>(WirelessCraftingStatusContainer::fromNetwork),e.getRegistry());
+        WirelessCraftAmountContainer.TYPE = (ContainerType<WirelessCraftAmountContainer>) register( "wireless_craft_amount", IForgeContainerType.create((int windowId1, PlayerInventory inv1, PacketBuffer inv12) -> WirelessCraftAmountContainer.fromNetwork(windowId1, inv1)),e.getRegistry());
+        WirelessCraftConfirmContainer.TYPE = (ContainerType<WirelessCraftConfirmContainer>) register( "wireless_craft_confirm",IForgeContainerType.create((int windowId, PlayerInventory inv, PacketBuffer inv2) -> WirelessCraftConfirmContainer.fromNetwork(windowId, inv)),e.getRegistry());
 
         WUTHandler.addTerminal("crafting", CRAFTING_TERMINAL::open);
         WUTHandler.addTerminal("pattern", PATTERN_TERMINAL::open);

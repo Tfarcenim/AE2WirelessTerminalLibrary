@@ -34,7 +34,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.IContainerListener;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -48,10 +47,10 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
     public static ContainerType<WirelessCraftConfirmContainer> TYPE;
 
     private static final ContainerHelper<WirelessCraftConfirmContainer, ITerminalHost> helper = new ContainerHelper<>(
-            WirelessCraftConfirmContainer::new, ITerminalHost.class, SecurityPermissions.CRAFT);
+            WirelessCraftConfirmContainer::new, SecurityPermissions.CRAFT);
 
-    public static WirelessCraftConfirmContainer fromNetwork(int windowId, PlayerInventory inv, PacketBuffer buf) {
-        return helper.fromNetwork(windowId, inv, buf);
+    public static WirelessCraftConfirmContainer fromNetwork(int windowId, PlayerInventory inv) {
+        return helper.fromNetwork(windowId, inv);
     }
 
     public static boolean open(PlayerEntity player, ContainerLocator locator) {

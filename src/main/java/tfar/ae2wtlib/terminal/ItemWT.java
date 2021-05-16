@@ -98,6 +98,9 @@ public abstract class ItemWT extends AEBasePoweredItem implements IWirelessTermH
 
     @Override
     public boolean usePower(PlayerEntity player, double amount, ItemStack is) {
+        if (player.abilities.isCreativeMode) {
+            return false;
+        }
         return extractAEPower(is, amount, Actionable.MODULATE) >= amount - 0.5;
     }
 

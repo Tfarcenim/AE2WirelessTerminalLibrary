@@ -8,17 +8,16 @@ import appeng.container.guisync.GuiSync;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.network.PacketBuffer;
 import tfar.ae2wtlib.util.ContainerHelper;
 import net.minecraft.util.text.ITextComponent;
 
 public class WirelessCraftingStatusContainer extends CraftingCPUContainer implements CraftingCPUCyclingContainer {
     public static ContainerType<WirelessCraftingStatusContainer> TYPE;
 
-    public static final ContainerHelper<WirelessCraftingStatusContainer, ITerminalHost> helper = new ContainerHelper<>(WirelessCraftingStatusContainer::new, ITerminalHost.class);
+    public static final ContainerHelper<WirelessCraftingStatusContainer, ITerminalHost> helper = new ContainerHelper<>(WirelessCraftingStatusContainer::new);
 
-    public static WirelessCraftingStatusContainer fromNetwork(int windowId, PlayerInventory inv, PacketBuffer buf) {
-        return helper.fromNetwork(windowId, inv, buf);
+    public static WirelessCraftingStatusContainer fromNetwork(int windowId, PlayerInventory inv) {
+        return helper.fromNetwork(windowId, inv);
     }
 
     public static boolean open(PlayerEntity player, ContainerLocator locator) {

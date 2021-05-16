@@ -16,6 +16,20 @@ public class WUTHandler {
         return itemStack.getTag().getBoolean(terminal);
     }
 
+    public static String getCurrentTerminal(ItemStack wirelessUniversalTerminal) {
+        if(!(wirelessUniversalTerminal.getItem() instanceof ItemWUT) || wirelessUniversalTerminal.getTag() == null)
+            return "noTerminal";
+        String currentTerminal = wirelessUniversalTerminal.getTag().getString("currentTerminal");
+
+        if(!wirelessTerminals.containsKey(currentTerminal)) for(String terminal : terminalNames)
+            if(wirelessUniversalTerminal.getTag().getBoolean(terminal)) {
+                currentTerminal = terminal;
+                wirelessUniversalTerminal.getTag().putString("currentTerminal", currentTerminal);
+                break;
+            }
+        return currentTerminal;
+    }
+
     public static void cycle(ItemStack itemStack) {
         if(itemStack.getTag() == null) return;
         String nextTerminal = itemStack.getTag().getString("currentTerminal");

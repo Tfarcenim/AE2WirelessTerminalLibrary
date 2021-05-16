@@ -1,7 +1,6 @@
 package tfar.ae2wtlib.util;
 
 import appeng.api.config.SecurityPermissions;
-import appeng.api.storage.ITerminalHost;
 import appeng.api.util.AEPartLocation;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerLocator;
@@ -9,9 +8,8 @@ import appeng.core.AELog;
 import appeng.core.localization.GuiText;
 import appeng.util.Platform;
 import net.minecraft.util.Hand;
-import net.minecraftforge.fml.network.NetworkHooks;
 import tfar.ae2wtlib.terminal.ItemWT;
-import tfar.ae2wtlib.terminal.WTGuiObject;
+import tfar.ae2wtlib.wct.ItemWCT;
 import tfar.ae2wtlib.wpt.WPTGuiObject;
 import tfar.ae2wtlib.wct.WCTGuiObject;
 import tfar.ae2wtlib.wit.WITGuiObject;
@@ -25,32 +23,30 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
+import tfar.ae2wtlib.wut.WUTHandler;
 
 import java.lang.reflect.Constructor;
 
 public final class ContainerHelper<C extends AEBaseContainer, I> {
 
-    private final Class<I> interfaceClass;
-
     private final ContainerFactory<C, I> factory;
 
     private final SecurityPermissions requiredPermission;
 
-    public ContainerHelper(ContainerFactory<C, I> factory, Class<I> interfaceClass) {
-        this(factory, interfaceClass, null);
+    public ContainerHelper(ContainerFactory<C, I> factory) {
+        this(factory, null);
     }
 
-    public ContainerHelper(ContainerFactory<C, I> factory, Class<I> interfaceClass, SecurityPermissions requiredPermission) {
+    public ContainerHelper(ContainerFactory<C, I> factory, SecurityPermissions requiredPermission) {
         this.requiredPermission = requiredPermission;
-        this.interfaceClass = interfaceClass;
         this.factory = factory;
     }
 
     /**
      * Same as {@link #open}, but allows or additional data to be read from the packet, and passed onto the container.
      */
-    public C fromNetwork(int windowId, PlayerInventory inv, PacketBuffer packetBuf) {
-        //I host = getHostFromLocator(inv.player, ContainerLocator.read(packetBuf));
+    public C fromNetwork(int windowId, PlayerInventory inv) {
+        //I host = getHostFromLocator(inv.player, new ContainerLocator(ContainerLocator.Type.PLAYER_INVENTORY, buf.readInt(), (ResourceLocation)null, (BlockPos)null, (AEPartLocation)null););
         I host = getHostFromLocator(inv.player, ContainerLocator.forHand(inv.player, Hand.MAIN_HAND));
         if(host != null) {
             return factory.create(windowId, inv, host);
@@ -116,16 +112,18 @@ public final class ContainerHelper<C extends AEBaseContainer, I> {
             AELog.debug("Cannot open container for player %s since they no longer hold the item in slot %d", player, locator.hasItemIndex());
             return null;
         }
-        
+
+        String currentTerminal = WUTHandler.getCurrentTerminal(it);
+
         if (it.getItem() instanceof ItemWT) {
-            if (interfaceClass.isAssignableFrom(WCTGuiObject.class))//TODO do something generic, I don't want to hardcode everything
-                return interfaceClass.cast(new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex()));
+            if (it.getItem() instanceof ItemWCT)//TODO do something generic, I don't want to hardcode everything
+                return (I) new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
 
-            if (interfaceClass.isAssignableFrom(WPTGuiObject.class))
-                return interfaceClass.cast(new WPTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex()));
+            if (currentTerminal.equals("pattern"))
+                return (I) new WPTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
 
-            if (interfaceClass.isAssignableFrom(WITGuiObject.class))
-                return interfaceClass.cast(new WITGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex()));
+            if (currentTerminal.equals("interface"))
+                return (I) new WITGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
         }
         return null;
     }

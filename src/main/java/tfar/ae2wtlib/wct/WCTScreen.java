@@ -16,7 +16,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import tfar.ae2wtlib.net.C2SGeneralPacket;
+import tfar.ae2wtlib.net.server.C2SDeleteTrashPacket;
+import tfar.ae2wtlib.net.server.C2SGeneralPacket;
 import tfar.ae2wtlib.net.PacketHandler;
 import tfar.ae2wtlib.wct.magnet_card.MagnetMode;
 import tfar.ae2wtlib.wct.magnet_card.MagnetSettings;
@@ -129,7 +130,7 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
     }
 
     private void delete() {
-        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("CraftingTerminal.Delete",(byte)0));
+        PacketHandler.INSTANCE.sendToServer(new C2SDeleteTrashPacket());
     }
 
     private MagnetSettings magnetSettings = null;

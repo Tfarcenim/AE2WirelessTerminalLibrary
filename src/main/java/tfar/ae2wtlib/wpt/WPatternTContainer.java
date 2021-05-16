@@ -39,7 +39,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
@@ -47,9 +46,9 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import tfar.ae2wtlib.Config;
 import tfar.ae2wtlib.mixin.ContainerAccess;
 import tfar.ae2wtlib.mixin.SlotAccess;
-import tfar.ae2wtlib.net.C2SGeneralPacket;
+import tfar.ae2wtlib.net.server.C2SGeneralPacket;
 import tfar.ae2wtlib.net.PacketHandler;
-import tfar.ae2wtlib.terminal.FixedWTInv;
+import tfar.ae2wtlib.terminal.WTInventoryHandler;
 import tfar.ae2wtlib.terminal.IWTInvHolder;
 import tfar.ae2wtlib.terminal.ItemWT;
 import tfar.ae2wtlib.util.ContainerHelper;
@@ -59,10 +58,10 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
 
     public static ContainerType<WPatternTContainer> TYPE;
 
-    public static final ContainerHelper<WPatternTContainer, WPTGuiObject> helper = new ContainerHelper<>(WPatternTContainer::new, WPTGuiObject.class);
+    public static final ContainerHelper<WPatternTContainer, WPTGuiObject> helper = new ContainerHelper<>((int id, PlayerInventory ip, WPTGuiObject gui) -> new WPatternTContainer(id, ip, gui));
 
-    public static WPatternTContainer fromNetwork(int windowId, PlayerInventory inv, PacketBuffer buf) {
-        return helper.fromNetwork(windowId, inv, buf);
+    public static WPatternTContainer fromNetwork(int windowId, PlayerInventory inv) {
+        return helper.fromNetwork(windowId, inv);
     }
 
     private final FakeCraftingMatrixSlot[] craftingSlots = new FakeCraftingMatrixSlot[9];
@@ -96,7 +95,7 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
         final AppEngInternalInventory patternInv = getPatternTerminal().getInventoryByName("pattern");
         final AppEngInternalInventory output = getPatternTerminal().getInventoryByName("output");
 
-        final FixedWTInv fixedWPTInv = new FixedWTInv(getPlayerInv(), wptGUIObject.getItemStack(), this);
+        final WTInventoryHandler fixedWPTInv = new WTInventoryHandler(getPlayerInv(), wptGUIObject.getItemStack(), this);
 
         crafting = getPatternTerminal().getInventoryByName("crafting");
 
@@ -114,7 +113,7 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
             outputSlots[y].setIIcon(-1);
         }
 
-        addSlot(new AppEngSlot(fixedWPTInv, FixedWTInv.INFINITY_BOOSTER_CARD, 80, -20));
+        addSlot(new AppEngSlot(fixedWPTInv, WTInventoryHandler.INFINITY_BOOSTER_CARD, 80, -20));
 
         addSlot(patternSlotIN = new RestrictedInputSlot(RestrictedInputSlot.PlacableItemType.BLANK_PATTERN,
                 patternInv, 0, 147, -72 - 9, getPlayerInventory()));
