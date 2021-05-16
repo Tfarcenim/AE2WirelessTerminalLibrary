@@ -2,27 +2,25 @@ package tfar.ae2wtlib.util;
 
 import appeng.client.gui.AEBaseScreen;
 import appeng.client.gui.widgets.TabButton;
-import tfar.ae2wtlib.AE2WirelessCraftingTerminals;
-import tfar.ae2wtlib.wct.WCTContainer;
-import tfar.ae2wtlib.wpt.WPTContainer;
-import tfar.ae2wtlib.wpt.WPTGuiObject;
-import tfar.ae2wtlib.wct.WCTGuiObject;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.text.ITextComponent;
+import tfar.ae2wtlib.AE2WirelessTerminals;
+import tfar.ae2wtlib.net.C2SSwitchGuiPacket;
+import tfar.ae2wtlib.net.PacketHandler;
+import tfar.ae2wtlib.wct.WCTContainer;
+import tfar.ae2wtlib.wct.WCTGuiObject;
+import tfar.ae2wtlib.wpt.WPatternTContainer;
+import tfar.ae2wtlib.wpt.WPTGuiObject;
 
 import java.util.function.Consumer;
 
 public final class ae2wtlibSubScreen {
 
     private final AEBaseScreen<?> gui;
-    private final ScreenHandlerType<?> previousContainerType;
+    private final ContainerType<?> previousContainerType;
     private final ItemStack previousContainerIcon;
 
     /**
@@ -32,11 +30,11 @@ public final class ae2wtlibSubScreen {
     public ae2wtlibSubScreen(AEBaseScreen<?> gui, Object containerTarget) {
         this.gui = gui;
         if(containerTarget instanceof WCTGuiObject) {//TODO don't hardcode
-            previousContainerIcon = new ItemStack(AE2WirelessCraftingTerminals.CRAFTING_TERMINAL);
+            previousContainerIcon = new ItemStack(AE2WirelessTerminals.CRAFTING_TERMINAL);
             previousContainerType = WCTContainer.TYPE;
         } else if(containerTarget instanceof WPTGuiObject) {
-            previousContainerIcon = new ItemStack(AE2WirelessCraftingTerminals.PATTERN_TERMINAL);
-            previousContainerType = WPTContainer.TYPE;
+            previousContainerIcon = new ItemStack(AE2WirelessTerminals.PATTERN_TERMINAL);
+            previousContainerType = WPatternTContainer.TYPE;
         } else {
             previousContainerIcon = null;
             previousContainerType = null;
@@ -47,11 +45,11 @@ public final class ae2wtlibSubScreen {
         return addBackButton(buttonAdder, x, y, null);
     }
 
-    public final TabButton addBackButton(Consumer<TabButton> buttonAdder, int x, int y, Text label) {
+    public final TabButton addBackButton(Consumer<TabButton> buttonAdder, int x, int y, ITextComponent label) {
         if(previousContainerType != null && !previousContainerIcon.isEmpty()) {
-            if(label == null) label = previousContainerIcon.getName();
-            ItemRenderer itemRenderer = gui.getClient().getItemRenderer();
-            TabButton button = new TabButton(gui.getX() + x, gui.getY() + y, previousContainerIcon, label, itemRenderer, btn -> goBack());
+            if(label == null) label = previousContainerIcon.getDisplayName();
+            ItemRenderer itemRenderer = gui.getMinecraft().getItemRenderer();
+            TabButton button = new TabButton(gui.getGuiLeft() + x, gui.getGuiTop() + y, previousContainerIcon, label, itemRenderer, btn -> goBack());
             buttonAdder.accept(button);
             return button;
         }
@@ -59,8 +57,6 @@ public final class ae2wtlibSubScreen {
     }
 
     public final void goBack() {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeIdentifier(Registry.SCREEN_HANDLER.getId(previousContainerType));
-        ClientPlayNetworking.send(new Identifier("ae2wtlib", "switch_gui"), buf);
+        PacketHandler.INSTANCE.sendToServer(new C2SSwitchGuiPacket(Registry.MENU.getKey(previousContainerType).getPath()));
     }
 }

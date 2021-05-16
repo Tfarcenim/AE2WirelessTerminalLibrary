@@ -8,7 +8,7 @@ import appeng.api.networking.IMachineSet;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.util.DimensionalCoord;
 import appeng.core.Api;
-import appeng.tile.networking.WirelessBlockEntity;
+import appeng.tile.networking.WirelessTileEntity;
 import tfar.ae2wtlib.terminal.IInfinityBoosterCardHolder;
 import tfar.ae2wtlib.terminal.ItemWT;
 import tfar.ae2wtlib.wut.ItemWUT;
@@ -33,18 +33,18 @@ public class CraftingTerminalHandler {
     }
 
     public static CraftingTerminalHandler getCraftingTerminalHandler(PlayerEntity player) {
-        if(players.containsKey(player.getUuid())) return players.get(player.getUuid());
+        if(players.containsKey(player.getUniqueID())) return players.get(player.getUniqueID());
         CraftingTerminalHandler handler = new CraftingTerminalHandler(player);
-        players.put(player.getUuid(), handler);
+        players.put(player.getUniqueID(), handler);
         return handler;
     }
 
     public ItemStack getCraftingTerminal() {//TODO trinkets/curios
         PlayerInventory inv = player.inventory;
-        if((!craftingTerminal.isEmpty()) && inv.contains(craftingTerminal)) return craftingTerminal;
+        if((!craftingTerminal.isEmpty()) && inv.hasItemStack(craftingTerminal)) return craftingTerminal;
 
-        for(int i = 0; i < inv.size(); i++) {
-            ItemStack terminal = inv.getStack(i);
+        for(int i = 0; i < inv.getSizeInventory(); i++) {
+            ItemStack terminal = inv.getStackInSlot(i);
             if(terminal.getItem() instanceof ItemWCT || (terminal.getItem() instanceof ItemWUT && WUTHandler.hasTerminal(terminal, "crafting"))) {
                 return craftingTerminal = terminal;
             }
@@ -85,7 +85,7 @@ public class CraftingTerminalHandler {
                 }
             }
 
-            final IMachineSet tw = targetGrid.getMachines(WirelessBlockEntity.class);
+            final IMachineSet tw = targetGrid.getMachines(WirelessTileEntity.class);
 
             myWap = null;
 
@@ -108,9 +108,9 @@ public class CraftingTerminalHandler {
         final DimensionalCoord dc = wap.getLocation();
 
         if(dc.getWorld() == player.world) {
-            final double offX = dc.x - player.getX();
-            final double offY = dc.y - player.getY();
-            final double offZ = dc.z - player.getZ();
+            final double offX = dc.x - player.getPosX();
+            final double offY = dc.y - player.getPosY();
+            final double offZ = dc.z - player.getPosZ();
 
             final double r = offX * offX + offY * offY + offZ * offZ;
             if(r < rangeLimit && sqRange > r) {

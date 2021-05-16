@@ -6,28 +6,24 @@ import appeng.client.gui.widgets.AETextField;
 import appeng.client.gui.widgets.ActionButton;
 import appeng.client.gui.widgets.TabButton;
 import appeng.core.localization.GuiText;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.util.text.ITextComponent;
+import tfar.ae2wtlib.net.C2SGeneralPacket;
+import tfar.ae2wtlib.net.PacketHandler;
 import tfar.ae2wtlib.wut.CycleTerminalButton;
 import tfar.ae2wtlib.wut.IUniversalTerminalCapable;
-import me.shedaniel.math.Rectangle;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
-public class WPTScreen extends MEMonitorableScreen<WPTContainer> implements IUniversalTerminalCapable {
+public class WPTScreen extends MEMonitorableScreen<WPatternTContainer> implements IUniversalTerminalCapable {
 
     private int rows = 0;
     private AETextField searchField;
     private final int reservedSpace;
-    private final WPTContainer container;
+    private final WPatternTContainer container;
 
     private static final byte SUBSITUTION_DISABLE = 0;
     private static final byte SUBSITUTION_ENABLE = 1;
@@ -40,7 +36,7 @@ public class WPTScreen extends MEMonitorableScreen<WPTContainer> implements IUni
     private ActionButton substitutionsEnabledBtn;
     private ActionButton substitutionsDisabledBtn;
 
-    public WPTScreen(WPTContainer container, PlayerInventory playerInventory, Text title) {
+    public WPTScreen(WPatternTContainer container, PlayerInventory playerInventory, ITextComponent title) {
         super(container, playerInventory, title);
         this.container = container;
         reservedSpace = 81;
@@ -57,31 +53,31 @@ public class WPTScreen extends MEMonitorableScreen<WPTContainer> implements IUni
     public void init() {
         super.init();
 
-        tabCraftButton = new TabButton(x + 173, y + backgroundHeight - 177,
+        tabCraftButton = new TabButton(guiLeft + 173, guiTop + ySize - 177,
                 new ItemStack(Blocks.CRAFTING_TABLE), GuiText.CraftingPattern.text(), itemRenderer,
                 btn -> toggleCraftMode(CRAFTMODE_PROCESSING));
         addButton(tabCraftButton);
 
-        tabProcessButton = new TabButton(x + 173, y + backgroundHeight - 177,
+        tabProcessButton = new TabButton(guiLeft + 173, guiTop + ySize - 177,
                 new ItemStack(Blocks.FURNACE), GuiText.ProcessingPattern.text(), itemRenderer,
                 btn -> toggleCraftMode(CRAFTMODE_CRAFTING));
         addButton(tabProcessButton);
 
-        substitutionsEnabledBtn = new ActionButton(x + 84, y + backgroundHeight - 165, ActionItems.ENABLE_SUBSTITUTION, act -> toggleSubstitutions(SUBSITUTION_DISABLE));
+        substitutionsEnabledBtn = new ActionButton(guiLeft + 84, guiTop + ySize - 165, ActionItems.ENABLE_SUBSTITUTION, act -> toggleSubstitutions(SUBSITUTION_DISABLE));
         substitutionsEnabledBtn.setHalfSize(true);
         addButton(substitutionsEnabledBtn);
 
-        substitutionsDisabledBtn = new ActionButton(x + 84, y + backgroundHeight - 165, ActionItems.DISABLE_SUBSTITUTION, act -> toggleSubstitutions(SUBSITUTION_ENABLE));
+        substitutionsDisabledBtn = new ActionButton(guiLeft + 84, guiTop + ySize - 165, ActionItems.DISABLE_SUBSTITUTION, act -> toggleSubstitutions(SUBSITUTION_ENABLE));
         substitutionsDisabledBtn.setHalfSize(true);
         addButton(substitutionsDisabledBtn);
 
-        ActionButton clearBtn = addButton(new ActionButton(x + 74, y + backgroundHeight - 165, ActionItems.CLOSE, btn -> clear()));
+        ActionButton clearBtn = addButton(new ActionButton(guiLeft + 74, guiTop + ySize - 165, ActionItems.CLOSE, btn -> clear()));
         clearBtn.setHalfSize(true);
 
-        ActionButton encodeBtn = new ActionButton(x + 147, y + backgroundHeight - 144, ActionItems.ENCODE, act -> encode());
+        ActionButton encodeBtn = new ActionButton(guiLeft + 147, guiTop + ySize - 144, ActionItems.ENCODE, act -> encode());
         addButton(encodeBtn);
 
-        if(container.isWUT()) addButton(new CycleTerminalButton(x - 18, y + 88, btn -> cycleTerminal()));
+        if(container.isWUT()) addButton(new CycleTerminalButton(guiLeft - 18, guiTop + 88, btn -> cycleTerminal()));
 
         try {
             Field field = MEMonitorableScreen.class.getDeclaredField("rows");
@@ -100,31 +96,19 @@ public class WPTScreen extends MEMonitorableScreen<WPTContainer> implements IUni
     }
 
     private void toggleCraftMode(byte mode) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeString("PatternTerminal.CraftMode");
-        buf.writeByte(mode);
-        ClientPlayNetworking.send(new Identifier("ae2wtlib", "general"), buf);
+        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.CraftMode",mode));
     }
 
     private void toggleSubstitutions(byte mode) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeString("PatternTerminal.Substitute");
-        buf.writeByte(mode);
-        ClientPlayNetworking.send(new Identifier("ae2wtlib", "general"), buf);
+        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.Subsitute",mode));
     }
 
     private void encode() {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeString("PatternTerminal.Encode");
-        buf.writeByte(0);
-        ClientPlayNetworking.send(new Identifier("ae2wtlib", "general"), buf);
+        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.Encode",0));
     }
 
     private void clear() {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeString("PatternTerminal.Clear");
-        buf.writeByte(0);
-        ClientPlayNetworking.send(new Identifier("ae2wtlib", "general"), buf);
+        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.Clear",0));
     }
 
     @Override
@@ -132,17 +116,17 @@ public class WPTScreen extends MEMonitorableScreen<WPTContainer> implements IUni
 
         bindTexture(getBackground());
         final int x_width = 197;
-        drawTexture(matrices, offsetX, offsetY, 0, 0, x_width, 18);
+        blit(matrices, offsetX, offsetY, 0, 0, x_width, 18);
 
-        for(int x = 0; x < rows; x++) drawTexture(matrices, offsetX, offsetY + 18 + x * 18, 0, 18, x_width, 18);
+        for(int x = 0; x < rows; x++) blit(matrices, offsetX, offsetY + 18 + x * 18, 0, 18, x_width, 18);
 
-        drawTexture(matrices, offsetX, offsetY + 16 + rows * 18, 0, 106 - 18 - 18, x_width, 99 + reservedSpace);
+        blit(matrices, offsetX, offsetY + 16 + rows * 18, 0, 106 - 18 - 18, x_width, 99 + reservedSpace);
 
-        if(handler.isCraftingMode()) {
+        if(container.isCraftingMode()) {
             tabCraftButton.visible = true;
             tabProcessButton.visible = false;
 
-            if(handler.substitute) {
+            if(container.substitute) {
                 substitutionsEnabledBtn.visible = true;
                 substitutionsDisabledBtn.visible = false;
             } else {
@@ -154,8 +138,8 @@ public class WPTScreen extends MEMonitorableScreen<WPTContainer> implements IUni
             tabProcessButton.visible = true;
             substitutionsEnabledBtn.visible = false;
             substitutionsDisabledBtn.visible = false;
-            drawTexture(matrices, offsetX + 109, offsetY + 36 + rows * 18, 109, 108, 18, 18);
-            drawTexture(matrices, offsetX + 109, offsetY + 72 + rows * 18, 109, 108, 18, 18);
+            blit(matrices, offsetX + 109, offsetY + 36 + rows * 18, 109, 108, 18, 18);
+            blit(matrices, offsetX + 109, offsetY + 72 + rows * 18, 109, 108, 18, 18);
         }
         searchField.render(matrices, mouseX, mouseY, partialTicks);
     }
@@ -163,7 +147,7 @@ public class WPTScreen extends MEMonitorableScreen<WPTContainer> implements IUni
     @Override
     public void drawFG(MatrixStack matrices, final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         super.drawFG(matrices, offsetX, offsetY, mouseX, mouseY);
-        textRenderer.draw(matrices, GuiText.PatternTerminal.text(), 8, backgroundHeight - 96 + 1 - reservedSpace, 4210752);
+        font.drawText(matrices, GuiText.PatternTerminal.text(), 8, ySize - 96 + 1 - reservedSpace, 4210752);
     }
 
     @Override
@@ -171,10 +155,10 @@ public class WPTScreen extends MEMonitorableScreen<WPTContainer> implements IUni
         return "wtlib/gui/pattern.png";
     }
 
-    @Override
+    /*@Override
     public List<Rectangle> getExclusionZones() {
         List<Rectangle> zones = super.getExclusionZones();
-        zones.add(new Rectangle(x + 195, y, 24, backgroundHeight-110));
+        zones.add(new Rectangle(guiLeft + 195, y, 24, backgroundHeight-110));
         return zones;
-    }
+    }*/
 }

@@ -23,10 +23,11 @@ import appeng.core.Api;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.MEInventoryUpdatePacket;
 import appeng.me.helpers.PlayerSource;
+import tfar.ae2wtlib.mixin.ContainerAccess;
 import tfar.ae2wtlib.util.ContainerHelper;
 import tfar.ae2wtlib.wct.WCTContainer;
 import tfar.ae2wtlib.wct.WCTGuiObject;
-import tfar.ae2wtlib.wpt.WPTContainer;
+import tfar.ae2wtlib.wpt.WPatternTContainer;
 import tfar.ae2wtlib.wpt.WPTGuiObject;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -168,7 +169,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
                         }
                     }
 
-                    for(final Object g : getListeners()) {
+                    for(final IContainerListener g : ((ContainerAccess)this).getListeners()) {
                         if(g instanceof PlayerEntity) {
                             NetworkHandler.instance().sendTo(a, (ServerPlayerEntity) g);
                             NetworkHandler.instance().sendTo(b, (ServerPlayerEntity) g);
@@ -206,7 +207,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
         if(ah instanceof WCTGuiObject) {
             originalGui = WCTContainer.TYPE;
         } else if(ah instanceof WPTGuiObject) {
-            originalGui = WPTContainer.TYPE;
+            originalGui = WPatternTContainer.TYPE;
         }
 
         if(result != null && !isSimulation()) {
@@ -214,9 +215,10 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
             final ICraftingLink g = cc.submitJob(result, null, selectedCpu, true, getActionSrc());
             setAutoStart(false);
             if(g != null && originalGui != null && getLocator() != null) {
-                if(originalGui.equals(WCTContainer.TYPE)) WCTContainer.open(getPlayerInventory().player, getLocator());
-                else if(originalGui.equals(WPTContainer.TYPE))
-                    WPTContainer.open(getPlayerInventory().player, getLocator());
+                if(originalGui.equals(WCTContainer.TYPE))
+                    WCTContainer.open(getPlayerInventory().player, getLocator());
+                else if(originalGui.equals(WPatternTContainer.TYPE))
+                    WPatternTContainer.open(getPlayerInventory().player, getLocator());
             }
         }
     }

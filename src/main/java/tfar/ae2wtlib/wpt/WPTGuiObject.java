@@ -57,12 +57,12 @@ public class WPTGuiObject extends WTGuiObject implements IPortableCell, IAEAppEn
 
                 for(int x = 0; x < crafting.getSlots() && x < details.getSparseInputs().length; x++) {
                     final IAEItemStack item = details.getSparseInputs()[x];
-                    crafting.forceSetInvStack(x, item == null ? ItemStack.EMPTY : item.createItemStack());
+                    crafting.setStackInSlot(x, item == null ? ItemStack.EMPTY : item.createItemStack());
                 }
 
-                for(int x = 0; x < output.getSlotCount() && x < details.getSparseOutputs().length; x++) {
+                for(int x = 0; x < output.getSlots() && x < details.getSparseOutputs().length; x++) {
                     final IAEItemStack item = details.getSparseOutputs()[x];
-                    output.forceSetInvStack(x, item == null ? ItemStack.EMPTY : item.createItemStack());
+                    output.setStackInSlot(x, item == null ? ItemStack.EMPTY : item.createItemStack());
                 }
             }
         } else if(inv == crafting) fixCraftingRecipes();

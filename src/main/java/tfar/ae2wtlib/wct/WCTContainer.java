@@ -16,6 +16,10 @@ import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.InvOperation;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.item.crafting.IRecipeType;
 import tfar.ae2wtlib.Config;
 import tfar.ae2wtlib.terminal.FixedWTInv;
 import tfar.ae2wtlib.terminal.IWTInvHolder;
@@ -44,7 +48,7 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
     public static ContainerType<WCTContainer> TYPE;
 
-    public static final ContainerHelper<WCTContainer, WCTGuiObject> helper = new ContainerHelper<>(WCTContainer::new, WCTGuiObject.class);
+    public static final ContainerHelper<WCTContainer, WCTGuiObject> helper = new ContainerHelper<>((int id, PlayerInventory ip, WCTGuiObject gui) -> new WCTContainer(id, ip, gui), WCTGuiObject.class);
 
     public static WCTContainer fromNetwork(int windowId, PlayerInventory inv, PacketBuffer buf) {
         return helper.fromNetwork(windowId, inv, buf);
@@ -85,32 +89,32 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
-                return Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, PlayerScreenHandler.EMPTY_HELMET_SLOT_TEXTURE);
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET);
             }
         });
         addSlot(new AppEngSlot(fixedWTInv, 2, 8, -58) {
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
-                return Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, PlayerScreenHandler.EMPTY_CHESTPLATE_SLOT_TEXTURE);
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE);
             }
         });
         addSlot(new AppEngSlot(fixedWTInv, 1, 8, -40) {
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
-                return Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, PlayerScreenHandler.EMPTY_LEGGINGS_SLOT_TEXTURE);
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS);
             }
         });
         addSlot(new AppEngSlot(fixedWTInv, 0, 8, -22) {
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
-                return Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, PlayerScreenHandler.EMPTY_BOOTS_SLOT_TEXTURE);
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS);
             }
         });
 
         addSlot(new AppEngSlot(fixedWTInv, FixedWTInv.OFFHAND, 80, -22) {
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
-                return Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, PlayerScreenHandler.EMPTY_OFFHAND_ARMOR_SLOT);
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD);
             }
         });
         addSlot(new AppEngSlot(fixedWTInv, FixedWTInv.TRASH, 98, -22));
@@ -121,14 +125,14 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
     private int ticks = 0;
 
     @Override
-    public void sendContentUpdates() {
+    public void detectAndSendChanges() {
         if(isClient()) return;
-        super.sendContentUpdates();
+        super.detectAndSendChanges();
 
         if(!wctGUIObject.rangeCheck()) {
             if(isValidContainer()) {
-                getPlayerInv().player.sendSystemMessage(PlayerMessages.OutOfRange.get(), Util.NIL_UUID);
-                ((ServerPlayerEntity) getPlayerInv().player).closeHandledScreen();
+                getPlayerInv().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
+                ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
             }
             setValidContainer(false);
         } else {
@@ -141,8 +145,8 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
             if(wctGUIObject.extractAEPower(1, Actionable.SIMULATE, PowerMultiplier.ONE) == 0) {
                 if(isValidContainer()) {
-                    getPlayerInv().player.sendSystemMessage(PlayerMessages.DeviceNotPowered.get(), Util.NIL_UUID);
-                    ((ServerPlayerEntity) getPlayerInv().player).closeHandledScreen();
+                    getPlayerInv().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
+                    ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
                 }
                 setValidContainer(false);
             }
@@ -154,24 +158,24 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
      */
 
     @Override
-    public void onContentChanged(Inventory inventory) {
+    public void onCraftMatrixChanged(IInventory inventory) {
         final ContainerNull cn = new ContainerNull();
         final CraftingInventory ic = new CraftingInventory(cn, 3, 3);
 
         for(int x = 0; x < 9; x++) {
-            ic.setStack(x, craftingSlots[x].getStack());
+            ic.setInventorySlotContents(x, craftingSlots[x].getStack());
         }
 
         if(currentRecipe == null || !currentRecipe.matches(ic, this.getPlayerInv().player.world)) {
             World world = this.getPlayerInv().player.world;
-            currentRecipe = world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, ic, world).orElse(null);
+            currentRecipe = world.getRecipeManager().getRecipe(IRecipeType.CRAFTING, ic, world).orElse(null);
         }
 
         if(currentRecipe == null) {
-            outputSlot.setStack(ItemStack.EMPTY);
+            outputSlot.putStack(ItemStack.EMPTY);
         } else {
-            final ItemStack craftingResult = currentRecipe.craft(ic);
-            outputSlot.setStack(craftingResult);
+            final ItemStack craftingResult = currentRecipe.getCraftingResult(ic);
+            outputSlot.putStack(craftingResult);
         }
     }
 
@@ -207,7 +211,7 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
     }
 
     public void deleteTrashSlot() {
-        fixedWTInv.setInvStack(FixedWTInv.TRASH, ItemStack.EMPTY, Simulation.ACTION);
+        fixedWTInv.setStackInSlot(FixedWTInv.TRASH, ItemStack.EMPTY);
     }
 
     private MagnetSettings magnetSettings;
@@ -227,10 +231,8 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
         return magnetSettings;
     }
 
-    @Environment(EnvType.CLIENT)
     private WCTScreen screen;
 
-    @Environment(EnvType.CLIENT)
     public void setScreen(WCTScreen screen) {
         this.screen = screen;
     }

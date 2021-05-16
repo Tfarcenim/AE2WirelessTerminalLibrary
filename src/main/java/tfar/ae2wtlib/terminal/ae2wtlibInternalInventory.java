@@ -1,6 +1,5 @@
 package tfar.ae2wtlib.terminal;
 
-import alexiil.mc.lib.attributes.Simulation;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.inv.IAEAppEngInventory;
 import net.minecraft.item.ItemStack;
@@ -14,13 +13,12 @@ public class ae2wtlibInternalInventory extends AppEngInternalInventory {
         super(inventory, size);
         this.terminal = terminal;
         this.identifier = identifier;
-        for(int slot = 0; slot < size; slot++) super.setInvStack(slot, ItemWT.getSavedSlot(terminal, identifier + slot), Simulation.ACTION);
+        for(int slot = 0; slot < size; slot++) super.setStackInSlot(slot, ItemWT.getSavedSlot(terminal, identifier + slot));
     }
 
     @Override
-    public boolean setInvStack(int slot, ItemStack to, Simulation simulation) {
-        boolean value = super.setInvStack(slot, to, simulation);
-        if(value && simulation.isAction()) ItemWT.setSavedSlot(terminal, to, identifier + slot);
-        return value;
+    public void setStackInSlot(int slot, ItemStack to) {
+        super.setStackInSlot(slot, to);
+        ItemWT.setSavedSlot(terminal, to, identifier + slot);
     }
 }

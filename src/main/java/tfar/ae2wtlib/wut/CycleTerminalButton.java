@@ -1,26 +1,26 @@
 package tfar.ae2wtlib.wut;
 
 import appeng.client.gui.widgets.ITooltip;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.texture.TextureManager;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
-public class CycleTerminalButton extends ButtonWidget implements ITooltip {
+public class CycleTerminalButton extends Button implements ITooltip {
 
-    public CycleTerminalButton(int x, int y, PressAction onPress) {
-        super(x, y, 16, 16, new TranslatableText("gui.ae2wtlib.cycle_terminal"), onPress);
+    public CycleTerminalButton(int x, int y, IPressable onPress) {
+        super(x, y, 16, 16, new TranslationTextComponent("gui.ae2wtlib.cycle_terminal"), onPress);
         visible = true;
         active = true;
     }
 
     @Override
-    public Text getTooltipMessage() {
-        return new TranslatableText("gui.ae2wtlib.cycle_terminal.desc");
+    public ITextComponent getTooltipMessage() {
+        return new TranslationTextComponent("gui.ae2wtlib.cycle_terminal.desc");
     }
 
     @Override
@@ -48,11 +48,11 @@ public class CycleTerminalButton extends ButtonWidget implements ITooltip {
         return true;//TODO
     }
 
-    public static final Identifier TEXTURE_STATES = new Identifier("appliedenergistics2", "textures/guis/states.png");
+    public static final ResourceLocation TEXTURE_STATES = new ResourceLocation("appliedenergistics2", "textures/guis/states.png");
 
     @Override
-    public void renderButton(MatrixStack matrices, final int mouseX, final int mouseY, float partial) {
-        MinecraftClient minecraft = MinecraftClient.getInstance();
+    public void render(MatrixStack matrices, final int mouseX, final int mouseY, float partial) {
+        Minecraft minecraft = Minecraft.getInstance();
         if(this.visible) {
             final int iconIndex = 6;
 
@@ -65,10 +65,9 @@ public class CycleTerminalButton extends ButtonWidget implements ITooltip {
             else RenderSystem.color4f(0.5f, 0.5f, 0.5f, 1.0f);
 
             final int uv_y = iconIndex / 16;
-            final int uv_x = iconIndex - uv_y * 16;
 
-            drawTexture(matrices, this.x, this.y, 256 - 16, 256 - 16, 16, 16);
-            drawTexture(matrices, this.x, this.y, uv_x * 16, uv_y * 16, 16, 16);
+            blit(matrices, this.x, this.y, 256 - 16, 256 - 16, 16, 16);
+            blit(matrices, this.x, this.y, iconIndex * 16, uv_y * 16, 16, 16);
 
             RenderSystem.enableDepthTest();
             RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);

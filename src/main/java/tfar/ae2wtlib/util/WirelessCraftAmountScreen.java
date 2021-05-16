@@ -4,23 +4,21 @@ import appeng.client.gui.AEBaseScreen;
 import appeng.client.gui.NumberEntryType;
 import appeng.client.gui.implementations.NumberEntryWidget;
 import appeng.core.localization.GuiText;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.text.ITextComponent;
+import tfar.ae2wtlib.net.C2SCraftRequestPacket;
+import tfar.ae2wtlib.net.PacketHandler;
 
 public class WirelessCraftAmountScreen extends AEBaseScreen<WirelessCraftAmountContainer> {
     private final ae2wtlibSubScreen subGui;
 
     private NumberEntryWidget amountToCraft;
 
-    private ButtonWidget next;
+    private Button next;
 
-    public WirelessCraftAmountScreen(WirelessCraftAmountContainer container, PlayerInventory playerInventory, Text title) {
+    public WirelessCraftAmountScreen(WirelessCraftAmountContainer container, PlayerInventory playerInventory, ITextComponent title) {
         super(container, playerInventory, title);
         subGui = new ae2wtlibSubScreen(this, container.getTarget());
     }
@@ -36,7 +34,7 @@ public class WirelessCraftAmountScreen extends AEBaseScreen<WirelessCraftAmountC
         amountToCraft.setHideValidationIcon(true);
         amountToCraft.addButtons(children::add, this::addButton);
 
-        next = addButton(new ButtonWidget(x + 128, y + 51, 38, 20, GuiText.Next.text(), this::confirm));
+        next = addButton(new Button(guiLeft + 128, guiTop + 51, 38, 20, GuiText.Next.text(), this::confirm));
         amountToCraft.setOnConfirm(() -> confirm(next));
 
         subGui.addBackButton(this::addButton, 154, 0);
@@ -44,18 +42,15 @@ public class WirelessCraftAmountScreen extends AEBaseScreen<WirelessCraftAmountC
         changeFocus(true);
     }
 
-    private void confirm(ButtonWidget button) {
+    private void confirm(Button button) {
         int amount = amountToCraft.getIntValue().orElse(0);
         if(amount <= 0) return;
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeInt(amount);
-        buf.writeBoolean(hasShiftDown());
-        ClientPlayNetworking.send(new Identifier("ae2wtlib", "craft_request"), buf);
+        PacketHandler.INSTANCE.sendToServer(new C2SCraftRequestPacket(amount,hasShiftDown()));
     }
 
     @Override
     public void drawFG(MatrixStack matrices, final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
-        textRenderer.draw(matrices, GuiText.SelectAmount.text(), 8, 6, 4210752);
+        font.drawText(matrices, GuiText.SelectAmount.text(), 8, 6, 0x404040);
     }
 
     @Override
@@ -63,7 +58,7 @@ public class WirelessCraftAmountScreen extends AEBaseScreen<WirelessCraftAmountC
         next.setMessage(hasShiftDown() ? GuiText.Start.text() : GuiText.Next.text());
 
         bindTexture("guis/craft_amt.png");
-        drawTexture(matrices, offsetX, offsetY, 0, 0, backgroundWidth, backgroundHeight);
+        blit(matrices, offsetX, offsetY, 0, 0, xSize, ySize);
 
         next.active = amountToCraft.getIntValue().orElse(0) > 0;
 

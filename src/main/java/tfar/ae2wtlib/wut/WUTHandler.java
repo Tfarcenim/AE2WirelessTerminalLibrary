@@ -3,7 +3,7 @@ package tfar.ae2wtlib.wut;
 import appeng.container.ContainerLocator;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.LiteralText;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ public class WUTHandler {
     }
 
     public static void open(final PlayerEntity player, final ContainerLocator locator) {
-        ItemStack is = player.inventory.getStack(locator.getItemIndex());
+        ItemStack is = player.inventory.getStackInSlot(locator.getItemIndex());
         if(is.getTag() == null) return;
         String currentTerminal = is.getTag().getString("currentTerminal");
 
@@ -39,7 +39,7 @@ public class WUTHandler {
                 break;
             }
         if(!wirelessTerminals.containsKey(currentTerminal)) {
-            player.sendMessage(new LiteralText("This terminal does not contain any other Terminals"), false);
+            player.sendStatusMessage(new StringTextComponent("This terminal does not contain any other Terminals"), false);
             return;
         }
         wirelessTerminals.get(currentTerminal).open(player, locator);

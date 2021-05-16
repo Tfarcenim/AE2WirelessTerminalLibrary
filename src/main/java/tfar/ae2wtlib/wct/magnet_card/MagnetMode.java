@@ -15,7 +15,7 @@ public enum MagnetMode {
         return id;
     }
 
-    public static MagnetMode fromByte(byte b) {
+    public static MagnetMode fromInt(int b) {
         switch(b) {
             case -1:
                 return NO_CARD;

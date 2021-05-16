@@ -1,8 +1,5 @@
 package tfar.ae2wtlib.wit;
 
-import alexiil.mc.lib.attributes.item.FixedItemInv;
-import alexiil.mc.lib.attributes.item.LimitedFixedItemInv;
-import alexiil.mc.lib.attributes.item.SingleItemSlot;
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.config.Settings;
@@ -23,24 +20,25 @@ import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.misc.InterfaceTileEntity;
 import appeng.util.InventoryAdaptor;
 import appeng.util.helpers.ItemHandlerUtil;
-import appeng.util.inv.WrapperCursorItemHandler;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.IItemHandler;
 import tfar.ae2wtlib.Config;
 import tfar.ae2wtlib.net.PacketHandler;
+import tfar.ae2wtlib.net.client.S2CInterfaceTerminalPacket;
 import tfar.ae2wtlib.terminal.FixedWTInv;
 import tfar.ae2wtlib.terminal.IWTInvHolder;
 import tfar.ae2wtlib.util.ContainerHelper;
 import tfar.ae2wtlib.wut.ItemWUT;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-
-import net.minecraft.util.Util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -89,7 +87,7 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
         if(!witGUIObject.rangeCheck()) {
             if(isValidContainer()) {
-                getPlayerInv().player.sendSystemMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
+                getPlayerInv().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
                 ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
             }
             setValidContainer(false);
@@ -98,8 +96,8 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
             if(witGUIObject.extractAEPower(1, Actionable.SIMULATE, PowerMultiplier.ONE) == 0) {
                 if(isValidContainer()) {
-                    getPlayerInv().player.sendSystemMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
-                    ((ServerPlayerEntity) getPlayerInv().player).closeHandledScreen();
+                    getPlayerInv().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
+                    ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
                 }
                 setValidContainer(false);
             }
@@ -175,68 +173,66 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
         }
 
         if(!data.isEmpty()) {
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeCompoundTag(data);
-\            ServerPlayNetworking.send((ServerPlayerEntity) getPlayerInv().player, new Identifier("ae2wtlib", "interface_terminal"), buf);
+            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) getPlayerInv().player),new S2CInterfaceTerminalPacket(data));
             data = new CompoundNBT();
         }
     }
+
+    //todo
 
     @Override
     public void doAction(final ServerPlayerEntity player, final InventoryAction action, final int slot, final long id) {
         final WITContainer.InvTracker inv = byId.get(id);
         if(inv != null) {
             final ItemStack is = inv.server.getStackInSlot(slot);
-            final boolean hasItemInHand = !player.inventory.getCursorStack().isEmpty();
-
-            final InventoryAdaptor playerHand = new AdaptorFixedInv(new WrapperCursorItemHandler(player.inventory));
+            final boolean hasItemInHand = !player.inventory.getItemStack().isEmpty();
 
             // Create a wrapper around the targeted slot that will only allow insertions of
             // patterns
-            LimitedFixedItemInv limitedSlotInv = inv.server.createLimitedFixedInv();
-            limitedSlotInv.getAllRule().filterInserts(this::isValidPattern);
-            SingleItemSlot theSlot = limitedSlotInv.getSlot(slot);
+            Slot theSlot = this.inventorySlots.get(slot);
 
             switch(action) {
                 case PICKUP_OR_SET_DOWN:
                     if(hasItemInHand) {
-                        ItemStack inSlot = theSlot.get();
+                        ItemStack inSlot = theSlot.getStack();
                         if(inSlot.isEmpty()) {
-                            player.inventory.setCursorStack(theSlot.insert(player.inventory.getCursorStack()));
+                         //   player.inventory.setItemStack(theSlot.putStack(player.inventory.getItemStack()));
                         } else {
                             inSlot = inSlot.copy();
-                            final ItemStack inHand = player.inventory.getCursorStack().copy();
+                            final ItemStack inHand = player.inventory.getItemStack().copy();
 
-                            theSlot.set(ItemStack.EMPTY);
-                            player.inventory.setCursorStack(ItemStack.EMPTY);
+                            theSlot.putStack(ItemStack.EMPTY);
+                            player.inventory.setItemStack(ItemStack.EMPTY);
 
-                            player.inventory.setCursorStack(theSlot.insert(inHand.copy()));
+                    //        player.inventory.setItemStack(theSlot.putStack(inHand.copy()));
 
-                            if(player.inventory.getCursorStack().isEmpty()) {
-                                player.inventory.setCursorStack(inSlot);
+                            if(player.inventory.getItemStack().isEmpty()) {
+                                player.inventory.setItemStack(inSlot);
                             } else {
-                                player.inventory.setCursorStack(inHand);
-                                theSlot.set(inSlot);
+                                player.inventory.setItemStack(inHand);
+                                theSlot.putStack(inSlot);
                             }
                         }
-                    } else theSlot.set(playerHand.addItems(theSlot.get()));
+                    } else {
+                       // theSlot.putStack(player.inventory.addItems(theSlot.get()));
+                    }
                     break;
 
                 case SPLIT_OR_PLACE_SINGLE:
                     if(hasItemInHand) {
-                        ItemStack extra = playerHand.removeItems(1, ItemStack.EMPTY, null);
-                        if(!extra.isEmpty()) extra = theSlot.insert(extra);
-                        if(!extra.isEmpty()) playerHand.addItems(extra);
+                  //      ItemStack extra = playerHand.removeItems(1, ItemStack.EMPTY, null);
+                      //  if(!extra.isEmpty()) extra = theSlot.putStack(extra);
+                  //      if(!extra.isEmpty()) playerHand.addItems(extra);
                     } else if(!is.isEmpty()) {
-                        ItemStack extra = theSlot.extract((is.getCount() + 1) / 2);
-                        if(!extra.isEmpty()) extra = playerHand.addItems(extra);
-                        if(!extra.isEmpty()) theSlot.insert(extra);
+                 //       ItemStack extra = theSlot.extract((is.getCount() + 1) / 2);
+                  //      if(!extra.isEmpty()) extra = playerHand.addItems(extra);
+                 //       if(!extra.isEmpty()) theSlot.putStack(extra);
                     }
                     break;
 
                 case SHIFT_CLICK:
                     final InventoryAdaptor playerInv = InventoryAdaptor.getAdaptor(player);
-                    theSlot.put(playerInv.addItems(theSlot.get()));
+                  //  theSlot.put(playerInv.addItems(theSlot.get()));
                     break;
 
                 case MOVE_REGION:
@@ -291,14 +287,14 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
         for(final Map.Entry<IInterfaceHost, WITContainer.InvTracker> en : diList.entrySet()) {
             final WITContainer.InvTracker inv = en.getValue();
             byId.put(inv.which, inv);
-            addItems(data, inv, 0, inv.server.getSlotCount());
+            addItems(data, inv, 0, inv.server.getSlots());
         }
     }
 
     private boolean isDifferent(final ItemStack a, final ItemStack b) {
         if(a.isEmpty() && b.isEmpty()) return false;
         if(a.isEmpty() || b.isEmpty()) return true;
-        return !ItemStack.areEqual(a, b);
+        return !ItemStack.areItemsEqual(a, b);
     }
 
     private void addItems(final CompoundNBT data, final WITContainer.InvTracker inv, final int offset, final int length) {
@@ -313,12 +309,12 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
         for(int x = 0; x < length; x++) {
             final CompoundNBT itemNBT = new CompoundNBT();
 
-            final ItemStack is = inv.server.getInvStack(x + offset);
+            final ItemStack is = inv.server.getStackInSlot(x + offset);
 
             // "update" client side.
             ItemHandlerUtil.setStackInSlot(inv.client, x + offset, is.isEmpty() ? ItemStack.EMPTY : is.copy());
 
-            if(!is.isEmpty()) is.toTag(itemNBT);
+            if(!is.isEmpty()) is.write(itemNBT);
 
             tag.put(Integer.toString(x + offset), itemNBT);
         }

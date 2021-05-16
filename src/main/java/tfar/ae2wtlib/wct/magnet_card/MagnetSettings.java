@@ -1,7 +1,7 @@
 package tfar.ae2wtlib.wct.magnet_card;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.CompoundNBT;
 
 public class MagnetSettings {
 
@@ -12,11 +12,11 @@ public class MagnetSettings {
      * @param tag tag to load the settings from.
      *            An empty tag will result in Default {@link MagnetSettings}
      */
-    public MagnetSettings(CompoundTag tag) {
+    public MagnetSettings(CompoundNBT tag) {
         if(tag == null) {
             magnetMode = MagnetMode.DEFAULT;
         } else {
-            magnetMode = MagnetMode.fromByte(tag.getByte("magnetMode"));
+            magnetMode = MagnetMode.fromInt(tag.getByte("magnetMode"));
         }
     }
 
@@ -27,8 +27,8 @@ public class MagnetSettings {
         magnetMode = MagnetMode.INVALID;
     }
 
-    public CompoundTag toTag() {
-        CompoundTag tag = new CompoundTag();
+    public CompoundNBT toTag() {
+        CompoundNBT tag = new CompoundNBT();
         tag.putByte("magnetMode", magnetMode.getId());
         return tag;
     }

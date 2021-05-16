@@ -1,27 +1,24 @@
 package tfar.ae2wtlib.wit;
 
-import alexiil.mc.lib.attributes.Simulation;
 import appeng.api.storage.channels.IItemStorageChannel;
-import appeng.client.ActionKey;
 import appeng.client.gui.AEBaseScreen;
 import appeng.client.gui.widgets.AETextField;
 import appeng.client.gui.widgets.Scrollbar;
 import appeng.client.me.ClientDCInternalInv;
 import appeng.client.me.SlotDisconnected;
 import appeng.core.Api;
-import appeng.core.AppEng;
 import appeng.core.localization.GuiText;
 import appeng.util.Platform;
 import com.google.common.collect.HashMultimap;
-import tfar.ae2wtlib.wut.CycleTerminalButton;
-import tfar.ae2wtlib.wut.IUniversalTerminalCapable;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.text.Text;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
+import tfar.ae2wtlib.wut.CycleTerminalButton;
+import tfar.ae2wtlib.wut.IUniversalTerminalCapable;
 
 import java.util.*;
 
@@ -40,46 +37,46 @@ public class WITScreen extends AEBaseScreen<WITContainer> implements IUniversalT
     private AETextField searchField;
     private final WITContainer container;
 
-    public WITScreen(WITContainer container, PlayerInventory playerInventory, Text title) {
+    public WITScreen(WITContainer container, PlayerInventory playerInventory, ITextComponent title) {
         super(container, playerInventory, title);
         this.container = container;
         setScrollBar(new Scrollbar().setLeft(175).setTop(18).setHeight(106));
-        backgroundWidth = 195;
-        backgroundHeight = 222;
+        xSize = 195;
+        ySize = 222;
     }
 
     @Override
     public void init() {
         super.init();
 
-        searchField = new AETextField(textRenderer, x + 104, y + 4, 65, 12);
-        searchField.setDrawsBackground(false);
-        searchField.setMaxLength(25);
-        searchField.setEditableColor(0xFFFFFF);
+        searchField = new AETextField(font, guiLeft + 104, guiTop + 4, 65, 12);
+        searchField.setEnableBackgroundDrawing(false);
+        searchField.setMaxStringLength(25);
+        searchField.setTextColor(0xFFFFFF);
         searchField.setSelectionColor(0xFF008000);
-        searchField.setChangedListener(str -> refreshList());
-        addChild(searchField);
+        searchField.setResponder(str -> refreshList());
+        addListener(searchField);
         changeFocus(true);
 
-        if(container.isWUT()) addButton(new CycleTerminalButton(x - 18, y + 8, btn -> cycleTerminal()));
+        if(container.isWUT()) addButton(new CycleTerminalButton(guiLeft - 18, guiTop + 8, btn -> cycleTerminal()));
     }
 
     @Override
     public void drawFG(MatrixStack matrices, final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
-        textRenderer.draw(matrices, getGuiDisplayName(GuiText.InterfaceTerminal.text()), 8, 6, 4210752);
-        textRenderer.draw(matrices, GuiText.inventory.text(), 8, backgroundHeight - 96 + 3, 4210752);
+        font.drawText(matrices, getGuiDisplayName(GuiText.InterfaceTerminal.text()), 8, 6, 4210752);
+        font.drawText(matrices, GuiText.inventory.text(), 8, ySize - 96 + 3, 4210752);
 
         final int ex = getScrollBar().getCurrentScroll();
 
-        handler.slots.removeIf(slot -> slot instanceof SlotDisconnected);
+        container.inventorySlots.removeIf(slot -> slot instanceof SlotDisconnected);
 
         int offset = 17;
         for(int x = 0; x < LINES_ON_PAGE && ex + x < lines.size(); x++) {
             final Object lineObj = lines.get(ex + x);
             if(lineObj instanceof ClientDCInternalInv) {
                 final ClientDCInternalInv inv = (ClientDCInternalInv) lineObj;
-                for(int z = 0; z < inv.getInventory().getSlotCount(); z++) {
-                    handler.slots.add(new SlotDisconnected(inv, z, z * 18 + 8, 1 + offset));
+                for(int z = 0; z < inv.getInventory().getSlots(); z++) {
+                    container.inventorySlots.add(new SlotDisconnected(inv, z, z * 18 + 8, 1 + offset));
                 }
             } else if(lineObj instanceof String) {
                 String name = (String) lineObj;
@@ -88,11 +85,11 @@ public class WITScreen extends AEBaseScreen<WITContainer> implements IUniversalT
                     name = name + " (" + rows + ')';
                 }
 
-                while(name.length() > 2 && textRenderer.getWidth(name) > 155) {
+                while(name.length() > 2 && font.getStringWidth(name) > 155) {
                     name = name.substring(0, name.length() - 1);
                 }
 
-                textRenderer.draw(matrices, name, 10, 6 + offset, 4210752);
+                font.drawString(matrices, name, 10, 6 + offset, 0x404040);
             }
             offset += 18;
         }
@@ -111,7 +108,7 @@ public class WITScreen extends AEBaseScreen<WITContainer> implements IUniversalT
     @Override
     public void drawBG(MatrixStack matrices, final int offsetX, final int offsetY, final int mouseX, final int mouseY, float partialTicks) {
         bindTexture("wtlib/gui/interface.png");
-        drawTexture(matrices, offsetX, offsetY, 0, 0, backgroundWidth, backgroundHeight);
+        blit(matrices, offsetX, offsetY, 0, 0, xSize, ySize);
 
         int offset = 17;
         final int ex = getScrollBar().getCurrentScroll();
@@ -121,8 +118,8 @@ public class WITScreen extends AEBaseScreen<WITContainer> implements IUniversalT
             if(lineObj instanceof ClientDCInternalInv) {
                 final ClientDCInternalInv inv = (ClientDCInternalInv) lineObj;
 
-                final int width = inv.getInventory().getSlotCount() * 18;
-                drawTexture(matrices, offsetX + 7, offsetY + offset, 7, 139, width, 18);
+                final int width = inv.getInventory().getSlots() * 18;
+                blit(matrices, offsetX + 7, offsetY + offset, 7, 139, width, 18);
             }
             offset += 18;
         }
@@ -139,15 +136,16 @@ public class WITScreen extends AEBaseScreen<WITContainer> implements IUniversalT
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int p_keyPressed_3_) {
         if(keyCode != GLFW.GLFW_KEY_ESCAPE) {
-            if(AppEng.instance().isActionKey(ActionKey.TOGGLE_FOCUS, keyCode, scanCode)) {
-                searchField.setFocused(!searchField.isFocused());
+            if(/*AppEng.instance().isActionKey(ActionKey.TOGGLE_FOCUS, keyCode, scanCode)*/true) {
+                //todo mixin?
+              //  searchField.setFocused(!searchField.isFocused());
                 return true;
             }
 
             // Forward keypresses to the search field
             if(searchField.isFocused()) {
                 if(keyCode == GLFW.GLFW_KEY_ENTER) {
-                    searchField.setFocused(false);
+          //          searchField.setFocused(false);
                     return true;
                 }
 
@@ -162,25 +160,24 @@ public class WITScreen extends AEBaseScreen<WITContainer> implements IUniversalT
         return super.keyPressed(keyCode, scanCode, p_keyPressed_3_);
     }
 
-    public void postUpdate(final CompoundTag in) {
+    public void postUpdate(final CompoundNBT in) {
         if(in.getBoolean("clear")) {
             byId.clear();
             refreshList = true;
         }
 
-        for(final Object oKey : in.getKeys()) {
-            final String key = (String) oKey;
+        for(final String key : in.keySet()) {
             if(key.startsWith("=")) {
                 try {
                     final long id = Long.parseLong(key.substring(1), Character.MAX_RADIX);
-                    final CompoundTag invData = in.getCompound(key);
-                    Text un = Text.Serializer.fromJson(invData.getString("un"));
+                    final CompoundNBT invData = in.getCompound(key);
+                    ITextComponent un = ITextComponent.Serializer.getComponentFromJson(invData.getString("un"));
                     final ClientDCInternalInv current = getById(id, invData.getLong("sortBy"), un);
 
-                    for(int x = 0; x < current.getInventory().getSlotCount(); x++) {
+                    for(int x = 0; x < current.getInventory().getSlots(); x++) {
                         final String which = Integer.toString(x);
                         if(invData.contains(which))
-                            current.getInventory().setInvStack(x, ItemStack.fromTag(invData.getCompound(which)), Simulation.ACTION);
+                            current.getInventory().setStackInSlot(x, ItemStack.read(invData.getCompound(which)));
                     }
                 } catch(final NumberFormatException ignored) {}
             }
@@ -253,17 +250,17 @@ public class WITScreen extends AEBaseScreen<WITContainer> implements IUniversalT
     private boolean itemStackMatchesSearchTerm(final ItemStack itemStack, final String searchTerm) {
         if(itemStack.isEmpty()) return false;
 
-        final CompoundTag encodedValue = itemStack.getTag();
+        final CompoundNBT encodedValue = itemStack.getTag();
 
         if(encodedValue == null) return false;
 
         // Potential later use to filter by input
         // ListNBT inTag = encodedValue.getTagList( "in", 10 );
-        final ListTag outTag = encodedValue.getList("out", 10);
+        final ListNBT outTag = encodedValue.getList("out", 10);
 
         for(int i = 0; i < outTag.size(); i++) {
 
-            final ItemStack parsedItemStack = ItemStack.fromTag(outTag.getCompound(i));
+            final ItemStack parsedItemStack = ItemStack.read(outTag.getCompound(i));
             if(!parsedItemStack.isEmpty()) {
                 final String displayName = Platform.getItemDisplayName(Api.instance().storage()
                         .getStorageChannel(IItemStorageChannel.class).createStack(parsedItemStack)).getString().toLowerCase();
@@ -304,7 +301,7 @@ public class WITScreen extends AEBaseScreen<WITContainer> implements IUniversalT
         return names.size() + byId.size();
     }
 
-    private ClientDCInternalInv getById(final long id, final long sortBy, final Text name) {
+    private ClientDCInternalInv getById(final long id, final long sortBy, final ITextComponent name) {
         ClientDCInternalInv o = byId.get(id);
 
         if(o == null) {

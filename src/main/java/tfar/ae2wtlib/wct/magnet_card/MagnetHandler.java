@@ -1,24 +1,24 @@
 package tfar.ae2wtlib.wct.magnet_card;
 
-import tfar.ae2wtlib.wct.CraftingTerminalHandler;
-import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.EntityPredicates;
+import tfar.ae2wtlib.wct.CraftingTerminalHandler;
 
 import java.util.List;
 
 public class MagnetHandler {
-    public void doMagnet(MinecraftServer server) {
-        List<ServerPlayerEntity> playerList = server.getPlayerManager().getPlayerList();
+    public static void doMagnet(MinecraftServer server) {
+        List<ServerPlayerEntity> playerList = server.getPlayerList().getPlayers();
         for(ServerPlayerEntity player : playerList) {
             ItemStack magnetCardHolder = CraftingTerminalHandler.getCraftingTerminalHandler(player).getCraftingTerminal();
             if(ItemMagnetCard.isActiveMagnet(magnetCardHolder)) {
-                List<ItemEntity> entityItems = player.getServerWorld().getEntitiesByClass(ItemEntity.class, player.getBoundingBox().expand(16.0D), EntityPredicates.VALID_ENTITY);
+                List<ItemEntity> entityItems = player.getServerWorld().getEntitiesWithinAABB(ItemEntity.class, player.getBoundingBox().grow(16.0D), EntityPredicates.HAS_INVENTORY);
                 for(ItemEntity entityItemNearby : entityItems) {
                     if(!player.isSneaking()) {
-                        entityItemNearby.onPlayerCollision(player);
+                        entityItemNearby.onCollideWithPlayer(player);
                     }
                 }
             }

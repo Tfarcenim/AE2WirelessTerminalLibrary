@@ -7,7 +7,7 @@ import appeng.core.sync.packets.InventoryActionPacket;
 import appeng.helpers.InventoryAction;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import tfar.ae2wtlib.wct.WCTContainer;
-import tfar.ae2wtlib.wpt.WPTContainer;
+import tfar.ae2wtlib.wpt.WPatternTContainer;
 import tfar.ae2wtlib.util.WirelessCraftAmountContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -28,7 +28,7 @@ public class InvActionPacket {
     public void serverPacketData(INetworkInfo manager, PlayerEntity player, CallbackInfo ci) {
         if(action == InventoryAction.AUTO_CRAFT) {
             final ServerPlayerEntity sender = (ServerPlayerEntity) player;
-            if(sender.openContainer instanceof WCTContainer || sender.openContainer instanceof WPTContainer) {
+            if(sender.openContainer instanceof WCTContainer || sender.openContainer instanceof WPatternTContainer) {
                 final AEBaseContainer baseContainer = (AEBaseContainer) sender.openContainer;
                 final ContainerLocator locator = baseContainer.getLocator();
                 if(locator != null) {

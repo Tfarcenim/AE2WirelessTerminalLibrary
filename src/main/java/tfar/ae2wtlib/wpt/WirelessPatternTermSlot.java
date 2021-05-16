@@ -11,6 +11,8 @@ import appeng.core.Api;
 import appeng.core.sync.BasePacket;
 import appeng.core.sync.packets.PatternSlotPacket;
 import appeng.helpers.IContainerCraftingPacket;
+import tfar.ae2wtlib.net.C2SPatternSlotPacket;
+import tfar.ae2wtlib.net.PacketHandler;
 import tfar.ae2wtlib.util.FixedEmptyInventory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -36,18 +38,18 @@ public class WirelessPatternTermSlot extends PatternTermSlot {
         if(pattern == null)
             return new PatternSlotPacket(new FixedEmptyInventory(9), Api.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(getStack()), shift);
 
-        PacketBuffer buf = PacketByteBufs.create();
-        writeItem(Api.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(getStack()), buf);
-        buf.writeBoolean(shift);
-        for(int x = 0; x < 9; x++)
-            writeItem(Api.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(pattern.getInvStack(x)), buf);
-        ClientPlayNetworking.send(new Identifier("ae2wtlib", "patternslotpacket"), buf);
+        //todo this seems like an awful idea
+        IAEItemStack[] stacks = new IAEItemStack[9];
+        for (int i = 0; i < 9; i++) {
+            stacks[i] = Api.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(pattern.getStackInSlot(i));
+        }
+        PacketHandler.INSTANCE.sendToServer(new C2SPatternSlotPacket(Api.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(getStack()),shift,stacks));
 
         //This is just a stub. we don't actually use it, but this is the easiest (tho dirty) way to hack our own solution in
         return new PatternSlotPacket(pattern, Api.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(getStack()), shift);
     }
 
-    private void writeItem(final IAEItemStack slotItem, final PacketByteBuf data) {
+    private void writeItem(final IAEItemStack slotItem, final PacketBuffer data) {
         if(slotItem == null) data.writeBoolean(false);
         else {
             data.writeBoolean(true);

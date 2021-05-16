@@ -11,13 +11,14 @@ import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.ConfigValuePacket;
 import appeng.util.Platform;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
 
 import java.text.NumberFormat;
@@ -37,15 +38,15 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
 
     private final List<IAEItemStack> visual = new ArrayList<>();
 
-    private ButtonWidget start;
-    private ButtonWidget selectCPU;
+    private Button start;
+    private Button selectCPU;
     private int tooltip = -1;
 
-    public WirelessCraftConfirmScreen(WirelessCraftConfirmContainer container, PlayerInventory playerInventory, Text title) {
+    public WirelessCraftConfirmScreen(WirelessCraftConfirmContainer container, PlayerInventory playerInventory, ITextComponent title) {
         super(container, playerInventory, title);
         subGui = new ae2wtlibSubScreen(this, container.getTarget());
-        backgroundWidth = 238;
-        backgroundHeight = 206;
+        xSize = 238;
+        ySize = 206;
 
         final Scrollbar scrollbar = new Scrollbar();
         setScrollBar(scrollbar);
@@ -55,15 +56,15 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
     public void init() {
         super.init();
 
-        start = new ButtonWidget(x + 162, y + backgroundHeight - 25, 50, 20, GuiText.Start.text(), btn -> start());
+        start = new Button(guiLeft + 162, guiTop + ySize - 25, 50, 20, GuiText.Start.text(), btn -> start());
         start.active = false;
         addButton(start);
 
-        selectCPU = new ButtonWidget(x + (219 - 180) / 2, y + backgroundHeight - 68, 180, 20, getNextCpuButtonLabel(), btn -> selectNextCpu());
+        selectCPU = new Button(guiLeft + (219 - 180) / 2, guiTop + ySize - 68, 180, 20, getNextCpuButtonLabel(), btn -> selectNextCpu());
         selectCPU.active = false;
         addButton(selectCPU);
 
-        addButton(new ButtonWidget(x + 6, y + backgroundHeight - 25, 50, 20, GuiText.Cancel.text(), btn -> subGui.goBack()));
+        addButton(new Button(guiLeft + 6, guiTop + ySize - 25, 50, 20, GuiText.Cancel.text(), btn -> subGui.goBack()));
 
         setScrollBar();
     }
@@ -72,11 +73,11 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
     public void render(MatrixStack matrices, final int mouseX, final int mouseY, final float btn) {
         updateCPUButtonText();
 
-        start.active = !(handler.hasNoCPU() || isSimulation());
+        start.active = !(container.hasNoCPU() || isSimulation());
         selectCPU.active = !isSimulation();
 
-        final int gx = (width - backgroundWidth) / 2;
-        final int gy = (height - backgroundHeight) / 2;
+        final int gx = (width - xSize) / 2;
+        final int gy = (height - ySize) / 2;
 
         tooltip = -1;
 
@@ -108,44 +109,44 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
         selectCPU.setMessage(getNextCpuButtonLabel());
     }
 
-    private Text getNextCpuButtonLabel() {
-        if(handler.hasNoCPU()) {
+    private ITextComponent getNextCpuButtonLabel() {
+        if(container.hasNoCPU()) {
             return GuiText.NoCraftingCPUs.text();
         }
 
-        Text cpuName;
-        if(handler.cpuName == null) {
+        ITextComponent cpuName;
+        if(container.cpuName == null) {
             cpuName = GuiText.Automatic.text();
         } else {
-            cpuName = handler.cpuName;
+            cpuName = container.cpuName;
         }
 
-        return GuiText.CraftingCPU.withSuffix(": ").append(cpuName);
+        return GuiText.CraftingCPU.withSuffix(": ").appendSibling(cpuName);
     }
 
     private boolean isSimulation() {
-        return handler.isSimulation();
+        return container.isSimulation();
     }
 
     @Override
     public void drawFG(MatrixStack matrices, final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
-        final long BytesUsed = handler.getUsedBytes();
+        final long BytesUsed = container.getUsedBytes();
         final String byteUsed = NumberFormat.getInstance().format(BytesUsed);
-        final Text Add = BytesUsed > 0 ? new LiteralText(byteUsed + " ").append(GuiText.BytesUsed.text()) : GuiText.CalculatingWait.text();
-        textRenderer.draw(matrices, GuiText.CraftingPlan.withSuffix(" - ").append(Add), 8, 7, 4210752);
+        final ITextComponent Add = BytesUsed > 0 ? new StringTextComponent(byteUsed + " ").appendSibling(GuiText.BytesUsed.text()) : GuiText.CalculatingWait.text();
+        font.drawText(matrices, GuiText.CraftingPlan.withSuffix(" - ").appendSibling(Add), 8, 7, 0x404040);
 
-        Text dsp;
+        ITextComponent dsp;
 
         if(isSimulation()) {
             dsp = GuiText.Simulation.text();
         } else {
-            dsp = handler.getCpuAvailableBytes() > 0 ? (GuiText.Bytes.withSuffix(": " + handler.getCpuAvailableBytes() + " : ")
-                    .append(GuiText.CoProcessors.text()).append(": " + handler.getCpuCoProcessors()))
-                    : GuiText.Bytes.withSuffix(": N/A : ").append(GuiText.CoProcessors.text()).append(": N/A");
+            dsp = container.getCpuAvailableBytes() > 0 ? (GuiText.Bytes.withSuffix(": " + container.getCpuAvailableBytes() + " : ")
+                    .appendSibling(GuiText.CoProcessors.text()).appendString(": " + container.getCpuCoProcessors()))
+                    : GuiText.Bytes.withSuffix(": N/A : ").appendSibling(GuiText.CoProcessors.text()).appendString(": N/A");
         }
 
-        final int offset = (219 - textRenderer.getWidth(dsp)) / 2;
-        textRenderer.draw(matrices, dsp, offset, 165, 4210752);
+        final int offset = (219 - font.getStringPropertyWidth(dsp)) / 2;
+        font.drawText(matrices, dsp, offset, 165, 4210752);
 
         final int sectionLength = 67;
 
@@ -156,8 +157,8 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
         final int viewStart = getScrollBar().getCurrentScroll() * 3;
         final int viewEnd = viewStart + 3 * rows;
 
-        List<Text> dspToolTip = new ArrayList<>();
-        final List<Text> lineList = new ArrayList<>();
+        List<ITextComponent> dspToolTip = new ArrayList<>();
+        final List<ITextComponent> lineList = new ArrayList<>();
         int toolPosX = 0;
         int toolPosY = 0;
 
@@ -188,6 +189,7 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
                 final int negY = ((lines - 1) * 5) / 2;
                 int downY = 0;
 
+                int i = y * offY + yo + 6 - negY;
                 if(stored != null && stored.getStackSize() > 0) {
                     String str = Long.toString(stored.getStackSize());
                     if(stored.getStackSize() >= 10000) {
@@ -198,9 +200,9 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
                     }
 
                     str = GuiText.FromStorage.getLocal() + ": " + str;
-                    final int w = 4 + textRenderer.getWidth(str);
-                    textRenderer.draw(matrices, str, (int) ((x * (1 + sectionLength) + xo + sectionLength - 19 - (w * 0.5)) * 2),
-                            (y * offY + yo + 6 - negY + downY) * 2, 4210752);
+                    final int w = 4 + font.getStringWidth(str);
+                    font.drawString(matrices, str, (int) ((x * (1 + sectionLength) + xo + sectionLength - 19 - (w * 0.5)) * 2),
+                            (i + downY) * 2, 4210752);
 
                     if(tooltip == z - viewStart) {
                         lineList.add(GuiText.FromStorage.withSuffix(": " + stored.getStackSize()));
@@ -220,10 +222,10 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
                     }
 
                     str = GuiText.Missing.getLocal() + ": " + str;
-                    final int w = 4 + textRenderer.getWidth(str);
-                    textRenderer.draw(matrices, str,
+                    final int w = 4 + font.getStringWidth(str);
+                    font.drawString(matrices, str,
                             (int) ((x * (1 + sectionLength) + xo + sectionLength - 19 - (w * 0.5)) * 2),
-                            (y * offY + yo + 6 - negY + downY) * 2, 4210752);
+                            (i + downY) * 2, 0x404040);
 
                     if(tooltip == z - viewStart) {
                         lineList.add(GuiText.Missing.withSuffix(": " + missingStack.getStackSize()));
@@ -243,10 +245,10 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
                     }
 
                     str = GuiText.ToCraft.getLocal() + ": " + str;
-                    final int w = 4 + textRenderer.getWidth(str);
-                    textRenderer.draw(matrices, str,
+                    final int w = 4 + font.getStringWidth(str);
+                    font.drawString(matrices, str,
                             (int) ((x * (1 + sectionLength) + xo + sectionLength - 19 - (w * 0.5)) * 2),
-                            (y * offY + yo + 6 - negY + downY) * 2, 4210752);
+                            (i + downY) * 2, 4210752);
 
                     if(tooltip == z - viewStart) {
                         lineList.add(GuiText.ToCraft.withSuffix(": " + pendingStack.getStackSize()));
@@ -294,7 +296,7 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
     public void drawBG(MatrixStack matrices, final int offsetX, final int offsetY, final int mouseX, final int mouseY, float partialTicks) {
         setScrollBar();
         bindTexture("guis/craftingreport.png");
-        drawTexture(matrices, offsetX, offsetY, 0, 0, backgroundWidth, backgroundHeight);
+        blit(matrices, offsetX, offsetY, 0, 0, xSize, ySize);
     }
 
     private void setScrollBar() {
@@ -384,7 +386,7 @@ public class WirelessCraftConfirmScreen extends AEBaseScreen<WirelessCraftConfir
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int p_keyPressed_3_) {
-        if(!checkHotbarKeys(keyCode, scanCode)) {
+        if(!checkHotbarKeys(InputMappings.getInputByCode(keyCode, scanCode))) {
             if(keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
                 start();
                 return true;

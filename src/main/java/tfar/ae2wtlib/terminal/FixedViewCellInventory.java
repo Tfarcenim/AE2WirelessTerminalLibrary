@@ -44,13 +44,13 @@ public class FixedViewCellInventory implements IItemHandlerModifiable {
         }
     }
 
-    /*public ItemStack[] getViewCells() {
+    public ItemStack[] getViewCells() {
         ItemStack[] viewCells = new ItemStack[viewCellCount];
         for(int i = 0; i < viewCellCount; i++) {
-            viewCells[i] = getInvStack(i);
+            viewCells[i] = getStackInSlot(i);
         }
         return viewCells;
-    }*/
+    }
 
     @Override
     public ItemStack extractItem(int slot,int maxCount,boolean simulate) {

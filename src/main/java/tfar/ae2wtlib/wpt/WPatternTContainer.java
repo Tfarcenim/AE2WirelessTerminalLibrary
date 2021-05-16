@@ -1,7 +1,5 @@
 package tfar.ae2wtlib.wpt;
 
-import alexiil.mc.lib.attributes.item.FixedItemInv;
-import alexiil.mc.lib.attributes.item.compat.FixedInventoryVanillaWrapper;
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.crafting.ICraftingHelper;
@@ -27,40 +25,43 @@ import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.InvOperation;
-import appeng.util.inv.WrapperCursorItemHandler;
 import appeng.util.item.AEItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.CraftResultInventory;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.CraftingResultSlot;
+import net.minecraft.inventory.container.IContainerListener;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Util;
+import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 import tfar.ae2wtlib.Config;
+import tfar.ae2wtlib.mixin.ContainerAccess;
+import tfar.ae2wtlib.mixin.SlotAccess;
+import tfar.ae2wtlib.net.C2SGeneralPacket;
+import tfar.ae2wtlib.net.PacketHandler;
 import tfar.ae2wtlib.terminal.FixedWTInv;
 import tfar.ae2wtlib.terminal.IWTInvHolder;
 import tfar.ae2wtlib.terminal.ItemWT;
-import tfar.ae2wtlib.wut.ItemWUT;
 import tfar.ae2wtlib.util.ContainerHelper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Util;
-import net.minecraft.world.World;
+import tfar.ae2wtlib.wut.ItemWUT;
 
-import java.awt.event.ContainerListener;
+public class WPatternTContainer extends MEMonitorableContainer implements IAEAppEngInventory, IOptionalSlotHost, IContainerCraftingPacket, IWTInvHolder {
 
-public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInventory, IOptionalSlotHost, IContainerCraftingPacket, IWTInvHolder {
+    public static ContainerType<WPatternTContainer> TYPE;
 
-    public static ContainerType<?> TYPE;
+    public static final ContainerHelper<WPatternTContainer, WPTGuiObject> helper = new ContainerHelper<>(WPatternTContainer::new, WPTGuiObject.class);
 
-    public static final ContainerHelper<WPTContainer, WPTGuiObject> helper = new ContainerHelper<>(WPTContainer::new, WPTGuiObject.class);
-
-    public static WPTContainer fromNetwork(int windowId, PlayerInventory inv, PacketBuffer buf) {
+    public static WPatternTContainer fromNetwork(int windowId, PlayerInventory inv, PacketBuffer buf) {
         return helper.fromNetwork(windowId, inv, buf);
     }
 
@@ -85,7 +86,7 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
     @GuiSync(96)
     public boolean substitute;
 
-    public WPTContainer(int id, final PlayerInventory ip, final WPTGuiObject gui) {
+    public WPatternTContainer(int id, final PlayerInventory ip, final WPTGuiObject gui) {
         super(TYPE, id, ip, gui, true);
         wptGUIObject = gui;
 
@@ -124,19 +125,11 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
             craftingMode = ItemWT.getBoolean(wptGUIObject.getItemStack(), "craftingMode");
             substitute = ItemWT.getBoolean(wptGUIObject.getItemStack(), "substitute");
 
-            PacketBuffer buf = PacketByteBufs.create();
-            buf.writeString("PatternTerminal.CraftMode");
-            int i;
-            if(craftingMode) i = 1;
-            else i = 0;
-            buf.writeByte(i);
-            ClientPlayNetworking.send(new Identifier("ae2wtlib", "general"), buf);
-            buf = PacketByteBufs.create();
-            buf.writeString("PatternTerminal.Substitute");
-            if(substitute) i = 1;
-            else i = 0;
-            buf.writeByte(i);
-            ClientPlayNetworking.send(new Identifier("ae2wtlib", "general"), buf);
+            int i = craftingMode ? 1 : 0;
+
+            PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.CraftMode",i));
+
+            PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.Substitute",i));
         }
     }
 
@@ -148,8 +141,8 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
         if(!wptGUIObject.rangeCheck()) {
             if(isValidContainer()) {
-                getPlayerInv().player.sendSystemMessage(PlayerMessages.OutOfRange.get(), Util.NIL_UUID);
-                ((ServerPlayerEntity) getPlayerInv().player).closeHandledScreen();
+                getPlayerInv().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
+                ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
             }
             setValidContainer(false);
         } else {
@@ -162,7 +155,7 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
             if(wptGUIObject.extractAEPower(1, Actionable.SIMULATE, PowerMultiplier.ONE) == 0) {
                 if(isValidContainer()) {
-                    getPlayerInv().player.sendSystemMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
+                    getPlayerInv().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
                     ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
                 }
                 setValidContainer(false);
@@ -193,14 +186,14 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
     @Override
     public void onSlotChange(final Slot s) {
         if(s == patternSlotOUT && isServer()) {
-            for(final ContainerListener listener : getListeners()) {
-                for(int i = 0; i < slots.size(); i++) {
-                    Slot slot = slots.get(i);
+            for(final IContainerListener listener : ((ContainerAccess)this).getListeners()) {
+                for(int i = 0; i < inventorySlots.size(); i++) {
+                    Slot slot = inventorySlots.get(i);
                     if(slot instanceof OptionalFakeSlot || slot instanceof FakeCraftingMatrixSlot)
-                        listener.onSlotUpdate(this, i, slot.getStack());
+                        listener.sendSlotContents(this, i, slot.getStack());
                 }
                 if(listener instanceof ServerPlayerEntity)
-                    ((ServerPlayerEntity) listener).skipPacketSlotUpdates = false;
+                    ((ServerPlayerEntity) listener).isChangingQuantityOnly = false;
             }
             detectAndSendChanges();
         }
@@ -214,7 +207,7 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
     }
 
     private void setSlotX(Slot s, int x) {
-        ((SlotMixin) s).setX(x);
+        ((SlotAccess) s).setXPos(x);
     }
 
     private void updateOrderOfOutputSlots() {
@@ -262,7 +255,7 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
             // remove one, and clear the input slot.
             output.setCount(output.getCount() - 1);
-            if(output.getCount() == 0) patternSlotIN.setStack(ItemStack.EMPTY);
+            if(output.getCount() == 0) patternSlotIN.putStack(ItemStack.EMPTY);
 
             // let the crafting helper create a new encoded pattern
             output = null;
@@ -271,7 +264,7 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
         if(isCraftingMode())
             output = craftingHelper.encodeCraftingPattern(output, currentRecipe, in, out[0], isSubstitute());
         else output = craftingHelper.encodeProcessingPattern(output, in, out);
-        patternSlotOUT.setStack(output);
+        patternSlotOUT.putStack(output);
     }
 
     private ItemStack[] getInputs() {
@@ -307,8 +300,8 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
     }
 
     @Override
-    public FixedItemInv getInventoryByName(final String name) {
-        if(name.equals("player")) return new FixedInventoryVanillaWrapper(getPlayerInventory());
+    public IItemHandler getInventoryByName(final String name) {
+        if(name.equals("player")) return new InvWrapper(getPlayerInventory());
         return getPatternTerminal().getInventoryByName(name);
     }
 
@@ -330,7 +323,7 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
         if(slotItem != null && getCellInventory() != null) {
             final IAEItemStack out = slotItem.copy();
-            InventoryAdaptor inv = new AppEngInternalInventory(new WrapperCursorItemHandler(getPlayerInv().player.inventory));
+            InventoryAdaptor inv = InventoryAdaptor.getAdaptor(getPlayerInv().player);
             final InventoryAdaptor playerInv = InventoryAdaptor.getAdaptor(getPlayerInv().player);
 
             if(shift) inv = playerInv;
@@ -365,7 +358,7 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
             for(int x = 0; x < craftingInventory.getSizeInventory(); x++) {
                 if(!craftingInventory.getStackInSlot(x).isEmpty()) {
-                    final ItemStack pulled = Platform.extractItemsByRecipe(getPowerSource(), getActionSource(), storage, p.world, r, is, craftingInventory, craftingInventory.getStack(x), x, all, Actionable.MODULATE, ViewCellItem.createFilter(getViewCells()));
+                    final ItemStack pulled = Platform.extractItemsByRecipe(getPowerSource(), getActionSource(), storage, p.world, r, is, craftingInventory, craftingInventory.getStackInSlot(x), x, all, Actionable.MODULATE, ViewCellItem.createFilter(getViewCells()));
                     real.setInventorySlotContents(x, pulled);
                 }
             }
@@ -406,14 +399,14 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
         for(int x = 0; x < ic.getSizeInventory(); x++) ic.setInventorySlotContents(x, crafting.getStackInSlot(x));
 
         if(currentRecipe == null || !currentRecipe.matches(ic, world))
-            currentRecipe = world.getRecipeManager().getFirstMatch(IRecipeType.CRAFTING, ic, world).orElse(null);
+            currentRecipe = world.getRecipeManager().getRecipe(IRecipeType.CRAFTING, ic, world).orElse(null);
 
         final ItemStack is;
 
         if(currentRecipe == null) is = ItemStack.EMPTY;
         else is = currentRecipe.getCraftingResult(ic);
 
-        cOut.forceSetInvStack(0, is);
+        cOut.setStackInSlot(0, is);
         return is;
     }
 
@@ -442,10 +435,10 @@ public class WPTContainer extends MEMonitorableContainer implements IAEAppEngInv
     }
 
     public void clear() {
-        for(final Slot s : craftingSlots) s.setStack(ItemStack.EMPTY);
-        for(final Slot s : outputSlots) s.setStack(ItemStack.EMPTY);
+        for(final Slot s : craftingSlots) s.putStack(ItemStack.EMPTY);
+        for(final Slot s : outputSlots) s.putStack(ItemStack.EMPTY);
 
-        sendContentUpdates();
+        detectAndSendChanges();
         getAndUpdateOutput();
     }
 

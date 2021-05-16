@@ -1,19 +1,24 @@
 package tfar.ae2wtlib;
 
-import appeng.api.networking.IGrid;
-import appeng.api.networking.IGridNode;
-import appeng.api.networking.crafting.ICraftingGrid;
-import appeng.api.networking.crafting.ICraftingJob;
-import appeng.api.networking.security.IActionHost;
-import appeng.container.AEBaseContainer;
-import appeng.container.ContainerLocator;
 import appeng.container.implementations.WirelessCraftConfirmContainer;
 import appeng.container.implementations.WirelessCraftingStatusContainer;
-import appeng.core.AELog;
 import appeng.core.Api;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.extensions.IForgeContainerType;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
+import tfar.ae2wtlib.client.ae2wtlibclient;
 import tfar.ae2wtlib.terminal.ItemInfinityBooster;
-import tfar.ae2wtlib.rei.REIRecipePacket;
-import tfar.ae2wtlib.util.ContainerHelper;
 import tfar.ae2wtlib.util.WirelessCraftAmountContainer;
 import tfar.ae2wtlib.wct.ItemWCT;
 import tfar.ae2wtlib.wct.WCTContainer;
@@ -21,33 +26,18 @@ import tfar.ae2wtlib.wct.magnet_card.ItemMagnetCard;
 import tfar.ae2wtlib.wit.ItemWIT;
 import tfar.ae2wtlib.wit.WITContainer;
 import tfar.ae2wtlib.wpt.ItemWPT;
-import tfar.ae2wtlib.wpt.WPTContainer;
+import tfar.ae2wtlib.wpt.WPatternTContainer;
 import tfar.ae2wtlib.wut.ItemWUT;
 import tfar.ae2wtlib.wut.WUTHandler;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.extensions.IForgeContainerType;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
-import java.util.concurrent.Future;
-
-@Mod(value = AE2WirelessCraftingTerminals.MODID)
-public class AE2WirelessCraftingTerminals {
+@Mod(value = AE2WirelessTerminals.MODID)
+public class AE2WirelessTerminals {
+    public static final String MODID = "ae2wtlib";
 
     public static final ItemGroup ITEM_GROUP = new ItemGroup(MODID) {
         @Override
         public ItemStack createIcon() {
-            return new ItemStack(AE2WirelessCraftingTerminals.CRAFTING_TERMINAL);
+            return new ItemStack(AE2WirelessTerminals.CRAFTING_TERMINAL);
         }
     };
 
@@ -59,11 +49,16 @@ public class AE2WirelessCraftingTerminals {
 
     public static final ItemInfinityBooster INFINITY_BOOSTER_CARD = new ItemInfinityBooster();
     public static final ItemMagnetCard MAGNET_CARD = new ItemMagnetCard();
-    public static final String MODID = "ae2wtlib";
 
-    public AE2WirelessCraftingTerminals() {
+    public AE2WirelessTerminals() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addGenericListener(Item.class,this::items);
+        bus.addGenericListener(ContainerType.class,this::menus);
+        MinecraftForge.EVENT_BUS.addListener(Events::serverTick);
+        if (FMLEnvironment.dist.isClient()) {
+            MinecraftForge.EVENT_BUS.addListener(ae2wtlibclient::clientTick);
+            bus.addListener(ae2wtlibclient::setup);
+        }
     }
 
 
@@ -78,15 +73,13 @@ public class AE2WirelessCraftingTerminals {
     }
 
     public void menus(RegistryEvent.Register<ContainerType<?>> e) {
-        WCTContainer.TYPE = (ContainerType<WCTContainer>) register("wireless_crafting_terminal", IForgeContainerType.create(WCTContainer::fromNetwork),e.getRegistry());
-        WPTContainer.TYPE = register( "wireless_pattern_terminal", IForgeContainerType.create(WPTContainer::fromNetwork),e.getRegistry());
+        WCTContainer.TYPE = (ContainerType<WCTContainer>) register("wireless_crafting_terminal", IForgeContainerType.create((windowId, inv, buf) -> WCTContainer.fromNetwork(windowId, inv, buf)),e.getRegistry());
+        WPatternTContainer.TYPE = (ContainerType<WPatternTContainer>) register( "wireless_pattern_terminal", IForgeContainerType.create(WPatternTContainer::fromNetwork),e.getRegistry());
         WITContainer.TYPE = (ContainerType<WITContainer>) register( "wireless_interface_terminal",IForgeContainerType.create(WITContainer::fromNetwork),e.getRegistry());
 
         WirelessCraftingStatusContainer.TYPE = (ContainerType<WirelessCraftingStatusContainer>) register( "wireless_crafting_status",IForgeContainerType.create(WirelessCraftingStatusContainer::fromNetwork),e.getRegistry());
         WirelessCraftAmountContainer.TYPE = (ContainerType<WirelessCraftAmountContainer>) register( "wireless_craft_amount", IForgeContainerType.create(WirelessCraftAmountContainer::fromNetwork),e.getRegistry());
         WirelessCraftConfirmContainer.TYPE = (ContainerType<WirelessCraftConfirmContainer>) register( "wireless_craft_confirm",IForgeContainerType.create(WirelessCraftConfirmContainer::fromNetwork),e.getRegistry());
-
-
 
         WUTHandler.addTerminal("crafting", CRAFTING_TERMINAL::open);
         WUTHandler.addTerminal("pattern", PATTERN_TERMINAL::open);
@@ -108,7 +101,7 @@ public class AE2WirelessCraftingTerminals {
                 buf.release();
             });
         });*/
-        ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "switch_gui"), (server, player, handler, buf, sender) -> {
+        /*ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "switch_gui"), (server, player, handler, buf, sender) -> {
             buf.retain();
             server.execute(() -> {
                 Identifier id = buf.readIdentifier();
@@ -138,7 +131,7 @@ public class AE2WirelessCraftingTerminals {
                 }
                 buf.release();
             });
-        });
+        });*/
        /* ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "rei_recipe"), (server, player, handler, buf, sender) -> {
             buf.retain();
             server.execute(() -> {
@@ -146,7 +139,7 @@ public class AE2WirelessCraftingTerminals {
                 buf.release();
             });
         });*/
-        ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "craft_request"), (server, player, handler, buf, sender) -> {
+        /*ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "craft_request"), (server, player, handler, buf, sender) -> {
             buf.retain();
             server.execute(() -> {
                 int amount = buf.readInt();
@@ -188,8 +181,8 @@ public class AE2WirelessCraftingTerminals {
                     buf.release();
                 }
             });
-        });
-        ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "cycle_terminal"), (server, player, handler, buf, sender) -> server.execute(() -> {
+        });*/
+        /*ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "cycle_terminal"), (server, player, handler, buf, sender) -> server.execute(() -> {
             final Container screenHandler = player.openContainer;
 
             if(!(screenHandler instanceof AEBaseContainer)) return;
@@ -202,8 +195,8 @@ public class AE2WirelessCraftingTerminals {
             WUTHandler.cycle(item);
 
             WUTHandler.open(player, locator);
-        }));
-        ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "hotkey"), (server, player, handler, buf, sender) -> {
+        }));*/
+        /*ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "hotkey"), (server, player, handler, buf, sender) -> {
             buf.retain();
             server.execute(() -> {
                 String terminalName = buf.readString(32767);
@@ -249,9 +242,7 @@ public class AE2WirelessCraftingTerminals {
                 }
                 buf.release();
             });
-        });
-
-        ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> new MagnetHandler().doMagnet(minecraftServer));
+        });*/
 
     private static <T extends IForgeRegistryEntry<T>> T register(String name,T obj,IForgeRegistry<T> registry) {
         registry.register(obj.setRegistryName(new ResourceLocation(MODID,name)));

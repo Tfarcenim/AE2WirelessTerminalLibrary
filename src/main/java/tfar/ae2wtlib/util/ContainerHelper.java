@@ -1,13 +1,17 @@
 package tfar.ae2wtlib.util;
 
 import appeng.api.config.SecurityPermissions;
+import appeng.api.storage.ITerminalHost;
 import appeng.api.util.AEPartLocation;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerLocator;
 import appeng.core.AELog;
 import appeng.core.localization.GuiText;
 import appeng.util.Platform;
+import net.minecraft.util.Hand;
+import net.minecraftforge.fml.network.NetworkHooks;
 import tfar.ae2wtlib.terminal.ItemWT;
+import tfar.ae2wtlib.terminal.WTGuiObject;
 import tfar.ae2wtlib.wpt.WPTGuiObject;
 import tfar.ae2wtlib.wct.WCTGuiObject;
 import tfar.ae2wtlib.wit.WITGuiObject;
@@ -43,31 +47,18 @@ public final class ContainerHelper<C extends AEBaseContainer, I> {
     }
 
     /**
-     * Opens a container that is based around a single block entity. The tile entity's position is encoded in the packet
-     * buffer.
-     */
-    public C fromNetwork(int windowId, PlayerInventory inv, PacketBuffer packetBuf) {
-        return fromNetwork(windowId, inv, packetBuf, (accessObj, container, buffer) -> {});
-    }
-
-    /**
      * Same as {@link #open}, but allows or additional data to be read from the packet, and passed onto the container.
      */
-    public C fromNetwork(int windowId, PlayerInventory inv, PacketBuffer packetBuf, InitialDataDeserializer<C, I> initialDataDeserializer) {
-        I host = getHostFromLocator(inv.player, ContainerLocator.read(packetBuf));
+    public C fromNetwork(int windowId, PlayerInventory inv, PacketBuffer packetBuf) {
+        //I host = getHostFromLocator(inv.player, ContainerLocator.read(packetBuf));
+        I host = getHostFromLocator(inv.player, ContainerLocator.forHand(inv.player, Hand.MAIN_HAND));
         if(host != null) {
-            C container = factory.create(windowId, inv, host);
-            initialDataDeserializer.deserializeInitialData(host, container, packetBuf);
-            return container;
+            return factory.create(windowId, inv, host);
         }
         return null;
     }
 
     public boolean open(PlayerEntity player, ContainerLocator locator) {
-        return open(player, locator, (accessObj, buffer) -> {});
-    }
-
-    public boolean open(PlayerEntity player, ContainerLocator locator, InitialDataSerializer<I> initialDataSerializer) {
         if(!(player instanceof ServerPlayerEntity)) return false;
 
         I accessInterface = getHostFromLocator(player, locator);
@@ -76,7 +67,9 @@ public final class ContainerHelper<C extends AEBaseContainer, I> {
 
         if(!checkPermission(player, accessInterface)) return false;
 
-        player.openContainer(new HandlerFactory(locator, GuiText.Terminal.text(), accessInterface, initialDataSerializer));
+        //NetworkHooks.openGui(player,new HandlerFactory(locator, GuiText.Terminal.text(), accessInterface),);
+
+        player.openContainer(new HandlerFactory(locator, GuiText.Terminal.text(), accessInterface));
 
         return true;
     }
@@ -88,20 +81,11 @@ public final class ContainerHelper<C extends AEBaseContainer, I> {
 
         private final ITextComponent title;
 
-        private final InitialDataSerializer<I> initialDataSerializer;
 
-        public HandlerFactory(ContainerLocator locator, ITextComponent title, I accessInterface, InitialDataSerializer<I> initialDataSerializer) {
+        public HandlerFactory(ContainerLocator locator, ITextComponent title, I accessInterface) {
             this.locator = locator;
             this.title = title;
             this.accessInterface = accessInterface;
-            this.initialDataSerializer = initialDataSerializer;
-        }
-
-        //todo
-       // @Override
-        public void writeScreenOpeningData(ServerPlayerEntity player, PacketBuffer buf) {
-            locator.write(buf);
-            initialDataSerializer.serializeInitialData(accessInterface, buf);
         }
 
         @Override
@@ -132,15 +116,17 @@ public final class ContainerHelper<C extends AEBaseContainer, I> {
             AELog.debug("Cannot open container for player %s since they no longer hold the item in slot %d", player, locator.hasItemIndex());
             return null;
         }
+        
+        if (it.getItem() instanceof ItemWT) {
+            if (interfaceClass.isAssignableFrom(WCTGuiObject.class))//TODO do something generic, I don't want to hardcode everything
+                return interfaceClass.cast(new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex()));
 
-        if(interfaceClass.isAssignableFrom(WCTGuiObject.class) && it.getItem() instanceof ItemWT)//TODO do something generic, I don't want to hardcode everything
-            return interfaceClass.cast(new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex()));
+            if (interfaceClass.isAssignableFrom(WPTGuiObject.class))
+                return interfaceClass.cast(new WPTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex()));
 
-        if(interfaceClass.isAssignableFrom(WPTGuiObject.class) && it.getItem() instanceof ItemWT)
-            return interfaceClass.cast(new WPTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex()));
-
-        if(interfaceClass.isAssignableFrom(WITGuiObject.class) && it.getItem() instanceof ItemWT)
-            return interfaceClass.cast(new WITGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex()));
+            if (interfaceClass.isAssignableFrom(WITGuiObject.class))
+                return interfaceClass.cast(new WITGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex()));
+        }
         return null;
     }
 
@@ -178,21 +164,4 @@ public final class ContainerHelper<C extends AEBaseContainer, I> {
         C create(int windowId, PlayerInventory playerInv, I accessObj);
     }
 
-    /**
-     * Strategy used to serialize initial data for opening the container on the client-side into the packet that is sent
-     * to the client.
-     */
-    @FunctionalInterface
-    public interface InitialDataSerializer<I> {
-        void serializeInitialData(I host, PacketBuffer buffer);
-    }
-
-    /**
-     * Strategy used to deserialize initial data for opening the container on the client-side from the packet received
-     * by the server.
-     */
-    @FunctionalInterface
-    public interface InitialDataDeserializer<C, I> {
-        void deserializeInitialData(I host, C container, PacketBuffer buffer);
-    }
 }

@@ -1,5 +1,6 @@
 package tfar.ae2wtlib.terminal;
 
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tfar.ae2wtlib.wct.WCTContainer;
 import tfar.ae2wtlib.wct.magnet_card.ItemMagnetCard;
 import net.minecraft.entity.player.PlayerInventory;
@@ -8,7 +9,9 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
-public class FixedWTInv implements IItemHandler {
+import javax.annotation.Nonnull;
+
+public class FixedWTInv implements IItemHandlerModifiable {
 
     public static final int OFFHAND = 4;
     public static final int TRASH = 5;
@@ -115,5 +118,10 @@ public class FixedWTInv implements IItemHandler {
     @Override
     public int getSlotLimit(int slot) {
         return 0;
+    }
+
+    @Override
+    public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
+
     }
 }

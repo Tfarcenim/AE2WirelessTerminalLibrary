@@ -5,17 +5,17 @@ import appeng.container.implementations.WirelessCraftingStatusContainer;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.ConfigValuePacket;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.Text;
+import net.minecraft.util.text.ITextComponent;
 
 public class WirelessCraftingStatusScreen extends CraftingCPUScreen<WirelessCraftingStatusContainer> {
 
     private final ae2wtlibSubScreen subGui;
-    private ButtonWidget selectCPU;
+    private Button selectCPU;
 
-    public WirelessCraftingStatusScreen(WirelessCraftingStatusContainer container, PlayerInventory playerInventory, Text title) {
+    public WirelessCraftingStatusScreen(WirelessCraftingStatusContainer container, PlayerInventory playerInventory, ITextComponent title) {
         super(container, playerInventory, title);
         subGui = new ae2wtlibSubScreen(this, container.getTarget());
     }
@@ -24,7 +24,7 @@ public class WirelessCraftingStatusScreen extends CraftingCPUScreen<WirelessCraf
     public void init() {
         super.init();
 
-        selectCPU = new ButtonWidget(x + 8, y + backgroundHeight - 25, 150, 20, getNextCpuButtonLabel(), btn -> selectNextCpu());
+        selectCPU = new Button(guiLeft + 8, guiTop + ySize - 25, 150, 20, getNextCpuButtonLabel(), btn -> selectNextCpu());
         addButton(selectCPU);
 
         subGui.addBackButton(btn -> {
@@ -43,15 +43,15 @@ public class WirelessCraftingStatusScreen extends CraftingCPUScreen<WirelessCraf
         selectCPU.setMessage(getNextCpuButtonLabel());
     }
 
-    private Text getNextCpuButtonLabel() {
-        if(handler.noCPU) {
+    private ITextComponent getNextCpuButtonLabel() {
+        if(container.noCPU) {
             return GuiText.NoCraftingJobs.text();
         }
-        return GuiText.CraftingCPU.withSuffix(": ").append(handler.cpuName);
+        return GuiText.CraftingCPU.withSuffix(": ").appendSibling(container.cpuName);
     }
 
     @Override
-    protected Text getGuiDisplayName(final Text in) {
+    protected ITextComponent getGuiDisplayName(final ITextComponent in) {
         return in;
     }
 

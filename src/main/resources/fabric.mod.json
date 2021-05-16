@@ -16,7 +16,7 @@
       "tfar.ae2wtlib.client.ae2wtlibclient"
     ],
     "main": [
-      "tfar.ae2wtlib.AE2WirelessCraftingTerminals"
+      "tfar.ae2wtlib.AE2WirelessTerminals"
     ],
     "rei_plugins": [
       "tfar.ae2wtlib.rei.Plugin"
