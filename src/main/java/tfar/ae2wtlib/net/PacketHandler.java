@@ -4,6 +4,7 @@ import tfar.ae2wtlib.AE2WirelessTerminals;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+import tfar.ae2wtlib.net.client.S2CInterfaceTerminalPacket;
 import tfar.ae2wtlib.net.server.C2SDeleteTrashPacket;
 import tfar.ae2wtlib.net.server.C2SGeneralPacket;
 
@@ -29,5 +30,15 @@ public class PacketHandler {
                 C2SDeleteTrashPacket::encode,
                 C2SDeleteTrashPacket::new,
                 C2SDeleteTrashPacket::handle);
+
+        INSTANCE.registerMessage(i++, C2SSwitchGuiPacket.class,
+                C2SSwitchGuiPacket::encode,
+                C2SSwitchGuiPacket::new,
+                C2SSwitchGuiPacket::handle);
+
+        INSTANCE.registerMessage(i++, S2CInterfaceTerminalPacket.class,
+                S2CInterfaceTerminalPacket::encode,
+                S2CInterfaceTerminalPacket::new,
+                S2CInterfaceTerminalPacket::handle);
     }
 }

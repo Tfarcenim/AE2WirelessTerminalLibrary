@@ -10,6 +10,8 @@ import appeng.util.Platform;
 import net.minecraft.util.Hand;
 import tfar.ae2wtlib.terminal.ItemWT;
 import tfar.ae2wtlib.wct.ItemWCT;
+import tfar.ae2wtlib.wit.ItemWIT;
+import tfar.ae2wtlib.wpt.ItemWPT;
 import tfar.ae2wtlib.wpt.WPTGuiObject;
 import tfar.ae2wtlib.wct.WCTGuiObject;
 import tfar.ae2wtlib.wit.WITGuiObject;
@@ -119,10 +121,10 @@ public final class ContainerHelper<C extends AEBaseContainer, I> {
             if (it.getItem() instanceof ItemWCT)//TODO do something generic, I don't want to hardcode everything
                 return (I) new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
 
-            if (currentTerminal.equals("pattern"))
+            if (it.getItem() instanceof ItemWPT)
                 return (I) new WPTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
 
-            if (currentTerminal.equals("interface"))
+            if (it.getItem() instanceof ItemWIT)
                 return (I) new WITGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
         }
         return null;

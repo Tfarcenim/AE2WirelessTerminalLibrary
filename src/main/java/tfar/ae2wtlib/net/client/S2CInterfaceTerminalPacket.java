@@ -19,17 +19,14 @@ public class S2CInterfaceTerminalPacket {
     }
 
     public S2CInterfaceTerminalPacket(PacketBuffer buf) {
+        nbt = buf.readCompoundTag();
     }
 
     public void encode(PacketBuffer buf) {
-
+         buf.writeCompoundTag(nbt);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        PlayerEntity player = ctx.get().getSender();
-
-        if (player == null) return;
-
         ctx.get().enqueueWork(() -> {
             if (Minecraft.getInstance().player == null) return;
 

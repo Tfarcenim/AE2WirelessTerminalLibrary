@@ -20,6 +20,11 @@ import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.misc.InterfaceTileEntity;
 import appeng.util.InventoryAdaptor;
 import appeng.util.helpers.ItemHandlerUtil;
+import appeng.util.inv.AdaptorItemHandler;
+import appeng.util.inv.WrapperCursorItemHandler;
+import appeng.util.inv.WrapperFilteredItemHandler;
+import appeng.util.inv.WrapperRangeItemHandler;
+import appeng.util.inv.filter.IAEItemFilter;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -46,7 +51,7 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
     public static ContainerType<WITContainer> TYPE;
 
-    public static final ContainerHelper<WITContainer, WITGuiObject> helper = new ContainerHelper<>(WITContainer::new);
+    public static final ContainerHelper<WITContainer, WITGuiObject> helper = new ContainerHelper<>((id, ip, anchor) -> new WITContainer(id, ip, anchor));
 
     public static WITContainer fromNetwork(int windowId, PlayerInventory inv) {
         return helper.fromNetwork(windowId, inv);
@@ -177,78 +182,97 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
         }
     }
 
-    //todo
 
     @Override
     public void doAction(final ServerPlayerEntity player, final InventoryAction action, final int slot, final long id) {
-        final WITContainer.InvTracker inv = byId.get(id);
-        if(inv != null) {
+        final InvTracker inv = byId.get(id);
+        if (inv != null) {
             final ItemStack is = inv.server.getStackInSlot(slot);
             final boolean hasItemInHand = !player.inventory.getItemStack().isEmpty();
 
-            // Create a wrapper around the targeted slot that will only allow insertions of
-            // patterns
-            Slot theSlot = this.inventorySlots.get(slot);
+            final InventoryAdaptor playerHand = new AdaptorItemHandler(new WrapperCursorItemHandler(player.inventory));
 
-            switch(action) {
+            final IItemHandler theSlot = new WrapperFilteredItemHandler(new WrapperRangeItemHandler(inv.server, slot, slot + 1), new PatternSlotFilter());
+            final InventoryAdaptor interfaceSlot = new AdaptorItemHandler(theSlot);
+
+            switch (action) {
                 case PICKUP_OR_SET_DOWN:
-                    if(hasItemInHand) {
-                        ItemStack inSlot = theSlot.getStack();
-                        if(inSlot.isEmpty()) {
-                         //   player.inventory.setItemStack(theSlot.putStack(player.inventory.getItemStack()));
-                        } else {
+
+                    if (hasItemInHand) {
+                        ItemStack inSlot = theSlot.getStackInSlot(0);
+                        if (inSlot.isEmpty()) {
+                            player.inventory.setItemStack(interfaceSlot.addItems(player.inventory.getItemStack()));
+                        }
+                        else {
                             inSlot = inSlot.copy();
                             final ItemStack inHand = player.inventory.getItemStack().copy();
 
-                            theSlot.putStack(ItemStack.EMPTY);
+                            ItemHandlerUtil.setStackInSlot(theSlot, 0, ItemStack.EMPTY);
                             player.inventory.setItemStack(ItemStack.EMPTY);
 
-                    //        player.inventory.setItemStack(theSlot.putStack(inHand.copy()));
+                            player.inventory.setItemStack(interfaceSlot.addItems(inHand.copy()));
 
-                            if(player.inventory.getItemStack().isEmpty()) {
+                            if (player.inventory.getItemStack().isEmpty()) {
                                 player.inventory.setItemStack(inSlot);
-                            } else {
+                            }
+                            else {
                                 player.inventory.setItemStack(inHand);
-                                theSlot.putStack(inSlot);
+                                ItemHandlerUtil.setStackInSlot(theSlot, 0, inSlot);
                             }
                         }
-                    } else {
-                       // theSlot.putStack(player.inventory.addItems(theSlot.get()));
                     }
-                    break;
+                    else {
+                        ItemHandlerUtil.setStackInSlot(theSlot, 0, playerHand.addItems(theSlot.getStackInSlot(0)));
+                    }
 
+                    break;
                 case SPLIT_OR_PLACE_SINGLE:
-                    if(hasItemInHand) {
-                  //      ItemStack extra = playerHand.removeItems(1, ItemStack.EMPTY, null);
-                      //  if(!extra.isEmpty()) extra = theSlot.putStack(extra);
-                  //      if(!extra.isEmpty()) playerHand.addItems(extra);
-                    } else if(!is.isEmpty()) {
-                 //       ItemStack extra = theSlot.extract((is.getCount() + 1) / 2);
-                  //      if(!extra.isEmpty()) extra = playerHand.addItems(extra);
-                 //       if(!extra.isEmpty()) theSlot.putStack(extra);
+
+                    if (hasItemInHand) {
+                        ItemStack extra = playerHand.removeItems(1, ItemStack.EMPTY, null);
+                        if (!extra.isEmpty()) {
+                            extra = interfaceSlot.addItems(extra);
+                        }
+                        if (!extra.isEmpty()) {
+                            playerHand.addItems(extra);
+                        }
                     }
-                    break;
+                    else if (!is.isEmpty()) {
+                        ItemStack extra = interfaceSlot.removeItems((is.getCount() + 1) / 2, ItemStack.EMPTY, null);
+                        if (!extra.isEmpty()) {
+                            extra = playerHand.addItems(extra);
+                        }
+                        if (!extra.isEmpty()) {
+                            interfaceSlot.addItems(extra);
+                        }
+                    }
 
+                    break;
                 case SHIFT_CLICK:
+
                     final InventoryAdaptor playerInv = InventoryAdaptor.getAdaptor(player);
-                  //  theSlot.put(playerInv.addItems(theSlot.get()));
-                    break;
 
+                    ItemHandlerUtil.setStackInSlot(theSlot, 0, playerInv.addItems(theSlot.getStackInSlot(0)));
+
+                    break;
                 case MOVE_REGION:
+
                     final InventoryAdaptor playerInvAd = InventoryAdaptor.getAdaptor(player);
-                    for(int x = 0; x < inv.server.getSlots(); x++)
+                    for (int x = 0; x < inv.server.getSlots(); x++) {
                         ItemHandlerUtil.setStackInSlot(inv.server, x, playerInvAd.addItems(inv.server.getStackInSlot(x)));
-                    break;
+                    }
 
+                    break;
                 case CREATIVE_DUPLICATE:
-                    if(player.isCreative() && !hasItemInHand)
-                        player.inventory.setItemStack(is.isEmpty() ? ItemStack.EMPTY : is.copy());
-                    break;
 
+                    if (player.abilities.isCreativeMode && !hasItemInHand) {
+                        player.inventory.setItemStack(is.isEmpty() ? ItemStack.EMPTY : is.copy());
+                    }
+
+                    break;
                 default:
                     return;
             }
-
             updateHeld(player);
         }
     }
@@ -332,6 +356,18 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
             this.client = new AppEngInternalInventory(null, server.getSlots());
             this.name = name;
             sortBy = dual.getSortValue();
+        }
+    }
+
+    private static class PatternSlotFilter implements IAEItemFilter {
+        @Override
+        public boolean allowExtract(final IItemHandler inv, final int slot, final int amount) {
+            return true;
+        }
+
+        @Override
+        public boolean allowInsert(final IItemHandler inv, final int slot, final ItemStack stack) {
+            return !stack.isEmpty() && stack.getItem() instanceof EncodedPatternItem;
         }
     }
 

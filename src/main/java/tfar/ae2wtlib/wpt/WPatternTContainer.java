@@ -136,6 +136,7 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
 
     @Override
     public void detectAndSendChanges() {
+        if (isClient())return;
         super.detectAndSendChanges();
 
         if(!wptGUIObject.rangeCheck()) {

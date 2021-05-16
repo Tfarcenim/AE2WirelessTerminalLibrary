@@ -27,6 +27,7 @@ import appeng.container.interfaces.IInventorySlotAware;
 import appeng.core.Api;
 import appeng.tile.networking.WirelessTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
@@ -70,31 +71,35 @@ public class WTGuiObject implements IGuiItemObject, IEnergySource, IActionHost, 
     }
 
     public boolean rangeCheck() {
-        boolean hasBoosterCard = ((IInfinityBoosterCardHolder) effectiveItem.getItem()).hasBoosterCard(effectiveItem);
-        sqRange = myRange = Double.MAX_VALUE;
+        Item item = effectiveItem.getItem();
+        if (item instanceof IInfinityBoosterCardHolder) {
+            boolean hasBoosterCard = ((IInfinityBoosterCardHolder)item).hasBoosterCard(effectiveItem);
+            sqRange = myRange = Double.MAX_VALUE;
 
-        if(targetGrid != null && itemStorage != null) {
-            if(myWap != null) {
-                if(myWap.getGrid() == targetGrid) {
-                    return testWap(myWap) || hasBoosterCard;
+            if (targetGrid != null && itemStorage != null) {
+                if (myWap != null) {
+                    if (myWap.getGrid() == targetGrid) {
+                        return testWap(myWap) || hasBoosterCard;
+                    }
+                    return hasBoosterCard;
                 }
-                return hasBoosterCard;
-            }
 
-            final IMachineSet tw = targetGrid.getMachines(WirelessTileEntity.class);
+                final IMachineSet tw = targetGrid.getMachines(WirelessTileEntity.class);
 
-            myWap = null;
+                myWap = null;
 
-            for(final IGridNode n : tw) {
-                final IWirelessAccessPoint wap = (IWirelessAccessPoint) n.getMachine();
-                if(testWap(wap)) {
-                    myWap = wap;
+                for (final IGridNode n : tw) {
+                    final IWirelessAccessPoint wap = (IWirelessAccessPoint) n.getMachine();
+                    if (testWap(wap)) {
+                        myWap = wap;
+                    }
                 }
-            }
 
-            return myWap != null || hasBoosterCard;
+                return myWap != null || hasBoosterCard;
+            }
+            return hasBoosterCard;
         }
-        return hasBoosterCard;
+        return false;
     }
 
     public double getRange() {
