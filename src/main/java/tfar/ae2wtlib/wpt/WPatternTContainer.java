@@ -434,7 +434,7 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
         }
     }
 
-    public void clear() {
+    public void clearPattern() {
         for(final Slot s : craftingSlots) s.putStack(ItemStack.EMPTY);
         for(final Slot s : outputSlots) s.putStack(ItemStack.EMPTY);
 

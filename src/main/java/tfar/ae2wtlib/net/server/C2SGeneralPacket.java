@@ -42,23 +42,17 @@ public class C2SGeneralPacket {
         MinecraftServer server = player.getServer();
         server.execute(() -> {
             final Container c = player.openContainer;
-            if (name.startsWith("PatternTerminal.") && c instanceof WPatternTContainer) {
+            if (c instanceof WPatternTContainer) {
                 final WPatternTContainer container = (WPatternTContainer) c;
                 switch (name) {
                     case "PatternTerminal.CraftMode":
                         container.getPatternTerminal().setCraftingRecipe(value != 0);
                         break;
-                    case "PatternTerminal.Encode":
-                        container.encode();
-                        break;
-                    case "PatternTerminal.Clear":
-                        container.clear();
-                        break;
                     case "PatternTerminal.Substitute":
                         container.getPatternTerminal().setSubstitution(value != 0);
                         break;
                 }
-            } else if (name.startsWith("CraftingTerminal.") && c instanceof WCTContainer) {
+            } else if (c instanceof WCTContainer) {
                 final WCTContainer container = (WCTContainer) c;
                 if (name.equals("CraftingTerminal.SetMagnetMode")) {
                     container.getMagnetSettings().magnetMode = MagnetMode.fromInt(value);

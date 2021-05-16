@@ -8,6 +8,8 @@ import appeng.client.gui.widgets.TabButton;
 import appeng.core.localization.GuiText;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.text.ITextComponent;
+import tfar.ae2wtlib.net.server.C2SClearPatternPacket;
+import tfar.ae2wtlib.net.server.C2SEncodePatternPacket;
 import tfar.ae2wtlib.net.server.C2SGeneralPacket;
 import tfar.ae2wtlib.net.PacketHandler;
 import tfar.ae2wtlib.wut.CycleTerminalButton;
@@ -104,11 +106,11 @@ public class WPTScreen extends MEMonitorableScreen<WPatternTContainer> implement
     }
 
     private void encode() {
-        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.Encode",0));
+        PacketHandler.INSTANCE.sendToServer(new C2SEncodePatternPacket());
     }
 
     private void clear() {
-        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.Clear",0));
+        PacketHandler.INSTANCE.sendToServer(new C2SClearPatternPacket());
     }
 
     @Override
