@@ -113,6 +113,8 @@ public class WTGuiObject implements IGuiItemObject, IEnergySource, IActionHost, 
     }
 
     private boolean testWap(final IWirelessAccessPoint wap) {
+        if(((IInfinityBoosterCardHolder) effectiveItem.getItem()).hasBoosterCard(effectiveItem)) return true;
+
         double rangeLimit = wap.getRange();
         rangeLimit *= rangeLimit;
 
