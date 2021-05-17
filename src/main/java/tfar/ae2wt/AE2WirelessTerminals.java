@@ -88,7 +88,7 @@ public class AE2WirelessTerminals {
 
         WirelessCraftingStatusContainer.TYPE = (ContainerType<WirelessCraftingStatusContainer>) register( "wireless_crafting_status",new
                 ContainerType<>(WirelessCraftingStatusContainer::openClient),e.getRegistry());
-        WirelessCraftAmountContainer.TYPE = (ContainerType<WirelessCraftAmountContainer>) register( "wireless_craft_amount", IForgeContainerType.create((int windowId1, PlayerInventory inv1, PacketBuffer inv12) -> WirelessCraftAmountContainer.fromNetwork(windowId1, inv1)),e.getRegistry());
+        WirelessCraftAmountContainer.TYPE = (ContainerType<WirelessCraftAmountContainer>) register( "wireless_craft_amount", IForgeContainerType.create((int windowId1, PlayerInventory inv1, PacketBuffer inv12) -> WirelessCraftAmountContainer.openClient(windowId1, inv1)),e.getRegistry());
         WirelessCraftConfirmContainer.TYPE = (ContainerType<WirelessCraftConfirmContainer>) register( "wireless_craft_confirm",IForgeContainerType.create((int windowId, PlayerInventory inv, PacketBuffer inv2) -> WirelessCraftConfirmContainer.openClient(windowId, inv)),e.getRegistry());
 
         WUTHandler.addTerminal("crafting", CRAFTING_TERMINAL::open);

@@ -51,9 +51,6 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
 
     public static ContainerType<WirelessCraftConfirmContainer> TYPE;
 
-    private static final ContainerHelper<WirelessCraftConfirmContainer, ITerminalHost> helper = new ContainerHelper<>(
-            WirelessCraftConfirmContainer::new, SecurityPermissions.CRAFT);
-
     public static WirelessCraftConfirmContainer openClient(int windowId, PlayerInventory inv) {
         PlayerEntity player = inv.player;
         ItemStack it = inv.player.getHeldItem(Hand.MAIN_HAND);

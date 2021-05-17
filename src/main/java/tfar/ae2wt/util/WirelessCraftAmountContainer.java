@@ -8,6 +8,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerLocator;
+import appeng.container.implementations.WirelessCraftingStatusContainer;
 import appeng.container.slot.InaccessibleSlot;
 import appeng.me.helpers.PlayerSource;
 import appeng.tile.inventory.AppEngInternalInventory;
@@ -15,14 +16,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import net.minecraft.world.World;
+import tfar.ae2wt.net.TermFactoryStatus;
+import tfar.ae2wt.terminal.ItemWT;
+import tfar.ae2wt.wirelesscraftingterminal.WCTGuiObject;
+import tfar.ae2wt.wpt.WPTGuiObject;
 
 public class WirelessCraftAmountContainer extends AEBaseContainer {
 
     public static ContainerType<WirelessCraftAmountContainer> TYPE;
-
-    private static final ContainerHelper<WirelessCraftAmountContainer, ITerminalHost> helper = new ContainerHelper<>(
-            WirelessCraftAmountContainer::new);
 
     private final Slot craftingItem;
     private IAEItemStack itemToCreate;
@@ -34,13 +38,25 @@ public class WirelessCraftAmountContainer extends AEBaseContainer {
         addSlot(getCraftingItem());
     }
 
-    public static WirelessCraftAmountContainer fromNetwork(int windowId, PlayerInventory inv) {
-        return helper.fromNetwork(windowId, inv);
+    public static WirelessCraftAmountContainer openClient(int windowId, PlayerInventory inv) {
+        PlayerEntity player = inv.player;
+        ItemStack it = inv.player.getHeldItem(Hand.MAIN_HAND);
+        ContainerLocator locator = ContainerLocator.forHand(inv.player, Hand.MAIN_HAND);
+        WCTGuiObject host = new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+        return new WirelessCraftAmountContainer(windowId, inv, host);
     }
 
-    public static boolean open(PlayerEntity player, ContainerLocator locator) {
-        return helper.open(player, locator);
+    public static boolean openServer(PlayerEntity player, ContainerLocator locator) {
+        ItemStack it = player.inventory.getStackInSlot(locator.getItemIndex());
+        WCTGuiObject accessInterface = new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+
+        if (locator.hasItemIndex()) {
+            player.openContainer(new TermFactory(accessInterface,locator));
+        }
+        return true;
     }
+
+
 
     @Override
     public void detectAndSendChanges() {

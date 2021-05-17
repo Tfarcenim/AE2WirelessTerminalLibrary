@@ -32,7 +32,7 @@ public class InvActionPacket {
                 final AEBaseContainer baseContainer = (AEBaseContainer) sender.openContainer;
                 final ContainerLocator locator = baseContainer.getLocator();
                 if(locator != null) {
-                    WirelessCraftAmountContainer.open(player, locator);
+                    WirelessCraftAmountContainer.openServer(player, locator);
 
                     if(sender.openContainer instanceof WirelessCraftAmountContainer) {
                         final WirelessCraftAmountContainer cca = (WirelessCraftAmountContainer) sender.openContainer;
