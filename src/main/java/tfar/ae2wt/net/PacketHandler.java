@@ -50,6 +50,11 @@ public class PacketHandler {
                 C2SSwitchGuiPacket::new,
                 C2SSwitchGuiPacket::handle);
 
+        INSTANCE.registerMessage(i++, C2SCraftRequestPacket.class,
+                C2SCraftRequestPacket::encode,
+                C2SCraftRequestPacket::new,
+                C2SCraftRequestPacket::handle);
+
         INSTANCE.registerMessage(i++, S2CInterfaceTerminalPacket.class,
                 S2CInterfaceTerminalPacket::encode,
                 S2CInterfaceTerminalPacket::new,

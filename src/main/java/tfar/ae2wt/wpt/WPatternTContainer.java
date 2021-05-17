@@ -74,14 +74,13 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
     private final RestrictedInputSlot patternSlotOUT;
     private final ICraftingHelper craftingHelper = Api.INSTANCE.crafting();
 
-    public static boolean openServer(PlayerEntity player, ContainerLocator locator) {
+    public static void openServer(PlayerEntity player, ContainerLocator locator) {
         ItemStack it = player.inventory.getStackInSlot(locator.getItemIndex());
         WPTGuiObject accessInterface = new WPTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
 
         if (locator.hasItemIndex()) {
             player.openContainer(new TermFactory(accessInterface,locator));
         }
-        return true;
     }
 
     private final WPTGuiObject wptGUIObject;

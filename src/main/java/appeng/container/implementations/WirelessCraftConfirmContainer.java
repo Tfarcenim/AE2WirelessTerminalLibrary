@@ -23,7 +23,12 @@ import appeng.core.Api;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.MEInventoryUpdatePacket;
 import appeng.me.helpers.PlayerSource;
+import appeng.util.Platform;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import tfar.ae2wt.mixin.ContainerAccess;
+import tfar.ae2wt.net.TermFactoryConfirm;
+import tfar.ae2wt.terminal.ItemWT;
 import tfar.ae2wt.util.ContainerHelper;
 import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
 import tfar.ae2wt.wirelesscraftingterminal.WCTGuiObject;
@@ -49,12 +54,25 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
     private static final ContainerHelper<WirelessCraftConfirmContainer, ITerminalHost> helper = new ContainerHelper<>(
             WirelessCraftConfirmContainer::new, SecurityPermissions.CRAFT);
 
-    public static WirelessCraftConfirmContainer fromNetwork(int windowId, PlayerInventory inv) {
-        return helper.fromNetwork(windowId, inv);
+    public static WirelessCraftConfirmContainer openClient(int windowId, PlayerInventory inv) {
+        PlayerEntity player = inv.player;
+        ItemStack it = inv.player.getHeldItem(Hand.MAIN_HAND);
+        ContainerLocator locator = ContainerLocator.forHand(inv.player, Hand.MAIN_HAND);
+        WCTGuiObject host = new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+        return new WirelessCraftConfirmContainer(windowId, inv, host);
     }
 
-    public static boolean open(PlayerEntity player, ContainerLocator locator) {
-        return helper.open(player, locator);
+    public static boolean openServer(PlayerEntity player, ContainerLocator locator) {
+        ItemStack it = player.inventory.getStackInSlot(locator.getItemIndex());
+        WCTGuiObject accessInterface = new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+
+        if(!Platform.checkPermissions(player, accessInterface, SecurityPermissions.CRAFT, true)) return false;
+
+
+        if (locator.hasItemIndex()) {
+            player.openContainer(new TermFactoryConfirm(accessInterface,locator));
+        }
+        return true;
     }
 
     private final CraftingCPUCycler cpuCycler;
@@ -215,7 +233,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
             setAutoStart(false);
             if(g != null && originalGui != null && getLocator() != null) {
                 if(originalGui.equals(WCTContainer.TYPE))
-                    WCTContainer.open(getPlayerInventory().player, getLocator());
+                    WCTContainer.openServer(getPlayerInventory().player, getLocator());
                 else if(originalGui.equals(WPatternTContainer.TYPE))
                     WPatternTContainer.openServer(getPlayerInventory().player, getLocator());
             }

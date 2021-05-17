@@ -31,6 +31,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -38,9 +39,9 @@ import net.minecraftforge.items.IItemHandler;
 import tfar.ae2wt.Config;
 import tfar.ae2wt.net.PacketHandler;
 import tfar.ae2wt.net.client.S2CInterfaceTerminalPacket;
-import tfar.ae2wt.terminal.WTInventoryHandler;
 import tfar.ae2wt.terminal.IWTInvHolder;
-import tfar.ae2wt.util.ContainerHelper;
+import tfar.ae2wt.terminal.ItemWT;
+import tfar.ae2wt.terminal.WTInventoryHandler;
 import tfar.ae2wt.wut.ItemWUT;
 
 import java.util.HashMap;
@@ -50,14 +51,22 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
     public static ContainerType<WITContainer> TYPE;
 
-    public static final ContainerHelper<WITContainer, WITGuiObject> helper = new ContainerHelper<>((id, ip, anchor) -> new WITContainer(id, ip, anchor));
+    public static WITContainer openClient(int windowId, PlayerInventory inv) {
+        PlayerEntity player = inv.player;
+        ItemStack it = inv.player.getHeldItem(Hand.MAIN_HAND);
+        ContainerLocator locator = ContainerLocator.forHand(inv.player, Hand.MAIN_HAND);
+        WITGuiObject host = new WITGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+        return new WITContainer(windowId, inv, host);    }
 
-    public static WITContainer fromNetwork(int windowId, PlayerInventory inv) {
-        return helper.fromNetwork(windowId, inv);
-    }
+    public static void openServer(PlayerEntity player, ContainerLocator locator) {
 
-    public static boolean open(PlayerEntity player, ContainerLocator locator) {
-        return helper.open(player, locator);
+        ItemStack it = player.inventory.getStackInSlot(locator.getItemIndex());
+        WITGuiObject accessInterface = new WITGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+
+        if (locator.hasItemIndex()) {
+            player.openContainer(new TermFactory(accessInterface,locator));
+        }
+
     }
 
     private final WITGuiObject witGUIObject;

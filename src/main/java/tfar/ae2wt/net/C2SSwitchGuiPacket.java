@@ -49,16 +49,16 @@ public class C2SSwitchGuiPacket {
                 }
                 switch(id) {
                     case "wireless_crafting_terminal":
-                        WCTContainer.open(player, locator);
+                        WCTContainer.openServer(player, locator);
                         break;
                     case "wireless_pattern_terminal":
                         WPatternTContainer.openServer(player, locator);
                         break;
                     case "wireless_interface_terminal":
-                        WITContainer.open(player, locator);
+                        WITContainer.openServer(player, locator);
                         break;
                     case "wireless_crafting_status":
-                        WirelessCraftingStatusContainer.open(player, locator);
+                        WirelessCraftingStatusContainer.openServer(player, locator);
                 }
             });
         });

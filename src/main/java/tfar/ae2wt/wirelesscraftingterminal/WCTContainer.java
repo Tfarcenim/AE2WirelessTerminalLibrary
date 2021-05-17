@@ -25,6 +25,7 @@ import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.world.World;
@@ -34,9 +35,9 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import tfar.ae2wt.Config;
 import tfar.ae2wt.terminal.IWTInvHolder;
+import tfar.ae2wt.terminal.ItemWT;
 import tfar.ae2wt.terminal.WTInventoryHandler;
 import tfar.ae2wt.terminal.ae2wtlibInternalInventory;
-import tfar.ae2wt.util.ContainerHelper;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.ItemMagnetCard;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.MagnetSettings;
 import tfar.ae2wt.wut.ItemWUT;
@@ -45,10 +46,12 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
     public static ContainerType<WCTContainer> TYPE;
 
-    public static final ContainerHelper<WCTContainer, WCTGuiObject> helper = new ContainerHelper<>((int id, PlayerInventory ip, WCTGuiObject gui) -> new WCTContainer(id, ip, gui));
-
-    public static WCTContainer fromNetwork(int windowId, PlayerInventory inv) {
-        return helper.fromNetwork(windowId, inv);
+    public static WCTContainer openClient(int windowId, PlayerInventory inv) {
+        PlayerEntity player = inv.player;
+        ItemStack it = inv.player.getHeldItem(Hand.MAIN_HAND);
+        ContainerLocator locator = ContainerLocator.forHand(inv.player, Hand.MAIN_HAND);
+        WCTGuiObject host = new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+        return new WCTContainer(windowId, inv, host);
     }
 
     private final AppEngInternalInventory craftingGrid;
@@ -57,8 +60,13 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
     private IRecipe<CraftingInventory> currentRecipe;
     final WTInventoryHandler wtInventoryHandler;
 
-    public static boolean open(PlayerEntity player, ContainerLocator locator) {
-        return helper.open(player, locator);
+    public static void openServer(PlayerEntity player, ContainerLocator locator) {
+        ItemStack it = player.inventory.getStackInSlot(locator.getItemIndex());
+        WCTGuiObject accessInterface = new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+
+        if (locator.hasItemIndex()) {
+            player.openContainer(new TermFactory(accessInterface,locator));
+        }
     }
 
     private final WCTGuiObject wctGUIObject;

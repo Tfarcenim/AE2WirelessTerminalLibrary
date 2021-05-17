@@ -15,6 +15,6 @@ public class ItemWIT extends ItemWT implements IInfinityBoosterCardHolder {
 
     @Override
     public void open(final PlayerEntity player, final ContainerLocator locator) {
-        WITContainer.open(player, locator);
+        WITContainer.openServer(player, locator);
     }
 }

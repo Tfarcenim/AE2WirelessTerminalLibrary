@@ -65,7 +65,7 @@ public class C2SCraftRequestPacket {
 
                                 final ContainerLocator locator = cca.getLocator();
                                 if(locator != null) {
-                                    WirelessCraftConfirmContainer.open(player, locator);
+                                    WirelessCraftConfirmContainer.openServer(player, locator);
 
                                     if(player.openContainer instanceof WirelessCraftConfirmContainer) {
                                         final WirelessCraftConfirmContainer ccc = (WirelessCraftConfirmContainer) player.openContainer;

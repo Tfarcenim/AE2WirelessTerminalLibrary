@@ -8,20 +8,32 @@ import appeng.container.guisync.GuiSync;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
-import tfar.ae2wt.util.ContainerHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
+import tfar.ae2wt.net.TermFactoryStatus;
+import tfar.ae2wt.terminal.ItemWT;
 import net.minecraft.util.text.ITextComponent;
+import tfar.ae2wt.wirelesscraftingterminal.WCTGuiObject;
+import tfar.ae2wt.wpt.WPTGuiObject;
 
 public class WirelessCraftingStatusContainer extends CraftingCPUContainer implements CraftingCPUCyclingContainer {
     public static ContainerType<WirelessCraftingStatusContainer> TYPE;
 
-    public static final ContainerHelper<WirelessCraftingStatusContainer, ITerminalHost> helper = new ContainerHelper<>(WirelessCraftingStatusContainer::new);
-
-    public static WirelessCraftingStatusContainer fromNetwork(int windowId, PlayerInventory inv) {
-        return helper.fromNetwork(windowId, inv);
+    public static WirelessCraftingStatusContainer openClient(int windowId, PlayerInventory inv) {
+        PlayerEntity player = inv.player;
+        ItemStack it = inv.player.getHeldItem(Hand.MAIN_HAND);
+        ContainerLocator locator = ContainerLocator.forHand(inv.player, Hand.MAIN_HAND);
+        WCTGuiObject host = new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+        return new WirelessCraftingStatusContainer(windowId, inv, host);
     }
 
-    public static boolean open(PlayerEntity player, ContainerLocator locator) {
-        return helper.open(player, locator);
+    public static void openServer(PlayerEntity player, ContainerLocator locator) {
+        ItemStack it = player.inventory.getStackInSlot(locator.getItemIndex());
+        WPTGuiObject accessInterface = new WPTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+
+        if (locator.hasItemIndex()) {
+            player.openContainer(new TermFactoryStatus(accessInterface,locator));
+        }
     }
 
     public WirelessCraftingStatusContainer(int id, PlayerInventory ip, ITerminalHost terminalHost) {
