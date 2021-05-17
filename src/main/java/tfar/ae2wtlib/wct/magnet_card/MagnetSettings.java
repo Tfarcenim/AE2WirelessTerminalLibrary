@@ -16,7 +16,7 @@ public class MagnetSettings {
         if(tag == null) {
             magnetMode = MagnetMode.DEFAULT;
         } else {
-            magnetMode = MagnetMode.fromInt(tag.getByte("magnetMode"));
+            magnetMode = MagnetMode.modes[(tag.getInt("magnetMode"))];
         }
     }
 
@@ -29,7 +29,7 @@ public class MagnetSettings {
 
     public CompoundNBT toTag() {
         CompoundNBT tag = new CompoundNBT();
-        tag.putByte("magnetMode", magnetMode.getId());
+        tag.putInt("magnetMode", magnetMode.ordinal());
         return tag;
     }
 }

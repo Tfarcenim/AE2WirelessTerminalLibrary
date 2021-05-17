@@ -8,9 +8,7 @@ import appeng.client.gui.widgets.TabButton;
 import appeng.core.localization.GuiText;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.text.ITextComponent;
-import tfar.ae2wtlib.net.server.C2SClearPatternPacket;
-import tfar.ae2wtlib.net.server.C2SEncodePatternPacket;
-import tfar.ae2wtlib.net.server.C2SGeneralPacket;
+import tfar.ae2wtlib.net.server.*;
 import tfar.ae2wtlib.net.PacketHandler;
 import tfar.ae2wtlib.wut.CycleTerminalButton;
 import tfar.ae2wtlib.wut.IUniversalTerminalCapable;
@@ -27,11 +25,11 @@ public class WPTScreen extends MEMonitorableScreen<WPatternTContainer> implement
     private final int reservedSpace;
     private final WPatternTContainer container;
 
-    private static final byte SUBSITUTION_DISABLE = 0;
-    private static final byte SUBSITUTION_ENABLE = 1;
+    private static final boolean SUBSITUTION_DISABLE = false;
+    private static final boolean SUBSITUTION_ENABLE = true;
 
-    private static final byte CRAFTMODE_CRAFTING = 1;
-    private static final byte CRAFTMODE_PROCESSING = 0;
+    private static final boolean CRAFTMODE_CRAFTING = true;
+    private static final boolean CRAFTMODE_PROCESSING = false;
 
     private TabButton tabCraftButton;
     private TabButton tabProcessButton;
@@ -97,12 +95,12 @@ public class WPTScreen extends MEMonitorableScreen<WPatternTContainer> implement
         } catch(IllegalAccessException | NoSuchFieldException ignored) {}
     }
 
-    private void toggleCraftMode(byte mode) {
-        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.CraftMode",mode));
+    private void toggleCraftMode(boolean mode) {
+        PacketHandler.INSTANCE.sendToServer(new C2STogglePatternCraftingModePacket(mode));
     }
 
-    private void toggleSubstitutions(byte mode) {
-        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.Subsitute",mode));
+    private void toggleSubstitutions(boolean mode) {
+        PacketHandler.INSTANCE.sendToServer(new C2STogglePatternSubsitutionPacket(mode));
     }
 
     private void encode() {

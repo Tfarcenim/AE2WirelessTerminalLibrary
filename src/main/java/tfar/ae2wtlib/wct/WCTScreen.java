@@ -17,8 +17,8 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import tfar.ae2wtlib.net.server.C2SDeleteTrashPacket;
-import tfar.ae2wtlib.net.server.C2SGeneralPacket;
 import tfar.ae2wtlib.net.PacketHandler;
+import tfar.ae2wtlib.net.server.C2SSetMagnetModePacket;
 import tfar.ae2wtlib.wct.magnet_card.MagnetMode;
 import tfar.ae2wtlib.wct.magnet_card.MagnetSettings;
 import tfar.ae2wtlib.wut.CycleTerminalButton;
@@ -156,7 +156,7 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
                 break;
         }
         setMagnetModeText();
-        PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("CraftingTerminal.SetMagnetMode",magnetSettings.magnetMode.getId()));
+        PacketHandler.INSTANCE.sendToServer(new C2SSetMagnetModePacket(magnetSettings.magnetMode));
     }
 
     private void setMagnetModeText() {

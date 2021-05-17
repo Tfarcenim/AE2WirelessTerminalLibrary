@@ -46,8 +46,9 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import tfar.ae2wtlib.Config;
 import tfar.ae2wtlib.mixin.ContainerAccess;
 import tfar.ae2wtlib.mixin.SlotAccess;
-import tfar.ae2wtlib.net.server.C2SGeneralPacket;
 import tfar.ae2wtlib.net.PacketHandler;
+import tfar.ae2wtlib.net.server.C2STogglePatternCraftingModePacket;
+import tfar.ae2wtlib.net.server.C2STogglePatternSubsitutionPacket;
 import tfar.ae2wtlib.terminal.WTInventoryHandler;
 import tfar.ae2wtlib.terminal.IWTInvHolder;
 import tfar.ae2wtlib.terminal.ItemWT;
@@ -124,11 +125,9 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
             craftingMode = ItemWT.getBoolean(wptGUIObject.getItemStack(), "craftingMode");
             substitute = ItemWT.getBoolean(wptGUIObject.getItemStack(), "substitute");
 
-            int i = craftingMode ? 1 : 0;
+            PacketHandler.INSTANCE.sendToServer(new C2STogglePatternCraftingModePacket(craftingMode));
 
-            PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.CraftMode",i));
-
-            PacketHandler.INSTANCE.sendToServer(new C2SGeneralPacket("PatternTerminal.Substitute",i));
+            PacketHandler.INSTANCE.sendToServer(new C2STogglePatternSubsitutionPacket(substitute));
         }
     }
 

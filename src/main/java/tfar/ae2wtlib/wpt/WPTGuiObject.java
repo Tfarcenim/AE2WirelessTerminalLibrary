@@ -52,7 +52,7 @@ public class WPTGuiObject extends WTGuiObject implements IPortableCell, IAEAppEn
             final ItemStack is = pattern.getStackInSlot(1);
             final ICraftingPatternDetails details = Api.instance().crafting().decodePattern(is, getPlayer().world, false);
             if(details != null) {
-                setCraftingRecipe(details.isCraftable());
+                setCraftingMode(details.isCraftable());
                 setSubstitution(details.canSubstitute());
 
                 for(int x = 0; x < crafting.getSlots() && x < details.getSparseInputs().length; x++) {
@@ -68,7 +68,7 @@ public class WPTGuiObject extends WTGuiObject implements IPortableCell, IAEAppEn
         } else if(inv == crafting) fixCraftingRecipes();
     }
 
-    public void setCraftingRecipe(final boolean craftingMode) {
+    public void setCraftingMode(final boolean craftingMode) {
         this.craftingMode = craftingMode;
         fixCraftingRecipes();
     }

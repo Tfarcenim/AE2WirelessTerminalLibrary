@@ -5,10 +5,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import tfar.ae2wtlib.net.client.S2CInterfaceTerminalPacket;
-import tfar.ae2wtlib.net.server.C2SClearPatternPacket;
-import tfar.ae2wtlib.net.server.C2SDeleteTrashPacket;
-import tfar.ae2wtlib.net.server.C2SEncodePatternPacket;
-import tfar.ae2wtlib.net.server.C2SGeneralPacket;
+import tfar.ae2wtlib.net.server.*;
 
 public class PacketHandler {
 
@@ -22,11 +19,6 @@ public class PacketHandler {
                 (message, buffer) -> {},
                 buffer -> new C2SCycleTerminalPacket(),
                 C2SCycleTerminalPacket::handle);
-
-        INSTANCE.registerMessage(i++, C2SGeneralPacket.class,
-                C2SGeneralPacket::encode,
-                C2SGeneralPacket::new,
-                C2SGeneralPacket::handle);
 
         INSTANCE.registerMessage(i++, C2SDeleteTrashPacket.class,
                 C2SDeleteTrashPacket::encode,
@@ -42,6 +34,16 @@ public class PacketHandler {
                 C2SClearPatternPacket::encode,
                 C2SClearPatternPacket::new,
                 C2SClearPatternPacket::handle);
+
+        INSTANCE.registerMessage(i++, C2STogglePatternSubsitutionPacket.class,
+                C2STogglePatternSubsitutionPacket::encode,
+                C2STogglePatternSubsitutionPacket::new,
+                C2STogglePatternSubsitutionPacket::handle);
+
+        INSTANCE.registerMessage(i++, C2STogglePatternCraftingModePacket.class,
+                C2STogglePatternCraftingModePacket::encode,
+                C2STogglePatternCraftingModePacket::new,
+                C2STogglePatternCraftingModePacket::handle);
 
         INSTANCE.registerMessage(i++, C2SSwitchGuiPacket.class,
                 C2SSwitchGuiPacket::encode,
