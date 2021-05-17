@@ -21,4 +21,11 @@ public class ae2wtlibInternalInventory extends AppEngInternalInventory {
         super.setStackInSlot(slot, to);
         ItemWT.setSavedSlot(terminal, to, identifier + slot);
     }
+
+    @Override
+    protected void onContentsChanged(int slot) {
+        super.onContentsChanged(slot);
+        //todo is this correct?
+        ItemWT.setSavedSlot(terminal, getStackInSlot(slot), identifier + slot);
+    }
 }

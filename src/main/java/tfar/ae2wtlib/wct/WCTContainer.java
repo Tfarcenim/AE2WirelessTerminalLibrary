@@ -56,7 +56,7 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
     private final CraftingMatrixSlot[] craftingSlots = new CraftingMatrixSlot[9];
     private final CraftingTermSlot outputSlot;
     private IRecipe<CraftingInventory> currentRecipe;
-    final WTInventoryHandler WTInventoryHandler;
+    final WTInventoryHandler wtInventoryHandler;
 
     public static boolean open(PlayerEntity player, ContainerLocator locator) {
         return helper.open(player, locator);
@@ -71,7 +71,7 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
         final int slotIndex = ((IInventorySlotAware) wctGUIObject).getInventorySlot();
         lockPlayerInventorySlot(slotIndex);
 
-        WTInventoryHandler = new WTInventoryHandler(getPlayerInv(), wctGUIObject.getItemStack(), this);
+        wtInventoryHandler = new WTInventoryHandler(getPlayerInv(), wctGUIObject.getItemStack(), this);
         craftingGrid = new ae2wtlibInternalInventory(this, 9, "crafting", wctGUIObject.getItemStack());
         final IItemHandler crafting = getInventoryByName("crafting");
 
@@ -83,41 +83,44 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
         AppEngInternalInventory output = new AppEngInternalInventory(this, 1);
         addSlot(outputSlot = new CraftingTermSlot(getPlayerInv().player, getActionSource(), getPowerSource(), gui.getIStorageGrid(), crafting, crafting, output, 131 + 43, -72 + 18 - 4, this));
 
-        addSlot(new AppEngSlot(WTInventoryHandler, 3, 8, -76) {
+        addSlot(new AppEngSlot(wtInventoryHandler, 3, 8, -76) {
 
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET);
             }
         });
-        addSlot(new AppEngSlot(WTInventoryHandler, 2, 8, -58) {
+        addSlot(new AppEngSlot(wtInventoryHandler, 2, 8, -58) {
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE);
             }
         });
-        addSlot(new AppEngSlot(WTInventoryHandler, 1, 8, -40) {
+        addSlot(new AppEngSlot(wtInventoryHandler, 1, 8, -40) {
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS);
             }
         });
-        addSlot(new AppEngSlot(WTInventoryHandler, 0, 8, -22) {
+        addSlot(new AppEngSlot(wtInventoryHandler, 0, 8, -22) {
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS);
             }
         });
 
-        addSlot(new AppEngSlot(WTInventoryHandler, tfar.ae2wtlib.terminal.WTInventoryHandler.OFFHAND, 80, -22) {
+        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.OFFHAND, 80, -22) {
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD);
             }
         });
-        addSlot(new AppEngSlot(WTInventoryHandler, tfar.ae2wtlib.terminal.WTInventoryHandler.TRASH, 98, -22));
-        addSlot(new AppEngSlot(WTInventoryHandler, tfar.ae2wtlib.terminal.WTInventoryHandler.INFINITY_BOOSTER_CARD, 134, -20));
-        addSlot(new AppEngSlot(WTInventoryHandler, tfar.ae2wtlib.terminal.WTInventoryHandler.MAGNET_CARD, 152, -20));//TODO fetch texture for card background
+        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.TRASH, 98, -22));
+        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.INFINITY_BOOSTER_CARD, 134, -20));
+        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.MAGNET_CARD, 152, -20));//TODO fetch texture for card background
+
+        onCraftMatrixChanged(null);
+
     }
 
     private int ticks = 0;
@@ -210,7 +213,7 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
     }
 
     public void deleteTrashSlot() {
-        WTInventoryHandler.setStackInSlot(tfar.ae2wtlib.terminal.WTInventoryHandler.TRASH, ItemStack.EMPTY);
+        wtInventoryHandler.setStackInSlot(WTInventoryHandler.TRASH, ItemStack.EMPTY);
     }
 
     private MagnetSettings magnetSettings;
