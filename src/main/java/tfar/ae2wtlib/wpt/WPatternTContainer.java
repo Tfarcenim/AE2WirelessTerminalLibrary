@@ -147,7 +147,7 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
         if (!wptGUIObject.rangeCheck()) {
             if (isValidContainer()) {
                 getPlayerInv().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
-                ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
+                getPlayerInv().player.closeScreen();
             }
             setValidContainer(false);
         } else {
@@ -161,7 +161,7 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
             if (wptGUIObject.extractAEPower(1, Actionable.SIMULATE, PowerMultiplier.ONE) == 0) {
                 if (isValidContainer()) {
                     getPlayerInv().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
-                    ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
+                    getPlayerInv().player.closeScreen();
                 }
                 setValidContainer(false);
             }

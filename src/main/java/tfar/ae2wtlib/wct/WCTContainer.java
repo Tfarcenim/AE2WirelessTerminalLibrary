@@ -133,7 +133,7 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
         if(!wctGUIObject.rangeCheck()) {
             if(isValidContainer()) {
                 getPlayerInv().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
-                ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
+                getPlayerInv().player.closeScreen();
             }
             setValidContainer(false);
         } else {
@@ -147,7 +147,7 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
             if(wctGUIObject.extractAEPower(1, Actionable.SIMULATE, PowerMultiplier.ONE) == 0) {
                 if(isValidContainer()) {
                     getPlayerInv().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
-                    ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
+                    getPlayerInv().player.closeScreen();
                 }
                 setValidContainer(false);
             }

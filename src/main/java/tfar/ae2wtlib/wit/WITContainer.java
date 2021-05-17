@@ -92,7 +92,7 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
         if(!witGUIObject.rangeCheck()) {
             if(isValidContainer()) {
                 getPlayerInv().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
-                ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
+                ((ServerPlayerEntity) getPlayerInv().player).closeScreen();
             }
             setValidContainer(false);
         } else {
@@ -101,7 +101,7 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
             if(witGUIObject.extractAEPower(1, Actionable.SIMULATE, PowerMultiplier.ONE) == 0) {
                 if(isValidContainer()) {
                     getPlayerInv().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
-                    ((ServerPlayerEntity) getPlayerInv().player).closeContainer();
+                    ((ServerPlayerEntity) getPlayerInv().player).closeScreen();
                 }
                 setValidContainer(false);
             }
