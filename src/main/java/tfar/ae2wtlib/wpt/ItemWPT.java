@@ -15,6 +15,6 @@ public class ItemWPT extends ItemWT implements IInfinityBoosterCardHolder {
 
     @Override
     public void open(final PlayerEntity player, final ContainerLocator locator) {
-        WPatternTContainer.open(player, locator);
+        WPatternTContainer.openServer(player, locator);
     }
 }

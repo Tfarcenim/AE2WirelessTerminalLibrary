@@ -217,7 +217,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
                 if(originalGui.equals(WCTContainer.TYPE))
                     WCTContainer.open(getPlayerInventory().player, getLocator());
                 else if(originalGui.equals(WPatternTContainer.TYPE))
-                    WPatternTContainer.open(getPlayerInventory().player, getLocator());
+                    WPatternTContainer.openServer(getPlayerInventory().player, getLocator());
             }
         }
     }

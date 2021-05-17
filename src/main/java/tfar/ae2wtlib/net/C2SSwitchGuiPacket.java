@@ -52,7 +52,7 @@ public class C2SSwitchGuiPacket {
                         WCTContainer.open(player, locator);
                         break;
                     case "wireless_pattern_terminal":
-                        WPatternTContainer.open(player, locator);
+                        WPatternTContainer.openServer(player, locator);
                         break;
                     case "wireless_interface_terminal":
                         WITContainer.open(player, locator);

@@ -72,7 +72,7 @@ public final class ContainerHelper<C extends AEBaseContainer, I> {
         return true;
     }
 
-    private class HandlerFactory implements INamedContainerProvider {
+    public class HandlerFactory implements INamedContainerProvider {
         private final ContainerLocator locator;
 
         private final I accessInterface;
@@ -101,7 +101,7 @@ public final class ContainerHelper<C extends AEBaseContainer, I> {
         }
     }
 
-    private I getHostFromLocator(PlayerEntity player, ContainerLocator locator) {
+    public I getHostFromLocator(PlayerEntity player, ContainerLocator locator) {
         if(locator.hasItemIndex()) return getHostFromPlayerInventory(player, locator);
         return null;
     }
