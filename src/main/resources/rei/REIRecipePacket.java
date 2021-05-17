@@ -1,4 +1,4 @@
-package tfar.ae2wtlib.rei;
+package tfar.ae2wt.rei;
 
 import alexiil.mc.lib.attributes.item.FixedItemInv;
 import appeng.api.config.Actionable;
@@ -24,7 +24,7 @@ import appeng.util.item.AEItemStack;
 import appeng.util.prioritylist.IPartitionList;
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Pair;
-import tfar.ae2wtlib.wpt.WPatternTContainer;
+import tfar.ae2wt.wpt.WPatternTContainer;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.item.ItemStack;

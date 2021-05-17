@@ -8,7 +8,7 @@ import appeng.container.guisync.GuiSync;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
-import tfar.ae2wtlib.util.ContainerHelper;
+import tfar.ae2wt.util.ContainerHelper;
 import net.minecraft.util.text.ITextComponent;
 
 public class WirelessCraftingStatusContainer extends CraftingCPUContainer implements CraftingCPUCyclingContainer {

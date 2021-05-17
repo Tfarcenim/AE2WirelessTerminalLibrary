@@ -1,6 +1,6 @@
-package tfar.ae2wtlib.rei;
+package tfar.ae2wt.rei;
 
-import tfar.ae2wtlib.wpt.WPatternTContainer;
+import tfar.ae2wt.wpt.WPatternTContainer;
 import me.shedaniel.rei.api.AutoTransferHandler;
 import me.shedaniel.rei.api.RecipeDisplay;
 import me.shedaniel.rei.plugin.DefaultPlugin;

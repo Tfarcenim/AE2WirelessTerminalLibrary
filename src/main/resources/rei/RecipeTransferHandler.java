@@ -1,4 +1,4 @@
-package tfar.ae2wtlib.rei;
+package tfar.ae2wt.rei;
 
 import appeng.helpers.IContainerCraftingPacket;
 import me.shedaniel.rei.api.AutoTransferHandler;

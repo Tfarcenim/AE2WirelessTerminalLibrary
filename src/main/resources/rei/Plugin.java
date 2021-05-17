@@ -1,8 +1,8 @@
-package tfar.ae2wtlib.rei;
+package tfar.ae2wt.rei;
 
-import tfar.ae2wtlib.AE2WirelessTerminals;
-import tfar.ae2wtlib.wct.WCTContainer;
-import tfar.ae2wtlib.wpt.WPatternTContainer;
+import tfar.ae2wt.AE2WirelessTerminals;
+import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
+import tfar.ae2wt.wpt.WPatternTContainer;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeHelper;
 import me.shedaniel.rei.api.plugins.REIPluginV0;

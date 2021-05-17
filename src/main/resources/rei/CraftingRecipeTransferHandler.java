@@ -1,6 +1,6 @@
-package tfar.ae2wtlib.rei;
+package tfar.ae2wt.rei;
 
-import tfar.ae2wtlib.wct.WCTContainer;
+import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
 import me.shedaniel.rei.api.AutoTransferHandler;
 import me.shedaniel.rei.api.RecipeDisplay;
 
