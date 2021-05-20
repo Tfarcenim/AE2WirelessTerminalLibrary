@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "package": "tfar.ae2wt.mixin",
   "compatibilityLevel": "JAVA_8",
+  "refmap": "ae2wtlib.refmap.json",
   "mixins": [
     "CfgValuePacket",
     "ContainerAccess",
