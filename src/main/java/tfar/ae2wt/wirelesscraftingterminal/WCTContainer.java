@@ -44,7 +44,7 @@ import tfar.ae2wt.wut.ItemWUT;
 
 public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInventory, IContainerCraftingPacket, IWTInvHolder {
 
-    public static ContainerType<WCTContainer> TYPE;
+    public static ContainerType<WCTContainer> WCT;
 
     public static WCTContainer openClient(int windowId, PlayerInventory inv) {
         PlayerEntity player = inv.player;
@@ -72,7 +72,7 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
     private final WCTGuiObject wctGUIObject;
 
     public WCTContainer(int id, final PlayerInventory ip, final WCTGuiObject gui) {
-        super(TYPE, id, ip, gui, true);
+        super(WCT, id, ip, gui, true);
         wctGUIObject = gui;
 
         final int slotIndex = ((IInventorySlotAware) wctGUIObject).getInventorySlot();

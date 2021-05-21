@@ -31,7 +31,7 @@ public final class ae2wtlibSubScreen {
         this.gui = gui;
         if(containerTarget instanceof WCTGuiObject) {//TODO don't hardcode
             previousContainerIcon = new ItemStack(AE2WirelessTerminals.CRAFTING_TERMINAL);
-            previousContainerType = WCTContainer.TYPE;
+            previousContainerType = WCTContainer.WCT;
         } else if(containerTarget instanceof WPTGuiObject) {
             previousContainerIcon = new ItemStack(AE2WirelessTerminals.PATTERN_TERMINAL);
             previousContainerType = WPatternTContainer.TYPE;

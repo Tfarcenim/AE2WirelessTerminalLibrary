@@ -8,12 +8,12 @@
     "CfgValuePacket",
     "ContainerAccess",
     "InvActionPacket",
-    "MEInvUpdatePacket",
-    "MeMonitorableScreenWireless",
-    "PlayerInventoryInsertStack",
+    "PlayerInventoryMixin",
     "SlotAccess"
   ],
   "client": [
+    "MEInvUpdatePacket",
+    "MeMonitorableScreenWireless"
   ],
   "injectors": {
     "defaultRequire": 1

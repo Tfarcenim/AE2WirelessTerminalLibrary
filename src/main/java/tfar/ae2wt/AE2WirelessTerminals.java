@@ -82,7 +82,7 @@ public class AE2WirelessTerminals {
     }
 
     public void menus(RegistryEvent.Register<ContainerType<?>> e) {
-        WCTContainer.TYPE = (ContainerType<WCTContainer>) register("wireless_crafting_terminal", new ContainerType<>(WCTContainer::openClient),e.getRegistry());
+        WCTContainer.WCT = (ContainerType<WCTContainer>) register("wireless_crafting_terminal", new ContainerType<>(WCTContainer::openClient),e.getRegistry());
         WPatternTContainer.TYPE = (ContainerType<WPatternTContainer>) register( "wireless_pattern_terminal", IForgeContainerType.create((windowId1, inv1, buf1) -> WPatternTContainer.openClient(windowId1, inv1)),e.getRegistry());
         WITContainer.TYPE = (ContainerType<WITContainer>) register( "wireless_interface_terminal",IForgeContainerType.create((int windowId1, PlayerInventory inv1, PacketBuffer inv12) -> WITContainer.openClient(windowId1, inv1)),e.getRegistry());
 

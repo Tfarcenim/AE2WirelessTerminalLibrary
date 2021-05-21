@@ -29,7 +29,6 @@ import net.minecraft.util.Hand;
 import tfar.ae2wt.mixin.ContainerAccess;
 import tfar.ae2wt.net.TermFactoryConfirm;
 import tfar.ae2wt.terminal.ItemWT;
-import tfar.ae2wt.util.ContainerHelper;
 import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
 import tfar.ae2wt.wirelesscraftingterminal.WCTGuiObject;
 import tfar.ae2wt.wpt.WPatternTContainer;
@@ -219,7 +218,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
         final IActionHost ah = getActionHost();
 
         if(ah instanceof WCTGuiObject) {
-            originalGui = WCTContainer.TYPE;
+            originalGui = WCTContainer.WCT;
         } else if(ah instanceof WPTGuiObject) {
             originalGui = WPatternTContainer.TYPE;
         }
@@ -229,7 +228,7 @@ public class WirelessCraftConfirmContainer extends AEBaseContainer implements Cr
             final ICraftingLink g = cc.submitJob(result, null, selectedCpu, true, getActionSrc());
             setAutoStart(false);
             if(g != null && originalGui != null && getLocator() != null) {
-                if(originalGui.equals(WCTContainer.TYPE))
+                if(originalGui.equals(WCTContainer.WCT))
                     WCTContainer.openServer(getPlayerInventory().player, getLocator());
                 else if(originalGui.equals(WPatternTContainer.TYPE))
                     WPatternTContainer.openServer(getPlayerInventory().player, getLocator());

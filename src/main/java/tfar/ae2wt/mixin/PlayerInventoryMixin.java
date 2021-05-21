@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerInventory.class)
-public class PlayerInventoryInsertStack {
+public class PlayerInventoryMixin {
 
     @Shadow
     @Final

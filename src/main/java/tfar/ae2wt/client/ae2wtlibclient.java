@@ -24,7 +24,7 @@ import org.lwjgl.glfw.GLFW;
 public class ae2wtlibclient {
 
     public static void setup(FMLClientSetupEvent e) {
-        ScreenManager.registerFactory(WCTContainer.TYPE,
+        ScreenManager.registerFactory(WCTContainer.WCT,
                 WCTScreen::new);
         ScreenManager.registerFactory(WPatternTContainer.TYPE, WPTScreen::new);
         ScreenManager.registerFactory(WITContainer.TYPE, WITScreen::new);
