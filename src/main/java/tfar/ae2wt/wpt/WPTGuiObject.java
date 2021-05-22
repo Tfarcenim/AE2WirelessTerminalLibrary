@@ -68,6 +68,11 @@ public class WPTGuiObject extends WTGuiObject implements IPortableCell, IAEAppEn
         } else if(inv == crafting) fixCraftingRecipes();
     }
 
+    @Override
+    public boolean isRemote() {
+        return getPlayer().world.isRemote;
+    }
+
     public void setCraftingMode(final boolean craftingMode) {
         this.craftingMode = craftingMode;
         fixCraftingRecipes();
