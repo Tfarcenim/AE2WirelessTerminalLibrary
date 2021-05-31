@@ -1,10 +1,10 @@
 [![build master](https://github.com/Mari023/AE2WirelessTerminalLibrary/actions/workflows/build_master.yml/badge.svg)](https://github.com/Mari023/AE2WirelessTerminalLibrary/actions/workflows/build_master.yml)
-[![Curseforge downloads](http://cf.way2muchnoise.eu/full_459929_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2-wireless-terminals)
+[![Curseforge downloads](http://cf.way2muchnoise.eu/full_459929_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2-wireless-terminals-forge)
 [![Curseforge Versions](http://cf.way2muchnoise.eu/versions/459929.svg)](https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2-wireless-terminals/files)
 
 Applied Energistics 2 Wireless Terminals
 ========================================
-This is a Fabric port
+This is a FOrge Port of the Fabric port
 of [Wireless Crafting Terminal](https://www.curseforge.com/minecraft/mc-mods/wireless-crafting-terminal)
 , [Wireless Pattern Terminal](https://www.curseforge.com/minecraft/mc-mods/wireless-pattern-terminal)
 , [Wireless Interface Terminal](https://www.curseforge.com/minecraft/mc-mods/wireless-interface-terminal), [~~Wireless
@@ -23,15 +23,10 @@ It also adds a wireless universal terminal which has all wireless terminals in o
 - Curios support
 - support for viewcells
 
-## FAQ
-
-- Q: Will you (back-)port this to Forge?
-- A: No. But you can!
-
 ## License
 
 * Applied Energistics 2 Wireless Terminals
-  - (c) 2021 Mari_023
+  - (c) 2021 Tfarecnim
   - [![License](https://img.shields.io/badge/License-MIT-red.svg?style=flat-square)](http://opensource.org/licenses/MIT)
 
 * Textures
