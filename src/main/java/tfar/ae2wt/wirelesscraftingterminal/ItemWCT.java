@@ -25,9 +25,4 @@ public class ItemWCT extends ItemWT implements IInfinityBoosterCardHolder {
         return is.getItem() instanceof ItemWCT;
     }
 
-
-    @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        return false;
-    }
 }

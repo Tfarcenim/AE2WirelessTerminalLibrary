@@ -41,7 +41,7 @@ import net.minecraft.util.Util;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import tfar.ae2wt.Config;
+import tfar.ae2wt.WTConfig;
 import tfar.ae2wt.mixin.ContainerAccess;
 import tfar.ae2wt.mixin.SlotAccess;
 import tfar.ae2wt.net.PacketHandler;
@@ -148,7 +148,7 @@ public class WPatternTContainer extends MEMonitorableContainer implements IAEApp
             }
             setValidContainer(false);
         } else {
-            double powerMultiplier = Config.getPowerMultiplier(wptGUIObject.getRange(), wptGUIObject.isOutOfRange());
+            double powerMultiplier = WTConfig.getPowerMultiplier(wptGUIObject.getRange(), wptGUIObject.isOutOfRange());
             ticks++;
             if (ticks > 10) {
                 wptGUIObject.extractAEPower((powerMultiplier) * ticks, Actionable.MODULATE, PowerMultiplier.CONFIG);

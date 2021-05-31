@@ -95,10 +95,10 @@ public class AE2WirelessTerminals {
         WUTHandler.addTerminal("pattern", PATTERN_TERMINAL::open);
         WUTHandler.addTerminal("interface", INTERFACE_TERMINAL::open);
 
-        Api.instance().registries().charger().addChargeRate(CRAFTING_TERMINAL, Config.getChargeRate());
-        Api.instance().registries().charger().addChargeRate(PATTERN_TERMINAL, Config.getChargeRate());
-        Api.instance().registries().charger().addChargeRate(INTERFACE_TERMINAL, Config.getChargeRate());
-        Api.instance().registries().charger().addChargeRate(UNIVERSAL_TERMINAL, Config.getChargeRate() * Config.WUTChargeRateMultiplier());
+        Api.instance().registries().charger().addChargeRate(CRAFTING_TERMINAL, WTConfig.getChargeRate());
+        Api.instance().registries().charger().addChargeRate(PATTERN_TERMINAL, WTConfig.getChargeRate());
+        Api.instance().registries().charger().addChargeRate(INTERFACE_TERMINAL, WTConfig.getChargeRate());
+        Api.instance().registries().charger().addChargeRate(UNIVERSAL_TERMINAL, WTConfig.getChargeRate() * WTConfig.WUTChargeRateMultiplier());
     }
 
        /* ServerPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "patternslotpacket"), (server, player, handler, buf, sender) -> {

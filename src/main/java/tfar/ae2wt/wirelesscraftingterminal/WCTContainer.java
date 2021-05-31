@@ -33,7 +33,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import tfar.ae2wt.Config;
+import tfar.ae2wt.WTConfig;
 import tfar.ae2wt.terminal.IWTInvHolder;
 import tfar.ae2wt.terminal.ItemWT;
 import tfar.ae2wt.terminal.WTInventoryHandler;
@@ -144,10 +144,10 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
             }
             setValidContainer(false);
         } else {
-            double powerMultiplier = Config.getPowerMultiplier(wctGUIObject.getRange(), wctGUIObject.isOutOfRange());
+            double powerMultiplier = WTConfig.getPowerMultiplier(wctGUIObject.getRange(), wctGUIObject.isOutOfRange());
             ticks++;
             if(ticks > 10) {
-                wctGUIObject.extractAEPower((powerMultiplier) * ticks, Actionable.MODULATE, PowerMultiplier.CONFIG);
+                wctGUIObject.extractAEPower(powerMultiplier * ticks, Actionable.MODULATE, PowerMultiplier.CONFIG);
                 ticks = 0;
             }
 

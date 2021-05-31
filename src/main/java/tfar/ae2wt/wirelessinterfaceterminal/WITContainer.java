@@ -36,7 +36,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.IItemHandler;
-import tfar.ae2wt.Config;
+import tfar.ae2wt.WTConfig;
 import tfar.ae2wt.net.PacketHandler;
 import tfar.ae2wt.net.client.S2CInterfaceTerminalPacket;
 import tfar.ae2wt.terminal.IWTInvHolder;
@@ -104,7 +104,7 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
             }
             setValidContainer(false);
         } else {
-            powerMultiplier = Config.getPowerMultiplier(witGUIObject.getRange(), witGUIObject.isOutOfRange());
+            powerMultiplier = WTConfig.getPowerMultiplier(witGUIObject.getRange(), witGUIObject.isOutOfRange());
 
             if(witGUIObject.extractAEPower(1, Actionable.SIMULATE, PowerMultiplier.ONE) == 0) {
                 if(isValidContainer()) {

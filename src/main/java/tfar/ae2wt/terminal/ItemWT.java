@@ -208,4 +208,9 @@ public abstract class ItemWT extends AEBasePoweredItem implements IWirelessTermH
         }
         return ItemStack.EMPTY;
     }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return !ItemStack.areItemStacksEqual(oldStack, newStack);
+    }
 }
