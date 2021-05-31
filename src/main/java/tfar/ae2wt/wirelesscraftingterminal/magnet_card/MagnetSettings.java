@@ -7,24 +7,27 @@ public class MagnetSettings {
 
     public MagnetMode magnetMode;
 
-    /**
-     * loads {@link MagnetSettings} from a tag.
-     * @param tag tag to load the settings from.
-     *            An empty tag will result in Default {@link MagnetSettings}
-     */
-    public MagnetSettings(CompoundNBT tag) {
-        if(tag == null) {
-            magnetMode = MagnetMode.DEFAULT;
+    private MagnetSettings(MagnetMode mode) {
+        this.magnetMode = mode;
+    }
+
+    public static MagnetSettings from(ItemStack magnetCard) {
+        if (magnetCard.isEmpty()) {
+            return new MagnetSettings(MagnetMode.NO_CARD);
         } else {
-            magnetMode = MagnetMode.modes[(tag.getInt("magnetMode"))];
+            CompoundNBT nbt = magnetCard.getTag() != null ? magnetCard.getTag().getCompound("magnet_settings") : null;
+            if (nbt != null) {
+                int ordinal = nbt.getInt("magnetMode");
+                MagnetMode mode = MagnetMode.modes[ordinal];
+                return new MagnetSettings(mode);
+            } else {
+                return new MagnetSettings(MagnetMode.NO_CARD);
+            }
         }
     }
 
-    /**
-     * creates {@link MagnetSettings} for an empty {@link ItemStack}
-     */
-    public MagnetSettings() {
-        magnetMode = MagnetMode.INVALID;
+    public void saveTo(ItemStack magnetCard) {
+        magnetCard.getOrCreateTag().put("magnet_settings", toTag());
     }
 
     public CompoundNBT toTag() {

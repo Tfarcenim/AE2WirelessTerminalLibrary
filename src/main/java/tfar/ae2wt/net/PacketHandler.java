@@ -55,6 +55,11 @@ public class PacketHandler {
                 C2SCraftRequestPacket::new,
                 C2SCraftRequestPacket::handle);
 
+        INSTANCE.registerMessage(i++, C2SSetMagnetModePacket.class,
+                C2SSetMagnetModePacket::encode,
+                C2SSetMagnetModePacket::new,
+                C2SSetMagnetModePacket::handle);
+
         INSTANCE.registerMessage(i++, S2CInterfaceTerminalPacket.class,
                 S2CInterfaceTerminalPacket::encode,
                 S2CInterfaceTerminalPacket::new,

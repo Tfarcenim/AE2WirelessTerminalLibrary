@@ -39,7 +39,7 @@ public abstract class RecipeTransferHandler<T extends Container & IContainerCraf
         if (!(recipe instanceof IRecipe)) {
             return this.helper.createInternalError();
         } else {
-            IRecipe<?> irecipe = (IRecipe) recipe;
+            IRecipe<?> irecipe = (IRecipe<?>) recipe;
             ResourceLocation recipeId = irecipe.getId();
             if (recipeId == null) {
                 return this.helper.createUserErrorWithTooltip(I18n.format("jei.appliedenergistics2.missing_id"));

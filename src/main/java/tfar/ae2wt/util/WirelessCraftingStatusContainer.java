@@ -61,6 +61,7 @@ public class WirelessCraftingStatusContainer extends CraftingCPUContainer implem
     static {
         try {
             m = CraftingCPUContainer.class.getDeclaredMethod("getNetwork");
+            m.setAccessible(true);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }

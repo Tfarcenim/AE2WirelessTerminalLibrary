@@ -14,11 +14,13 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import tfar.ae2wt.net.server.C2SDeleteTrashPacket;
 import tfar.ae2wt.net.PacketHandler;
 import tfar.ae2wt.net.server.C2SSetMagnetModePacket;
+import tfar.ae2wt.util.ItemButton;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.MagnetMode;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.MagnetSettings;
 import tfar.ae2wt.wut.CycleTerminalButton;
@@ -31,7 +33,7 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
     private int rows = 0;
     private AETextField searchField;
     private final int reservedSpace;
-    IconButton magnetCardToggleButton;
+    ItemButton magnetCardToggleButton;
 
     public WCTScreen(WCTContainer container, PlayerInventory playerInventory, ITextComponent title) {
         super(container, playerInventory, title);
@@ -41,7 +43,6 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
             Field f = MEMonitorableScreen.class.getDeclaredField("reservedSpace");
             f.setAccessible(true);
             f.set(this, reservedSpace);
-            f.setAccessible(false);
         } catch(IllegalAccessException | NoSuchFieldException ignored) {}
     }
 
@@ -51,7 +52,7 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
         ActionButton clearBtn = addButton(new ActionButton(guiLeft+ 92 + 43, guiTop+ySize - 156 - 4, ActionItems.STASH, btn -> clear()));
         clearBtn.setHalfSize(true);
 
-        IconButton deleteButton = addButton(new IconButton(guiLeft+ 92 + 25, guiTop+ySize - 156 + 52, btn -> delete()) {
+        IconButton deleteButton = addButton(new IconButton(guiLeft+ 92 + 25, guiTop+ySize - 104, btn -> delete()) {
             @Override
             protected int getIconIndex() {
                 return 6;
@@ -60,14 +61,9 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
         deleteButton.setHalfSize(true);
         deleteButton.setMessage(new TranslationTextComponent("gui.ae2wtlib.emptytrash").appendString("\n").appendSibling(new TranslationTextComponent("gui.ae2wtlib.emptytrash.desc")));
 
-        magnetCardToggleButton = addButton(new IconButton(guiLeft+ 92 + 60, guiTop+ySize - 114, btn -> setMagnetMode()) {
-            @Override
-            protected int getIconIndex() {
-                return 6;
-            }
-        });
+        magnetCardToggleButton = addButton(new ItemButton(guiLeft + 92 + 60, guiTop + ySize - 114, btn -> setMagnetMode(), new ResourceLocation("ae2wtlib", "textures/magnet_card.png")));
+
         magnetCardToggleButton.setHalfSize(true);
-        resetMagnetSettings();
         container.setScreen(this);
 
         if(container.isWUT()) addButton(new CycleTerminalButton(guiLeft- 18, guiTop+ 88, btn -> cycleTerminal()));
@@ -76,14 +72,12 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
             Field field = MEMonitorableScreen.class.getDeclaredField("rows");
             field.setAccessible(true);
             Object value = field.get(this);
-            field.setAccessible(false);
             rows = (int) value;
         } catch(IllegalAccessException | NoSuchFieldException ignored) {}
         try {
             Field field = MEMonitorableScreen.class.getDeclaredField("searchField");
             field.setAccessible(true);
             Object value = field.get(this);
-            field.setAccessible(false);
             searchField = (AETextField) value;
         } catch(IllegalAccessException | NoSuchFieldException ignored) {}
     }
@@ -140,7 +134,6 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
 
     private void setMagnetMode() {
         switch(magnetSettings.magnetMode) {
-            case INVALID:
             case NO_CARD:
                 return;
             case OFF:
@@ -159,23 +152,20 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
 
     private void setMagnetModeText() {
         switch(magnetSettings.magnetMode) {
-            case INVALID:
             case NO_CARD:
                 magnetCardToggleButton.setVisibility(false);
-                break;
+                return;
             case OFF:
-                magnetCardToggleButton.setVisibility(true);
                 magnetCardToggleButton.setMessage(new TranslationTextComponent("gui.ae2wtlib.magnetcard").appendString("\n").appendSibling(new TranslationTextComponent("gui.ae2wtlib.magnetcard.desc.off")));
                 break;
             case PICKUP_INVENTORY:
-                magnetCardToggleButton.setVisibility(true);
                 magnetCardToggleButton.setMessage(new TranslationTextComponent("gui.ae2wtlib.magnetcard").appendString("\n").appendSibling(new TranslationTextComponent("gui.ae2wtlib.magnetcard.desc.inv")));
                 break;
             case PICKUP_ME:
-                magnetCardToggleButton.setVisibility(true);
                 magnetCardToggleButton.setMessage(new TranslationTextComponent("gui.ae2wtlib.magnetcard").appendString("\n").appendSibling(new TranslationTextComponent("gui.ae2wtlib.magnetcard.desc.me")));
                 break;
         }
+        magnetCardToggleButton.setVisibility(true);
     }
 
     @Override
