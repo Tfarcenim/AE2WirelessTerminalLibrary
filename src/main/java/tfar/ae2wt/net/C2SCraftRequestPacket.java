@@ -6,7 +6,7 @@ import appeng.api.networking.crafting.ICraftingGrid;
 import appeng.api.networking.crafting.ICraftingJob;
 import appeng.api.networking.security.IActionHost;
 import appeng.container.ContainerLocator;
-import appeng.container.implementations.WirelessCraftConfirmContainer;
+import tfar.ae2wt.util.WirelessCraftConfirmContainer;
 import appeng.core.AELog;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;

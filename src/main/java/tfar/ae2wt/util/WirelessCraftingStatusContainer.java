@@ -1,20 +1,27 @@
-package appeng.container.implementations;
+package tfar.ae2wt.util;
 
 import appeng.api.networking.IGrid;
 import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.storage.ITerminalHost;
 import appeng.container.ContainerLocator;
 import appeng.container.guisync.GuiSync;
+import appeng.container.implementations.CraftingCPUContainer;
+import appeng.container.implementations.CraftingCPUCyclingContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
+import tfar.ae2wt.cpu.CraftingCPUCycler;
+import tfar.ae2wt.cpu.CraftingCPURecord;
 import tfar.ae2wt.net.TermFactoryStatus;
 import tfar.ae2wt.terminal.ItemWT;
 import net.minecraft.util.text.ITextComponent;
 import tfar.ae2wt.wirelesscraftingterminal.WCTGuiObject;
 import tfar.ae2wt.wpt.WPTGuiObject;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class WirelessCraftingStatusContainer extends CraftingCPUContainer implements CraftingCPUCyclingContainer {
     public static ContainerType<WirelessCraftingStatusContainer> TYPE;
@@ -48,12 +55,30 @@ public class WirelessCraftingStatusContainer extends CraftingCPUContainer implem
     @GuiSync(7)
     public ITextComponent cpuName;
 
+
+    private static Method m;
+
+    static {
+        try {
+            m = CraftingCPUContainer.class.getDeclaredMethod("getNetwork");
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void detectAndSendChanges() {
-        IGrid network = this.getNetwork();
-        if (isServer() && network != null) {
-            cpuCycler.detectAndSendChanges(network);
+        //package private methof
+       // IGrid network = this.getNetwork();
+        try {
+            IGrid network = (IGrid) m.invoke(this);
+            if (isServer() && network != null) {
+                cpuCycler.detectAndSendChanges(network);
+            }
+        } catch (IllegalAccessException|InvocationTargetException e) {
+            e.printStackTrace();
         }
+
 
         super.detectAndSendChanges();
     }

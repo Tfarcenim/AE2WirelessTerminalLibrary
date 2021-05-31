@@ -2,15 +2,13 @@ package tfar.ae2wt.net;
 
 import appeng.api.storage.ITerminalHost;
 import appeng.container.ContainerLocator;
-import appeng.container.implementations.WirelessCraftingStatusContainer;
+import tfar.ae2wt.util.WirelessCraftingStatusContainer;
 import appeng.core.localization.GuiText;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.util.text.ITextComponent;
-import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
-import tfar.ae2wt.wirelesscraftingterminal.WCTGuiObject;
 
 import javax.annotation.Nullable;
 

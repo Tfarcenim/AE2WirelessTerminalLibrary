@@ -1,7 +1,7 @@
 package tfar.ae2wt.client;
 
-import appeng.container.implementations.WirelessCraftConfirmContainer;
-import appeng.container.implementations.WirelessCraftingStatusContainer;
+import tfar.ae2wt.util.WirelessCraftConfirmContainer;
+import tfar.ae2wt.util.WirelessCraftingStatusContainer;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import tfar.ae2wt.net.C2SHotkeyPacket;
 import tfar.ae2wt.net.PacketHandler;

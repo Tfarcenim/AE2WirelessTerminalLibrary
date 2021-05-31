@@ -2,7 +2,7 @@ package tfar.ae2wt.net;
 
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerLocator;
-import appeng.container.implementations.WirelessCraftingStatusContainer;
+import tfar.ae2wt.util.WirelessCraftingStatusContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;

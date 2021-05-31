@@ -1,7 +1,7 @@
 package tfar.ae2wt;
 
-import appeng.container.implementations.WirelessCraftConfirmContainer;
-import appeng.container.implementations.WirelessCraftingStatusContainer;
+import tfar.ae2wt.util.WirelessCraftConfirmContainer;
+import tfar.ae2wt.util.WirelessCraftingStatusContainer;
 import appeng.core.Api;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;

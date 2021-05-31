@@ -1,4 +1,4 @@
-package appeng.container.implementations;
+package tfar.ae2wt.util;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.SecurityPermissions;
@@ -18,6 +18,7 @@ import appeng.api.storage.data.IItemList;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerLocator;
 import appeng.container.guisync.GuiSync;
+import appeng.container.implementations.CraftingCPUCyclingContainer;
 import appeng.core.AELog;
 import appeng.core.Api;
 import appeng.core.sync.network.NetworkHandler;
@@ -26,6 +27,8 @@ import appeng.me.helpers.PlayerSource;
 import appeng.util.Platform;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
+import tfar.ae2wt.cpu.CraftingCPUCycler;
+import tfar.ae2wt.cpu.CraftingCPURecord;
 import tfar.ae2wt.mixin.ContainerAccess;
 import tfar.ae2wt.net.TermFactoryConfirm;
 import tfar.ae2wt.terminal.ItemWT;

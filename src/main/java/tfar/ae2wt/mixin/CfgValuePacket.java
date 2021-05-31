@@ -1,6 +1,6 @@
 package tfar.ae2wt.mixin;
 
-import appeng.container.implementations.WirelessCraftConfirmContainer;
+import tfar.ae2wt.util.WirelessCraftConfirmContainer;
 import appeng.core.sync.network.INetworkInfo;
 import appeng.core.sync.packets.ConfigValuePacket;
 import net.minecraft.entity.player.PlayerEntity;

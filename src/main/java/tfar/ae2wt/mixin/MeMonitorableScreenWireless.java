@@ -1,7 +1,7 @@
 package tfar.ae2wt.mixin;
 
 import appeng.client.gui.implementations.MEMonitorableScreen;
-import appeng.container.implementations.WirelessCraftingStatusContainer;
+import tfar.ae2wt.util.WirelessCraftingStatusContainer;
 import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

@@ -8,7 +8,6 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerLocator;
-import appeng.container.implementations.WirelessCraftingStatusContainer;
 import appeng.container.slot.InaccessibleSlot;
 import appeng.me.helpers.PlayerSource;
 import appeng.tile.inventory.AppEngInternalInventory;
@@ -19,10 +18,8 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
-import tfar.ae2wt.net.TermFactoryStatus;
 import tfar.ae2wt.terminal.ItemWT;
 import tfar.ae2wt.wirelesscraftingterminal.WCTGuiObject;
-import tfar.ae2wt.wpt.WPTGuiObject;
 
 public class WirelessCraftAmountContainer extends AEBaseContainer {
 

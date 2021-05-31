@@ -5,7 +5,6 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
 import appeng.client.gui.AEBaseScreen;
 import appeng.client.gui.widgets.Scrollbar;
-import appeng.container.implementations.WirelessCraftConfirmContainer;
 import appeng.core.Api;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;

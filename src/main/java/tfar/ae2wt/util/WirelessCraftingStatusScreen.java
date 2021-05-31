@@ -1,7 +1,6 @@
 package tfar.ae2wt.util;
 
 import appeng.client.gui.implementations.CraftingCPUScreen;
-import appeng.container.implementations.WirelessCraftingStatusContainer;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.ConfigValuePacket;
