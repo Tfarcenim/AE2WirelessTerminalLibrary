@@ -1,6 +1,6 @@
-[![build master](https://github.com/Mari023/AE2WirelessTerminalLibrary/actions/workflows/build_master.yml/badge.svg)](https://github.com/Mari023/AE2WirelessTerminalLibrary/actions/workflows/build_master.yml)
-[![Curseforge downloads](http://cf.way2muchnoise.eu/full_459929_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2-wireless-terminals-forge)
-[![Curseforge Versions](http://cf.way2muchnoise.eu/versions/459929.svg)](https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2-wireless-terminals/files)
+[![build master](https://github.com/Tfarcenim/AE2WirelessTerminalLibrary/actions/workflows/build_master.yml/badge.svg)](https://github.com/Tfarcenim/AE2WirelessTerminalLibrary/actions/workflows/build_master.yml)
+[![Curseforge downloads](http://cf.way2muchnoise.eu/full_483310_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2-wireless-terminals-forge)
+[![Curseforge Versions](http://cf.way2muchnoise.eu/versions/483310.svg)](https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2-wireless-terminals/files)
 
 Applied Energistics 2 Wireless Terminals
 ========================================
