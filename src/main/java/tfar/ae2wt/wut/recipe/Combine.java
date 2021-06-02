@@ -2,11 +2,10 @@ package tfar.ae2wt.wut.recipe;
 
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 public class Combine extends Common {
@@ -15,13 +14,13 @@ public class Combine extends Common {
     private final String TerminalAName;
     private final String TerminalBName;
 
-    public Combine(Ingredient TerminalA, Ingredient TerminalB, String TerminalAName, String TerminalBName, Identifier id) {
+    public Combine(Ingredient TerminalA, Ingredient TerminalB, String TerminalAName, String TerminalBName, ResourceLocation id) {
         super(id);
         this.TerminalA = TerminalA;
         this.TerminalB = TerminalB;
         this.TerminalAName = TerminalAName;
         this.TerminalBName = TerminalBName;
-        if(!outputStack.hasTag()) outputStack.setTag(new CompoundTag());
+        if(!outputStack.hasTag()) outputStack.setTag(new CompoundNBT());
         outputStack.getTag().putBoolean(TerminalAName, true);
         outputStack.getTag().putBoolean(TerminalBName, true);
     }
@@ -48,27 +47,27 @@ public class Combine extends Common {
     }
 
     @Override
-    public ItemStack craft(CraftingInventory inv) {
-        CompoundTag terminalA = InputHelper.getInputStack(inv, TerminalA).getTag();
-        if(terminalA == null) terminalA = new CompoundTag();
+    public ItemStack getCraftingResult(CraftingInventory inv) {
+        CompoundNBT terminalA = InputHelper.getInputStack(inv, TerminalA).getTag();
+        if(terminalA == null) terminalA = new CompoundNBT();
         else terminalA = terminalA.copy();
 
-        CompoundTag terminalB = InputHelper.getInputStack(inv, TerminalB).getTag();
-        if(terminalB == null) terminalB = new CompoundTag();
+        CompoundNBT terminalB = InputHelper.getInputStack(inv, TerminalB).getTag();
+        if(terminalB == null) terminalB = new CompoundNBT();
         else terminalB = terminalB.copy();
 
         ItemStack wut = outputStack.copy();
-        wut.getTag().copyFrom(terminalB).copyFrom(terminalA);
+        wut.getTag().merge(terminalB).merge(terminalA);
         return wut;
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public Serializer<Combine> getSerializer() {
         return CombineSerializer.INSTANCE;
     }
 
-    public DefaultedList<Ingredient> getPreviewInputs() {
-        DefaultedList<Ingredient> inputs = DefaultedList.of();
+    public NonNullList<Ingredient> getIngredients() {
+        NonNullList<Ingredient> inputs = NonNullList.create();
         inputs.add(TerminalA);
         inputs.add(TerminalB);
         return inputs;
