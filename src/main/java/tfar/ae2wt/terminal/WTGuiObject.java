@@ -81,7 +81,7 @@ public class WTGuiObject implements IGuiItemObject, IEnergySource, IActionHost, 
                         return testWap(myWap) || hasBoosterCard;
                     }
                     return hasBoosterCard;
-                }
+                } else isOutOfRange = true;
 
                 final IMachineSet tw = targetGrid.getMachines(WirelessTileEntity.class);
 
@@ -134,7 +134,6 @@ public class WTGuiObject implements IGuiItemObject, IEnergySource, IActionHost, 
             }
         }
         isOutOfRange = true;
-        if(((IInfinityBoosterCardHolder) effectiveItem.getItem()).hasBoosterCard(effectiveItem)) return true;
         return false;
     }
 
