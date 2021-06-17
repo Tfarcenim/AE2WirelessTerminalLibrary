@@ -10,8 +10,9 @@ import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.InvOperation;
 import net.minecraftforge.items.IItemHandler;
+import tfar.ae2wt.terminal.SlotType;
 import tfar.ae2wt.terminal.WTGuiObject;
-import tfar.ae2wt.terminal.ae2wtlibInternalInventory;
+import tfar.ae2wt.terminal.InternalInventory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
@@ -25,9 +26,9 @@ public class WPTGuiObject extends WTGuiObject implements IPortableCell, IAEAppEn
 
     public WPTGuiObject(final IWirelessTermHandler wh, final ItemStack is, final PlayerEntity ep, int inventorySlot) {
         super(wh, is, ep, inventorySlot);
-        crafting = new ae2wtlibInternalInventory(this, 9, "pattern_crafting", is);
-        output = new ae2wtlibInternalInventory(this, 3, "output", is);
-        pattern = new ae2wtlibInternalInventory(this, 2, "pattern", is);
+        crafting = new InternalInventory(this, 9, SlotType.pattern_crafting, is);
+        output = new InternalInventory(this, 3, SlotType.output, is);
+        pattern = new InternalInventory(this, 2, SlotType.pattern, is);
     }
 
     public boolean isCraftingRecipe() {

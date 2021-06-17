@@ -7,17 +7,16 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.util.text.ITextComponent;
-import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
-import tfar.ae2wt.wirelesscraftingterminal.WCTGuiObject;
+import tfar.ae2wt.terminal.WTGuiObject;
 
 import javax.annotation.Nullable;
 
 public class TermFactory implements INamedContainerProvider {
 
-    private final WITGuiObject obj;
+    private final WTGuiObject obj;
     private final ContainerLocator locator;
 
-    TermFactory(WITGuiObject obj, ContainerLocator locator) {
+    TermFactory(WTGuiObject obj, ContainerLocator locator) {
 
         this.obj = obj;
         this.locator = locator;
@@ -32,7 +31,7 @@ public class TermFactory implements INamedContainerProvider {
     @Override
     public Container createMenu(int p_createMenu_1_, PlayerInventory p_createMenu_2_, PlayerEntity p_createMenu_3_) {
 
-        WITContainer c = new WITContainer(p_createMenu_1_, p_createMenu_2_, obj);
+        WirelessInterfaceTerminalContainer c = new WirelessInterfaceTerminalContainer(p_createMenu_1_, p_createMenu_2_, obj);
         // Set the original locator on the opened server-side container for it to more
         // easily remember how to re-open after being closed.
         c.setLocator(locator);

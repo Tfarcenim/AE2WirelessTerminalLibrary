@@ -1,8 +1,8 @@
 package tfar.ae2wt.rei;
 
-import tfar.ae2wt.AE2WirelessTerminals;
-import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
-import tfar.ae2wt.wpt.WPatternTContainer;
+import tfar.ae2wt.init.ModItems;
+import tfar.ae2wt.wirelesscraftingterminal.WirelessCraftingTerminalContainer;
+import tfar.ae2wt.wpt.WirelessPatternTerminalContainer;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeHelper;
 import me.shedaniel.rei.api.plugins.REIPluginV0;
@@ -18,9 +18,9 @@ public class Plugin implements REIPluginV0 {
 
     @Override
     public void registerOthers(RecipeHelper recipeHelper) {
-        recipeHelper.registerAutoCraftingHandler(new CraftingRecipeTransferHandler(WCTContainer.class));
-        recipeHelper.registerAutoCraftingHandler(new PatternRecipeTransferHandler(WPatternTContainer.class));
+        recipeHelper.registerAutoCraftingHandler(new CraftingRecipeTransferHandler(WirelessCraftingTerminalContainer.class));
+        recipeHelper.registerAutoCraftingHandler(new PatternRecipeTransferHandler(WirelessPatternTerminalContainer.class));
 
-        recipeHelper.registerWorkingStations(DefaultPlugin.CRAFTING, EntryStack.create(AE2WirelessTerminals.CRAFTING_TERMINAL));
+        recipeHelper.registerWorkingStations(DefaultPlugin.CRAFTING, EntryStack.create(ModItems.CRAFTING_TERMINAL));
     }
 }

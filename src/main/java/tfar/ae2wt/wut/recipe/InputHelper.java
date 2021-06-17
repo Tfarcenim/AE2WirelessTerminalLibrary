@@ -3,7 +3,7 @@ package tfar.ae2wt.wut.recipe;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import tfar.ae2wt.AE2WirelessTerminals;
+import tfar.ae2wt.init.ModItems;
 
 public class InputHelper {
 
@@ -19,5 +19,5 @@ public class InputHelper {
         return count;
     }
 
-    public static Ingredient wut = Ingredient.fromItems(AE2WirelessTerminals.UNIVERSAL_TERMINAL);
+    public static Ingredient wut = Ingredient.fromItems(ModItems.UNIVERSAL_TERMINAL);
 }

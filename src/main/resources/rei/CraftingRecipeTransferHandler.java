@@ -1,17 +1,17 @@
 package tfar.ae2wt.rei;
 
-import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
+import tfar.ae2wt.wirelesscraftingterminal.WirelessCraftingTerminalContainer;
 import me.shedaniel.rei.api.AutoTransferHandler;
 import me.shedaniel.rei.api.RecipeDisplay;
 
-public class CraftingRecipeTransferHandler extends RecipeTransferHandler<WCTContainer> {
+public class CraftingRecipeTransferHandler extends RecipeTransferHandler<WirelessCraftingTerminalContainer> {
 
-    public CraftingRecipeTransferHandler(Class<WCTContainer> containerClass) {
+    public CraftingRecipeTransferHandler(Class<WirelessCraftingTerminalContainer> containerClass) {
         super(containerClass);
     }
 
     @Override
-    protected AutoTransferHandler.Result doTransferRecipe(WCTContainer container, RecipeDisplay recipe, AutoTransferHandler.Context context) {
+    protected AutoTransferHandler.Result doTransferRecipe(WirelessCraftingTerminalContainer container, RecipeDisplay recipe, AutoTransferHandler.Context context) {
         return null;
     }
 

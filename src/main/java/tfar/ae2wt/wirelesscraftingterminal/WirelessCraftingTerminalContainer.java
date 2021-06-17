@@ -2,25 +2,23 @@ package tfar.ae2wt.wirelesscraftingterminal;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
+import appeng.api.implementations.tiles.ISegmentedInventory;
 import appeng.api.networking.IGridNode;
 import appeng.container.ContainerLocator;
 import appeng.container.ContainerNull;
-import appeng.container.implementations.MEMonitorableContainer;
+import appeng.container.SlotSemantic;
 import appeng.container.interfaces.IInventorySlotAware;
+import appeng.container.me.items.ItemTerminalContainer;
 import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.CraftingMatrixSlot;
 import appeng.container.slot.CraftingTermSlot;
 import appeng.core.localization.PlayerMessages;
 import appeng.helpers.IContainerCraftingPacket;
-import appeng.tile.inventory.AppEngInternalInventory;
-import appeng.util.inv.IAEAppEngInventory;
-import appeng.util.inv.InvOperation;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -34,27 +32,29 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import tfar.ae2wt.WTConfig;
-import tfar.ae2wt.terminal.IWTInvHolder;
-import tfar.ae2wt.terminal.ItemWT;
+import tfar.ae2wt.init.Menus;
+import tfar.ae2wt.terminal.AbstractWirelessTerminalItem;
 import tfar.ae2wt.terminal.WTInventoryHandler;
-import tfar.ae2wt.terminal.ae2wtlibInternalInventory;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.ItemMagnetCard;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.MagnetSettings;
-import tfar.ae2wt.wut.ItemWUT;
+import tfar.ae2wt.wut.WUTItem;
 
-public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInventory, IContainerCraftingPacket, IWTInvHolder {
+import java.util.List;
 
-    public static ContainerType<WCTContainer> WCT;
+public class WirelessCraftingTerminalContainer extends ItemTerminalContainer implements IContainerCraftingPacket {
 
-    public static WCTContainer openClient(int windowId, PlayerInventory inv) {
+    private final ISegmentedInventory craftingInventoryHost;
+
+
+    public static WirelessCraftingTerminalContainer openClient(int windowId, PlayerInventory inv) {
         PlayerEntity player = inv.player;
         ItemStack it = inv.player.getHeldItem(Hand.MAIN_HAND);
         ContainerLocator locator = ContainerLocator.forHand(inv.player, Hand.MAIN_HAND);
-        WCTGuiObject host = new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
-        return new WCTContainer(windowId, inv, host);
+        WCTGuiObject host = new WCTGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
+        return new WirelessCraftingTerminalContainer(windowId, inv, host);
     }
 
-    private final AppEngInternalInventory craftingGrid;
+    private final IItemHandler craftingGridInv;
     private final CraftingMatrixSlot[] craftingSlots = new CraftingMatrixSlot[9];
     private final CraftingTermSlot outputSlot;
     private IRecipe<CraftingInventory> currentRecipe;
@@ -62,7 +62,7 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
     public static void openServer(PlayerEntity player, ContainerLocator locator) {
         ItemStack it = player.inventory.getStackInSlot(locator.getItemIndex());
-        WCTGuiObject accessInterface = new WCTGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+        WCTGuiObject accessInterface = new WCTGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
 
         if (locator.hasItemIndex()) {
             player.openContainer(new TermFactory(accessInterface,locator));
@@ -71,60 +71,60 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
     private final WCTGuiObject wctGUIObject;
 
-    public WCTContainer(int id, final PlayerInventory ip, final WCTGuiObject gui) {
-        super(WCT, id, ip, gui, true);
+    public WirelessCraftingTerminalContainer(int id, final PlayerInventory ip, final WCTGuiObject gui) {
+        super(Menus.WCT, id, ip, gui, true);
         wctGUIObject = gui;
+        this.craftingInventoryHost = (ISegmentedInventory)gui;
 
         final int slotIndex = ((IInventorySlotAware) wctGUIObject).getInventorySlot();
         lockPlayerInventorySlot(slotIndex);
 
-        wtInventoryHandler = new WTInventoryHandler(getPlayerInv(), wctGUIObject.getItemStack(), this);
-        craftingGrid = new ae2wtlibInternalInventory(this, 9, "crafting", wctGUIObject.getItemStack());
-        final IItemHandler crafting = getInventoryByName("crafting");
+        wtInventoryHandler = new WTInventoryHandler(getPlayerInventory(), wctGUIObject.getItemStack(), this);
 
-        for(int y = 0; y < 3; y++) {
-            for(int x = 0; x < 3; x++) {
-                addSlot(craftingSlots[x + y * 3] = new CraftingMatrixSlot(this, crafting, x + y * 3, 37 + x * 18 + 43, -72 + y * 18 - 4));
-            }
+        craftingGridInv = this.craftingInventoryHost.getInventoryByName("crafting");
+
+        for(int i = 0; i < 9; ++i) {
+            this.addSlot(this.craftingSlots[i] = new CraftingMatrixSlot(this, craftingGridInv, i), SlotSemantic.CRAFTING_GRID);
         }
-        AppEngInternalInventory output = new AppEngInternalInventory(this, 1);
-        addSlot(outputSlot = new CraftingTermSlot(getPlayerInv().player, getActionSource(), getPowerSource(), gui.getIStorageGrid(), crafting, crafting, output, 131 + 43, -72 + 18 - 4, this));
 
-        addSlot(new AppEngSlot(wtInventoryHandler, 3, 8, -76) {
+        addSlot(outputSlot =
+                new CraftingTermSlot(getPlayerInventory().player, getActionSource(), powerSource, gui.getIStorageGrid(), craftingGridInv, craftingGridInv, this), SlotSemantic.CRAFTING_RESULT);
+
+        addSlot(new AppEngSlot(wtInventoryHandler, 3) {// 8, -76
 
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET);
             }
         });
-        addSlot(new AppEngSlot(wtInventoryHandler, 2, 8, -58) {
+        addSlot(new AppEngSlot(wtInventoryHandler, 2) {//, 8, -58
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE);
             }
         });
-        addSlot(new AppEngSlot(wtInventoryHandler, 1, 8, -40) {
+        addSlot(new AppEngSlot(wtInventoryHandler, 1) {//, 8, -40
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS);
             }
         });
-        addSlot(new AppEngSlot(wtInventoryHandler, 0, 8, -22) {
+        addSlot(new AppEngSlot(wtInventoryHandler, 0) {//, 8, -22
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS);
             }
         });
 
-        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.OFFHAND, 80, -22) {
+        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.OFFHAND) {//, 80, -22
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD);
             }
         });
-        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.TRASH, 98, -22));
-        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.INFINITY_BOOSTER_CARD, 134, -20));
-        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.MAGNET_CARD, 152, -20));//TODO fetch texture for card background
+        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.TRASH));//, 98, -22
+        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.INFINITY_BOOSTER_CARD));//, 134, -20
+        addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.MAGNET_CARD));//TODO fetch texture for card background , 152, -20
 
         onCraftMatrixChanged(null);
 
@@ -139,8 +139,8 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
         if(!wctGUIObject.rangeCheck()) {
             if(isValidContainer()) {
-                getPlayerInv().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
-                getPlayerInv().player.closeScreen();
+                getPlayerInventory().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
+                getPlayerInventory().player.closeScreen();
             }
             setValidContainer(false);
         } else {
@@ -153,8 +153,8 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
 
             if(wctGUIObject.extractAEPower(1, Actionable.SIMULATE, PowerMultiplier.ONE) == 0) {
                 if(isValidContainer()) {
-                    getPlayerInv().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
-                    getPlayerInv().player.closeScreen();
+                    getPlayerInventory().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
+                    getPlayerInventory().player.closeScreen();
                 }
                 setValidContainer(false);
             }
@@ -174,8 +174,8 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
             ic.setInventorySlotContents(x, craftingSlots[x].getStack());
         }
 
-        if(currentRecipe == null || !currentRecipe.matches(ic, this.getPlayerInv().player.world)) {
-            World world = this.getPlayerInv().player.world;
+        if(currentRecipe == null || !currentRecipe.matches(ic, this.getPlayerInventory().player.world)) {
+            World world = this.getPlayerInventory().player.world;
             currentRecipe = world.getRecipeManager().getRecipe(IRecipeType.CRAFTING, ic, world).orElse(null);
         }
 
@@ -194,17 +194,11 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
     }
 
     @Override
-    public void saveChanges() {}
-
-    @Override
-    public void onChangeInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removedStack, ItemStack newStack) {}
-
-    @Override
     public IItemHandler getInventoryByName(String name) {
         if(name.equals("player")) {
             return new InvWrapper(getPlayerInventory());
         } else if(name.equals("crafting")) {
-            return craftingGrid;
+            return craftingGridInv;
         }
         return null;
     }
@@ -240,18 +234,18 @@ public class WCTContainer extends MEMonitorableContainer implements IAEAppEngInv
         return magnetSettings;
     }
 
-    private WCTScreen screen;
+    private WirelessCraftingTerminalScreen screen;
 
-    public void setScreen(WCTScreen screen) {
+    public void setScreen(WirelessCraftingTerminalScreen screen) {
         this.screen = screen;
     }
 
     public boolean isWUT() {
-        return wctGUIObject.getItemStack().getItem() instanceof ItemWUT;
+        return wctGUIObject.getItemStack().getItem() instanceof WUTItem;
     }
 
     @Override
-    public ItemStack[] getViewCells() {
+    public List<ItemStack> getViewCells() {
         return wctGUIObject.getViewCellStorage().getViewCells();
     }
 }

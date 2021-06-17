@@ -6,7 +6,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import tfar.ae2wt.AE2WirelessTerminals;
 import tfar.ae2wt.terminal.IInfinityBoosterCardHolder;
-import tfar.ae2wt.terminal.ItemWT;
+import tfar.ae2wt.terminal.AbstractWirelessTerminalItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -19,9 +19,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 
-public class ItemWUT extends ItemWT implements IInfinityBoosterCardHolder {
+public class WUTItem extends AbstractWirelessTerminalItem implements IInfinityBoosterCardHolder {
 
-    public ItemWUT() {
+    public WUTItem() {
         super(AEConfig.instance().getWirelessTerminalBattery(), new Item.Properties().group(AE2WirelessTerminals.ITEM_GROUP).maxStackSize(1));
     }
 

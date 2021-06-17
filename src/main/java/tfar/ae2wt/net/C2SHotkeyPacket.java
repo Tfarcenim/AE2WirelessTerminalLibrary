@@ -7,16 +7,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.network.NetworkEvent;
+import tfar.ae2wt.init.ModItems;
 import tfar.ae2wt.util.ContainerHelper;
-import tfar.ae2wt.wirelesscraftingterminal.ItemWCT;
-import tfar.ae2wt.wirelessinterfaceterminal.ItemWIT;
-import tfar.ae2wt.wpt.ItemWPT;
-import tfar.ae2wt.wut.ItemWUT;
+import tfar.ae2wt.wirelesscraftingterminal.WCTItem;
+import tfar.ae2wt.wirelessinterfaceterminal.WITItem;
+import tfar.ae2wt.wpt.WPTItem;
+import tfar.ae2wt.wut.WUTItem;
 import tfar.ae2wt.wut.WUTHandler;
 
 import java.util.function.Supplier;
-
-import static tfar.ae2wt.AE2WirelessTerminals.*;
 
 public class C2SHotkeyPacket {
 
@@ -47,40 +46,40 @@ public class C2SHotkeyPacket {
                     int slot = -1;
                     for (int i = 0; i < inv.getSizeInventory(); i++) {
                         ItemStack terminal = inv.getStackInSlot(i);
-                        if (terminal.getItem() instanceof ItemWCT || (terminal.getItem() instanceof ItemWUT && WUTHandler.hasTerminal(terminal, "crafting"))) {
+                        if (terminal.getItem() instanceof WCTItem || (terminal.getItem() instanceof WUTItem && WUTHandler.hasTerminal(terminal, "crafting"))) {
                             slot = i;
                             break;
                         }
                     }
                     if (slot == -1) return;
                     ContainerLocator locator = ContainerHelper.getContainerLocatorForSlot(slot);
-                    CRAFTING_TERMINAL.open(player, locator);
+                    ModItems.CRAFTING_TERMINAL.open(player, locator);
                 } else if (terminalName.equalsIgnoreCase("pattern")) {
                     PlayerInventory inv = player.inventory;
                     int slot = -1;
                     for (int i = 0; i < inv.getSizeInventory(); i++) {
                         ItemStack terminal = inv.getStackInSlot(i);
-                        if (terminal.getItem() instanceof ItemWPT || (terminal.getItem() instanceof ItemWUT && WUTHandler.hasTerminal(terminal, "pattern"))) {
+                        if (terminal.getItem() instanceof WPTItem || (terminal.getItem() instanceof WUTItem && WUTHandler.hasTerminal(terminal, "pattern"))) {
                             slot = i;
                             break;
                         }
                     }
                     if (slot == -1) return;
                     ContainerLocator locator = ContainerHelper.getContainerLocatorForSlot(slot);
-                    PATTERN_TERMINAL.open(player, locator);
+                    ModItems.PATTERN_TERMINAL.open(player, locator);
                 } else if (terminalName.equalsIgnoreCase("interface")) {
                     PlayerInventory inv = player.inventory;
                     int slot = -1;
                     for (int i = 0; i < inv.getSizeInventory(); i++) {
                         ItemStack terminal = inv.getStackInSlot(i);
-                        if (terminal.getItem() instanceof ItemWIT || (terminal.getItem() instanceof ItemWUT && WUTHandler.hasTerminal(terminal, "interface"))) {
+                        if (terminal.getItem() instanceof WITItem || (terminal.getItem() instanceof WUTItem && WUTHandler.hasTerminal(terminal, "interface"))) {
                             slot = i;
                             break;
                         }
                     }
                     if (slot == -1) return;
                     ContainerLocator locator = ContainerHelper.getContainerLocatorForSlot(slot);
-                    INTERFACE_TERMINAL.open(player, locator);
+                    ModItems.INTERFACE_TERMINAL.open(player, locator);
                 }
             });
         });

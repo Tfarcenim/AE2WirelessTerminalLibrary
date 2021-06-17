@@ -6,8 +6,8 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.util.ResourceLocation;
 import tfar.ae2wt.AE2WirelessTerminals;
-import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
-import tfar.ae2wt.wpt.WPatternTContainer;
+import tfar.ae2wt.wirelesscraftingterminal.WirelessCraftingTerminalContainer;
+import tfar.ae2wt.wpt.WirelessPatternTerminalContainer;
 
 @JeiPlugin
 public class JeiPlug implements IModPlugin {
@@ -23,14 +23,14 @@ public class JeiPlug implements IModPlugin {
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
         registration.addRecipeTransferHandler(new RecipeTransferHandler(), UNIVERSAL_RECIPE_TRANSFER_UID);
-        registration.addUniversalRecipeTransferHandler(new PatternRecipeTransferHandler(WPatternTContainer.class, registration.getTransferHelper()));
+        registration.addUniversalRecipeTransferHandler(new PatternRecipeTransferHandler(WirelessPatternTerminalContainer.class, registration.getTransferHelper()));
     }
 
 
-    public static class RecipeTransferHandler implements IRecipeTransferHandler<WCTContainer> {
+    public static class RecipeTransferHandler implements IRecipeTransferHandler<WirelessCraftingTerminalContainer> {
         @Override
-        public Class<WCTContainer> getContainerClass() {
-            return WCTContainer.class;
+        public Class<WirelessCraftingTerminalContainer> getContainerClass() {
+            return WirelessCraftingTerminalContainer.class;
         }
     }
 }

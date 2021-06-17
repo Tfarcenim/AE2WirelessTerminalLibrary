@@ -18,10 +18,10 @@ public class CycleTerminalButton extends Button implements ITooltip {
         active = true;
     }
 
-    @Override
-    public ITextComponent getTooltipMessage() {
-        return new TranslationTextComponent("gui.ae2wtlib.cycle_terminal.desc");
-    }
+   // @Override
+   // public ITextComponent getTooltipMessage() {
+   //     return new TranslationTextComponent("gui.ae2wtlib.cycle_terminal.desc");
+   // }
 
     @Override
     public int getTooltipAreaX() {

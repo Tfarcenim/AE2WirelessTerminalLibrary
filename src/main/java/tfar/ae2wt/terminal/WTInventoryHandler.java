@@ -2,7 +2,7 @@ package tfar.ae2wt.terminal;
 
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
-import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
+import tfar.ae2wt.wirelesscraftingterminal.WirelessCraftingTerminalContainer;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.ItemMagnetCard;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -20,12 +20,12 @@ public class WTInventoryHandler implements IItemHandlerModifiable {
 
     private final PlayerInventory playerInventory;
     private final ItemStack wt;
-    private final IWTInvHolder host;
+    private final Object host;
 
     private static final int slotOffset = 36;
     private static final int offHandSlot = 40;
 
-    public WTInventoryHandler(PlayerInventory playerInventory, ItemStack wt, IWTInvHolder host) {
+    public WTInventoryHandler(PlayerInventory playerInventory, ItemStack wt, Object host) {
         this.playerInventory = playerInventory;
         this.wt = wt;
         this.host = host;
@@ -41,12 +41,12 @@ public class WTInventoryHandler implements IItemHandlerModifiable {
         if (i < 4 && i >= 0) {
             return playerInventory.getStackInSlot(i + slotOffset);
         } else if (i == OFFHAND) return playerInventory.getStackInSlot(offHandSlot);
-        else if (i == TRASH && wt.getItem() instanceof ItemWT)
-            return ItemWT.getSavedSlot(wt, "trash");
+        else if (i == TRASH && wt.getItem() instanceof AbstractWirelessTerminalItem)
+            return AbstractWirelessTerminalItem.getSavedSlot(wt, SlotType.trash);
         else if (i == INFINITY_BOOSTER_CARD && wt.getItem() instanceof IInfinityBoosterCardHolder)
             return ((IInfinityBoosterCardHolder) wt.getItem()).getBoosterCard(wt);
-        else if (i == MAGNET_CARD && wt.getItem() instanceof ItemWT)
-            return ItemWT.getSavedSlot(wt, "magnetCard");
+        else if (i == MAGNET_CARD && wt.getItem() instanceof AbstractWirelessTerminalItem)
+            return AbstractWirelessTerminalItem.getSavedSlot(wt, SlotType.magnetCard);
         return ItemStack.EMPTY;
     }
 
@@ -79,7 +79,7 @@ public class WTInventoryHandler implements IItemHandlerModifiable {
             if (!simulation) playerInventory.setInventorySlotContents(offHandSlot, itemStack);
             return ItemStack.EMPTY;
         } else if (i == TRASH) {
-            if (!simulation) ItemWT.setSavedSlot(wt, itemStack, "trash");
+            if (!simulation) AbstractWirelessTerminalItem.setSavedSlot(wt, itemStack, SlotType.trash);
             return ItemStack.EMPTY;
         } else if (i == INFINITY_BOOSTER_CARD) {
             if (!(itemStack.getItem() instanceof ItemInfinityBooster) && !itemStack.isEmpty())
@@ -91,8 +91,8 @@ public class WTInventoryHandler implements IItemHandlerModifiable {
         } else if (i == MAGNET_CARD) {
             if (!(itemStack.getItem() instanceof ItemMagnetCard) && !itemStack.isEmpty()) return itemStack;
             if (!simulation) {
-                ItemWT.setSavedSlot(wt, itemStack, "magnetCard");
-                if (host instanceof WCTContainer) ((WCTContainer) host).reloadMagnetSettings();
+                AbstractWirelessTerminalItem.setSavedSlot(wt, itemStack, SlotType.magnetCard);
+                if (host instanceof WirelessCraftingTerminalContainer) ((WirelessCraftingTerminalContainer) host).reloadMagnetSettings();
             }
             return ItemStack.EMPTY;
         }
@@ -106,10 +106,10 @@ public class WTInventoryHandler implements IItemHandlerModifiable {
             if (!simulation) ((IInfinityBoosterCardHolder) wt.getItem()).setBoosterCard(wt, ItemStack.EMPTY);
             return boosterCard;
         } else if (slot == MAGNET_CARD) {
-            ItemStack magnetCard = ItemWT.getSavedSlot(wt, "magnetCard");
+            ItemStack magnetCard = AbstractWirelessTerminalItem.getSavedSlot(wt, SlotType.magnetCard);
             if (!simulation) {
-                ItemWT.setSavedSlot(wt, ItemStack.EMPTY, "magnetCard");
-                if (host instanceof WCTContainer) ((WCTContainer) host).reloadMagnetSettings();
+                AbstractWirelessTerminalItem.setSavedSlot(wt, ItemStack.EMPTY, SlotType.magnetCard);
+                if (host instanceof WirelessCraftingTerminalContainer) ((WirelessCraftingTerminalContainer) host).reloadMagnetSettings();
             }
             return magnetCard;
         } else {
@@ -151,24 +151,15 @@ public class WTInventoryHandler implements IItemHandlerModifiable {
     public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
         if (slot < 4 && slot >= 0) {
             playerInventory.setInventorySlotContents(slot + slotOffset, stack);
-            return;
         } else if (slot == OFFHAND) {
             playerInventory.setInventorySlotContents(offHandSlot, stack);
-            return;
         } else if (slot == TRASH) {
-            ItemWT.setSavedSlot(wt, stack, "trash");
-            return;
+            AbstractWirelessTerminalItem.setSavedSlot(wt, stack, SlotType.trash);
         } else if (slot == INFINITY_BOOSTER_CARD) {
-            if (!(stack.getItem() instanceof ItemInfinityBooster) && !stack.equals(ItemStack.EMPTY))
-                return;
             ((IInfinityBoosterCardHolder) wt.getItem()).setBoosterCard(wt, stack);
-            return;
         } else if (slot == MAGNET_CARD) {
-            if (!(stack.getItem() instanceof ItemMagnetCard) && !stack.equals(ItemStack.EMPTY)) return;
-            ItemWT.setSavedSlot(wt, stack, "magnetCard");
-            if (host instanceof WCTContainer) ((WCTContainer) host).reloadMagnetSettings();
-            return;
+            AbstractWirelessTerminalItem.setSavedSlot(wt, stack, SlotType.magnetCard);
+            if (host instanceof WirelessCraftingTerminalContainer) ((WirelessCraftingTerminalContainer) host).reloadMagnetSettings();
         }
-        return;
     }
 }

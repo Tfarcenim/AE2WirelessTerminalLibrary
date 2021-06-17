@@ -32,7 +32,7 @@ public class S2CInterfaceTerminalPacket {
             final Screen screen = Minecraft.getInstance().currentScreen;
             if (screen instanceof WITScreen) {
                 WITScreen s = (WITScreen) screen;
-                if (nbt != null) s.postUpdate(nbt);
+                if (nbt != null) s.postUpdate(true,nbt);
             }
         });
         ctx.get().setPacketHandled(true);

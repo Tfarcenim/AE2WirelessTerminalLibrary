@@ -8,15 +8,15 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import tfar.ae2wt.AE2WirelessTerminals;
-import tfar.ae2wt.terminal.ItemWT;
+import tfar.ae2wt.terminal.SlotType;
+import tfar.ae2wt.terminal.AbstractWirelessTerminalItem;
 
 import java.util.List;
 
 public class ItemMagnetCard extends Item {
 
-    public ItemMagnetCard() {
-        super(new Properties().group(AE2WirelessTerminals.ITEM_GROUP).maxStackSize(1));
+    public ItemMagnetCard(Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -27,13 +27,13 @@ public class ItemMagnetCard extends Item {
     }
 
     public static void saveMagnetSettings(ItemStack magnetCardHolder, MagnetSettings magnetSettings) {
-        ItemStack magnetCard = ItemWT.getSavedSlot(magnetCardHolder, "magnetCard");
+        ItemStack magnetCard = AbstractWirelessTerminalItem.getSavedSlot(magnetCardHolder, SlotType.magnetCard);
         magnetSettings.saveTo(magnetCard);
-        ItemWT.setSavedSlot(magnetCardHolder, magnetCard, "magnetCard");
+        AbstractWirelessTerminalItem.setSavedSlot(magnetCardHolder, magnetCard,  SlotType.magnetCard);
     }
 
     public static MagnetSettings loadMagnetSettings(ItemStack magnetCardHolder) {
-        ItemStack magnetCard = ItemWT.getSavedSlot(magnetCardHolder, "magnetCard");
+        ItemStack magnetCard = AbstractWirelessTerminalItem.getSavedSlot(magnetCardHolder,  SlotType.magnetCard);
         return MagnetSettings.from(magnetCard);
     }
 

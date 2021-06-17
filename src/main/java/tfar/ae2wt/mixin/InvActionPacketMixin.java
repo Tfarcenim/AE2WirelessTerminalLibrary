@@ -6,8 +6,8 @@ import appeng.core.sync.network.INetworkInfo;
 import appeng.core.sync.packets.InventoryActionPacket;
 import appeng.helpers.InventoryAction;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
-import tfar.ae2wt.wpt.WPatternTContainer;
+import tfar.ae2wt.wirelesscraftingterminal.WirelessCraftingTerminalContainer;
+import tfar.ae2wt.wpt.WirelessPatternTerminalContainer;
 import tfar.ae2wt.util.WirelessCraftAmountContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -17,8 +17,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(InventoryActionPacket.class)
-public class InvActionPacket {
+@Mixin(value = InventoryActionPacket.class,remap = false)
+public class InvActionPacketMixin {
 
     @Shadow
     @Final
@@ -27,8 +27,8 @@ public class InvActionPacket {
     @Inject(method = "serverPacketData", at = @At(value = "TAIL"), require = 1, allow = 1, remap = false)
     public void serverPacketData(INetworkInfo manager, PlayerEntity player, CallbackInfo ci) {
         if(action == InventoryAction.AUTO_CRAFT) {
-            final ServerPlayerEntity sender = (ServerPlayerEntity) player;
-            if(sender.openContainer instanceof WCTContainer || sender.openContainer instanceof WPatternTContainer) {
+     /*       final ServerPlayerEntity sender = (ServerPlayerEntity) player;
+            if(sender.openContainer instanceof WirelessCraftingTerminalContainer || sender.openContainer instanceof WirelessPatternTerminalContainer) {
                 final AEBaseContainer baseContainer = (AEBaseContainer) sender.openContainer;
                 final ContainerLocator locator = baseContainer.getLocator();
                 if(locator != null) {
@@ -45,7 +45,7 @@ public class InvActionPacket {
                         cca.detectAndSendChanges();
                     }
                 }
-            }
+            }*/
         }
     }
 }

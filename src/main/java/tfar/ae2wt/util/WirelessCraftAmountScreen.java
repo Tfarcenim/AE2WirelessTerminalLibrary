@@ -2,7 +2,9 @@ package tfar.ae2wt.util;
 
 import appeng.client.gui.AEBaseScreen;
 import appeng.client.gui.NumberEntryType;
+import appeng.client.gui.implementations.AESubScreen;
 import appeng.client.gui.implementations.NumberEntryWidget;
+import appeng.client.gui.style.ScreenStyle;
 import appeng.core.localization.GuiText;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.widget.button.Button;
@@ -18,31 +20,22 @@ public class WirelessCraftAmountScreen extends AEBaseScreen<WirelessCraftAmountC
 
     private Button next;
 
-    public WirelessCraftAmountScreen(WirelessCraftAmountContainer container, PlayerInventory playerInventory, ITextComponent title) {
-        super(container, playerInventory, title);
+    public WirelessCraftAmountScreen(WirelessCraftAmountContainer container, PlayerInventory playerInventory, ITextComponent title, ScreenStyle style) {
+        super(container, playerInventory, title,style);
         subGui = new ae2wtlibSubScreen(this, container.getTarget());
+        this.next = this.widgets.addButton("next", GuiText.Next.text(), this::confirm);
+        AESubScreen subGui = new AESubScreen(container.getTarget());
+        subGui.addBackButton("back", this.widgets);
+        this.amountToCraft = new NumberEntryWidget(NumberEntryType.CRAFT_ITEM_COUNT);
+        this.amountToCraft.setValue(1L);
+        this.amountToCraft.setTextFieldBounds(62, 57, 50);
+        this.amountToCraft.setMinValue(1L);
+        this.amountToCraft.setHideValidationIcon(true);
+        this.amountToCraft.setOnConfirm(this::confirm);
+        this.widgets.add("amountToCraft", this.amountToCraft);
     }
 
-    @Override
-    public void init() {
-        super.init();
-
-        amountToCraft = new NumberEntryWidget(this, 20, 30, 138, 62, NumberEntryType.CRAFT_ITEM_COUNT);
-        amountToCraft.setValue(1);
-        amountToCraft.setTextFieldBounds(62, 57, 50);
-        amountToCraft.setMinValue(1);
-        amountToCraft.setHideValidationIcon(true);
-        amountToCraft.addButtons(children::add, this::addButton);
-
-        next = addButton(new Button(guiLeft + 128, guiTop + 51, 38, 20, GuiText.Next.text(), this::confirm));
-        amountToCraft.setOnConfirm(() -> confirm(next));
-
-        subGui.addBackButton(this::addButton, 154, 0);
-
-        changeFocus(true);
-    }
-
-    private void confirm(Button button) {
+    private void confirm() {
         int amount = amountToCraft.getIntValue().orElse(0);
         if(amount <= 0) return;
         PacketHandler.INSTANCE.sendToServer(new C2SCraftRequestPacket(amount,hasShiftDown()));

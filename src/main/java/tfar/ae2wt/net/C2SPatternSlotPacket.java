@@ -6,7 +6,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import tfar.ae2wt.wpt.WPatternTContainer;
+import tfar.ae2wt.wpt.WirelessPatternTerminalContainer;
 
 import java.util.function.Supplier;
 
@@ -46,8 +46,8 @@ public class C2SPatternSlotPacket {
         ctx.get().enqueueWork(  ()->  {
             MinecraftServer server = player.getServer();
             server.execute(() -> {
-                if(player.openContainer instanceof WPatternTContainer) {
-                    final WPatternTContainer patternTerminal = (WPatternTContainer) player.openContainer;
+                if(player.openContainer instanceof WirelessPatternTerminalContainer) {
+                    final WirelessPatternTerminalContainer patternTerminal = (WirelessPatternTerminalContainer) player.openContainer;
                     patternTerminal.craftOrGetItem(slotItem,shift,pattern);
                 }
             });

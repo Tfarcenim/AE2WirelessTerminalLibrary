@@ -1,7 +1,9 @@
 package tfar.ae2wt.wirelesscraftingterminal;
 
 import appeng.api.config.ActionItems;
-import appeng.client.gui.implementations.MEMonitorableScreen;
+import appeng.client.gui.me.common.MEMonitorableScreen;
+import appeng.client.gui.me.items.ItemTerminalScreen;
+import appeng.client.gui.style.ScreenStyle;
 import appeng.client.gui.widgets.AETextField;
 import appeng.client.gui.widgets.ActionButton;
 import appeng.client.gui.widgets.IconButton;
@@ -28,38 +30,27 @@ import tfar.ae2wt.wut.IUniversalTerminalCapable;
 
 import java.lang.reflect.Field;
 
-public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUniversalTerminalCapable {
+public class WirelessCraftingTerminalScreen extends ItemTerminalScreen<WirelessCraftingTerminalContainer> implements IUniversalTerminalCapable {
 
     private int rows = 0;
     private AETextField searchField;
     private final int reservedSpace;
     ItemButton magnetCardToggleButton;
 
-    public WCTScreen(WCTContainer container, PlayerInventory playerInventory, ITextComponent title) {
-        super(container, playerInventory, title);
+    public WirelessCraftingTerminalScreen(WirelessCraftingTerminalContainer container, PlayerInventory playerInventory, ITextComponent title, ScreenStyle style) {
+        super(container, playerInventory, title,style);
         reservedSpace = 73;
-
-        try {
-            Field f = MEMonitorableScreen.class.getDeclaredField("reservedSpace");
-            f.setAccessible(true);
-            f.set(this, reservedSpace);
-        } catch(IllegalAccessException | NoSuchFieldException ignored) {}
     }
 
     @Override
     public void init() {
         super.init();
-        ActionButton clearBtn = addButton(new ActionButton(guiLeft+ 92 + 43, guiTop+ySize - 156 - 4, ActionItems.STASH, btn -> clear()));
+        ActionButton clearBtn = addButton(new ActionButton(ActionItems.STASH, btn -> clear()));//guiLeft+ 92 + 43, guiTop+ySize - 156 - 4,
         clearBtn.setHalfSize(true);
 
-        IconButton deleteButton = addButton(new IconButton(guiLeft+ 92 + 25, guiTop+ySize - 104, btn -> delete()) {
-            @Override
-            protected int getIconIndex() {
-                return 6;
-            }
-        });
-        deleteButton.setHalfSize(true);
-        deleteButton.setMessage(new TranslationTextComponent("gui.ae2wtlib.emptytrash").appendString("\n").appendSibling(new TranslationTextComponent("gui.ae2wtlib.emptytrash.desc")));
+       // IconButton deleteButton = addButton(new ActionButton(guiLeft+ 92 + 25, guiTop+ySize - 104, btn -> delete()));
+       // deleteButton.setHalfSize(true);
+       // deleteButton.setMessage(new TranslationTextComponent("gui.ae2wtlib.emptytrash").appendString("\n").appendSibling(new TranslationTextComponent("gui.ae2wtlib.emptytrash.desc")));
 
         magnetCardToggleButton = addButton(new ItemButton(guiLeft + 92 + 60, guiTop + ySize - 114, btn -> setMagnetMode(), new ResourceLocation("ae2wtlib", "textures/magnet_card.png")));
 
@@ -168,7 +159,6 @@ public class WCTScreen extends MEMonitorableScreen<WCTContainer> implements IUni
         magnetCardToggleButton.setVisibility(true);
     }
 
-    @Override
     protected String getBackground() {
         return "wtlib/gui/crafting.png";
     }

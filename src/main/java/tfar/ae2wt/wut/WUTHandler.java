@@ -17,7 +17,7 @@ public class WUTHandler {
     }
 
     public static String getCurrentTerminal(ItemStack wirelessUniversalTerminal) {
-        if(!(wirelessUniversalTerminal.getItem() instanceof ItemWUT) || wirelessUniversalTerminal.getTag() == null)
+        if(!(wirelessUniversalTerminal.getItem() instanceof WUTItem) || wirelessUniversalTerminal.getTag() == null)
             return "noTerminal";
         String currentTerminal = wirelessUniversalTerminal.getTag().getString("currentTerminal");
 

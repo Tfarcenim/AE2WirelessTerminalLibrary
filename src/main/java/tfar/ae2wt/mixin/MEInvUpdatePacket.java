@@ -16,21 +16,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-@Mixin(MEInventoryUpdatePacket.class)
+@Mixin(value = MEInventoryUpdatePacket.class,remap = false)
 public class MEInvUpdatePacket {
 
     @Shadow
     @Final
     private List<IAEItemStack> list;
-    @Shadow
-    @Final
-    private byte ref;
+ //   @Shadow
+ //   @Final
+  //  private byte ref;
 
     @Inject(method = "clientPacketData", at = @At(value = "TAIL"), require = 1, allow = 1, remap = false)
     public void clientPacketData(INetworkInfo manager, PlayerEntity player, CallbackInfo ci) {
         final Screen gs = Minecraft.getInstance().currentScreen;
         if(gs instanceof WirelessCraftConfirmScreen) {
-            ((WirelessCraftConfirmScreen) gs).postUpdate(list, ref);
+       //     ((WirelessCraftConfirmScreen) gs).postUpdate(list, ref);
         }
     }
 }

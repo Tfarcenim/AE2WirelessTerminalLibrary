@@ -7,15 +7,15 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.crafting.IRecipe;
-import tfar.ae2wt.wpt.WPatternTContainer;
+import tfar.ae2wt.wpt.WirelessPatternTerminalContainer;
 
-public class PatternRecipeTransferHandler extends RecipeTransferHandler<WPatternTContainer> {
-    PatternRecipeTransferHandler(Class<WPatternTContainer> containerClass, IRecipeTransferHandlerHelper helper) {
+public class PatternRecipeTransferHandler extends RecipeTransferHandler<WirelessPatternTerminalContainer> {
+    PatternRecipeTransferHandler(Class<WirelessPatternTerminalContainer> containerClass, IRecipeTransferHandlerHelper helper) {
         super(containerClass, helper);
     }
 
     @Override
-    protected IRecipeTransferError doTransferRecipe(WPatternTContainer container, IRecipe<?> recipe, IRecipeLayout recipeLayout, PlayerEntity player, boolean maxTransfer) {
+    protected IRecipeTransferError doTransferRecipe(WirelessPatternTerminalContainer container, IRecipe<?> recipe, IRecipeLayout recipeLayout, PlayerEntity player, boolean maxTransfer) {
         if (container.isCraftingMode() && recipeLayout.getRecipeCategory().getUid() != VanillaRecipeCategoryUid.CRAFTING) {
             return this.helper.createUserErrorWithTooltip(I18n.format("jei.appliedenergistics2.requires_processing_mode"));
         } else {

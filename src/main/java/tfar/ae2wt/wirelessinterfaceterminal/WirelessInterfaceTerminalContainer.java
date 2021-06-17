@@ -7,6 +7,7 @@ import appeng.api.config.YesNo;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionHost;
+import appeng.client.gui.me.interfaceterminal.InterfaceSlot;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerLocator;
 import appeng.container.slot.AppEngSlot;
@@ -28,7 +29,6 @@ import appeng.util.inv.filter.IAEItemFilter;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Hand;
@@ -37,31 +37,31 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.IItemHandler;
 import tfar.ae2wt.WTConfig;
+import tfar.ae2wt.init.Menus;
 import tfar.ae2wt.net.PacketHandler;
 import tfar.ae2wt.net.client.S2CInterfaceTerminalPacket;
-import tfar.ae2wt.terminal.IWTInvHolder;
-import tfar.ae2wt.terminal.ItemWT;
+import tfar.ae2wt.terminal.WTGuiObject;
+import tfar.ae2wt.terminal.AbstractWirelessTerminalItem;
 import tfar.ae2wt.terminal.WTInventoryHandler;
-import tfar.ae2wt.wut.ItemWUT;
+import tfar.ae2wt.wut.WUTItem;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class WITContainer extends AEBaseContainer implements IWTInvHolder {
+public class WirelessInterfaceTerminalContainer extends AEBaseContainer {
 
-    public static ContainerType<WITContainer> TYPE;
-
-    public static WITContainer openClient(int windowId, PlayerInventory inv) {
+    public static WirelessInterfaceTerminalContainer openClient(int windowId, PlayerInventory inv) {
         PlayerEntity player = inv.player;
         ItemStack it = inv.player.getHeldItem(Hand.MAIN_HAND);
         ContainerLocator locator = ContainerLocator.forHand(inv.player, Hand.MAIN_HAND);
-        WITGuiObject host = new WITGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
-        return new WITContainer(windowId, inv, host);    }
+        WTGuiObject host = new WTGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
+        return new WirelessInterfaceTerminalContainer(windowId, inv, host);
+    }
 
     public static void openServer(PlayerEntity player, ContainerLocator locator) {
 
         ItemStack it = player.inventory.getStackInSlot(locator.getItemIndex());
-        WITGuiObject accessInterface = new WITGuiObject((ItemWT) it.getItem(), it, player, locator.getItemIndex());
+        WTGuiObject accessInterface = new WTGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
 
         if (locator.hasItemIndex()) {
             player.openContainer(new TermFactory(accessInterface,locator));
@@ -69,25 +69,26 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
     }
 
-    private final WITGuiObject witGUIObject;
+    private final WTGuiObject witGUIObject;
     private static long autoBase = Long.MIN_VALUE;
-    private final Map<IInterfaceHost, WITContainer.InvTracker> diList = new HashMap<>();
-    private final Map<Long, WITContainer.InvTracker> byId = new HashMap<>();
+    private final Map<IInterfaceHost, WirelessInterfaceTerminalContainer.InvTracker> diList = new HashMap<>();
+    private final Map<Long, WirelessInterfaceTerminalContainer.InvTracker> byId = new HashMap<>();
     private IGrid grid;
     private CompoundNBT data = new CompoundNBT();
 
-    public WITContainer(int id, final PlayerInventory ip, final WITGuiObject anchor) {
-        super(TYPE, id, ip, anchor);
+    public WirelessInterfaceTerminalContainer(int id, final PlayerInventory ip, final WTGuiObject anchor) {
+        super(Menus.WIT, id, ip, anchor);
         witGUIObject = anchor;
 
         if(isServer() && witGUIObject.getActionableNode() != null) {
             grid = witGUIObject.getActionableNode().getGrid();
         }
 
-        bindPlayerInventory(ip, 0, 222 - /* height of player inventory */82);
+        this.createPlayerInventorySlots(ip);
 
-        final WTInventoryHandler fixedWITInv = new WTInventoryHandler(getPlayerInv(), witGUIObject.getItemStack(), this);
-        addSlot(new AppEngSlot(fixedWITInv, WTInventoryHandler.INFINITY_BOOSTER_CARD, 173, 129));
+        final WTInventoryHandler fixedWITInv = new WTInventoryHandler(ip, witGUIObject.getItemStack(), this);
+        //173, 129
+        addSlot(new AppEngSlot(fixedWITInv, WTInventoryHandler.INFINITY_BOOSTER_CARD));
     }
 
     private double powerMultiplier = 1;
@@ -99,8 +100,8 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
         if(!witGUIObject.rangeCheck()) {
             if(isValidContainer()) {
-                getPlayerInv().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
-                ((ServerPlayerEntity) getPlayerInv().player).closeScreen();
+                getPlayerInventory().player.sendMessage(PlayerMessages.OutOfRange.get(), Util.DUMMY_UUID);
+                getPlayerInventory().player.closeScreen();
             }
             setValidContainer(false);
         } else {
@@ -108,8 +109,8 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
             if(witGUIObject.extractAEPower(1, Actionable.SIMULATE, PowerMultiplier.ONE) == 0) {
                 if(isValidContainer()) {
-                    getPlayerInv().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
-                    ((ServerPlayerEntity) getPlayerInv().player).closeScreen();
+                    getPlayerInventory().player.sendMessage(PlayerMessages.DeviceNotPowered.get(), Util.DUMMY_UUID);
+                    getPlayerInventory().player.closeScreen();
                 }
                 setValidContainer(false);
             }
@@ -139,7 +140,7 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
                             continue;
                         }
 
-                        final WITContainer.InvTracker t = diList.get(ih);
+                        final WirelessInterfaceTerminalContainer.InvTracker t = diList.get(ih);
 
                         if(t == null) {
                             missing = true;
@@ -160,7 +161,7 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
                         if(ih.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.NO)
                             continue;
 
-                        final WITContainer.InvTracker t = diList.get(ih);
+                        final WirelessInterfaceTerminalContainer.InvTracker t = diList.get(ih);
 
                         if(t == null) missing = true;
                         else {
@@ -177,15 +178,15 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
         if(total != diList.size() || missing) regenList(data);
         else {
-            for(final Map.Entry<IInterfaceHost, WITContainer.InvTracker> en : diList.entrySet()) {
-                final WITContainer.InvTracker inv = en.getValue();
+            for(final Map.Entry<IInterfaceHost, WirelessInterfaceTerminalContainer.InvTracker> en : diList.entrySet()) {
+                final WirelessInterfaceTerminalContainer.InvTracker inv = en.getValue();
                 for(int x = 0; x < inv.server.getSlots(); x++)
                     if(isDifferent(inv.server.getStackInSlot(x), inv.client.getStackInSlot(x))) addItems(data, inv, x, 1);
             }
         }
 
         if(!data.isEmpty()) {
-            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) getPlayerInv().player),new S2CInterfaceTerminalPacket(data));
+            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) getPlayerInventory().player),new S2CInterfaceTerminalPacket(data));
             data = new CompoundNBT();
         }
     }
@@ -301,22 +302,22 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
                     final IInterfaceHost ih = (IInterfaceHost) gn.getMachine();
                     final DualityInterface dual = ih.getInterfaceDuality();
                     if(gn.isActive() && dual.getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.YES)
-                        diList.put(ih, new WITContainer.InvTracker(dual, dual.getPatterns(), dual.getTermName()));
+                        diList.put(ih, new WirelessInterfaceTerminalContainer.InvTracker(dual, dual.getPatterns(), dual.getTermName()));
                 }
 
                 for(final IGridNode gn : grid.getMachines(InterfacePart.class)) {
                     final IInterfaceHost ih = (IInterfaceHost) gn.getMachine();
                     final DualityInterface dual = ih.getInterfaceDuality();
                     if(gn.isActive() && dual.getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.YES)
-                        diList.put(ih, new WITContainer.InvTracker(dual, dual.getPatterns(), dual.getTermName()));
+                        diList.put(ih, new WirelessInterfaceTerminalContainer.InvTracker(dual, dual.getPatterns(), dual.getTermName()));
                 }
             }
         }
 
         data.putBoolean("clear", true);
 
-        for(final Map.Entry<IInterfaceHost, WITContainer.InvTracker> en : diList.entrySet()) {
-            final WITContainer.InvTracker inv = en.getValue();
+        for(final Map.Entry<IInterfaceHost, WirelessInterfaceTerminalContainer.InvTracker> en : diList.entrySet()) {
+            final WirelessInterfaceTerminalContainer.InvTracker inv = en.getValue();
             byId.put(inv.which, inv);
             addItems(data, inv, 0, inv.server.getSlots());
         }
@@ -328,7 +329,7 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
         return !ItemStack.areItemsEqual(a, b);
     }
 
-    private void addItems(final CompoundNBT data, final WITContainer.InvTracker inv, final int offset, final int length) {
+    private void addItems(final CompoundNBT data, final WirelessInterfaceTerminalContainer.InvTracker inv, final int offset, final int length) {
         final String name = '=' + Long.toString(inv.which, Character.MAX_RADIX);
         final CompoundNBT tag = data.getCompound(name);
 
@@ -381,6 +382,6 @@ public class WITContainer extends AEBaseContainer implements IWTInvHolder {
 
 
     public boolean isWUT() {
-        return witGUIObject.getItemStack().getItem() instanceof ItemWUT;
+        return witGUIObject.getItemStack().getItem() instanceof WUTItem;
     }
 }

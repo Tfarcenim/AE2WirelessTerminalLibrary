@@ -10,8 +10,8 @@ import appeng.api.util.DimensionalCoord;
 import appeng.core.Api;
 import appeng.tile.networking.WirelessTileEntity;
 import tfar.ae2wt.terminal.IInfinityBoosterCardHolder;
-import tfar.ae2wt.terminal.ItemWT;
-import tfar.ae2wt.wut.ItemWUT;
+import tfar.ae2wt.terminal.AbstractWirelessTerminalItem;
+import tfar.ae2wt.wut.WUTItem;
 import tfar.ae2wt.wut.WUTHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -45,7 +45,7 @@ public class CraftingTerminalHandler {
 
         for(int i = 0; i < inv.getSizeInventory(); i++) {
             ItemStack terminal = inv.getStackInSlot(i);
-            if(terminal.getItem() instanceof ItemWCT || (terminal.getItem() instanceof ItemWUT && WUTHandler.hasTerminal(terminal, "crafting"))) {
+            if(terminal.getItem() instanceof WCTItem || (terminal.getItem() instanceof WUTItem && WUTHandler.hasTerminal(terminal, "crafting"))) {
                 return craftingTerminal = terminal;
             }
         }
@@ -54,7 +54,7 @@ public class CraftingTerminalHandler {
 
     public ILocatable getSecurityStation() {
         if(securityStation != null) return securityStation;
-        final String unParsedKey = ((ItemWT) craftingTerminal.getItem()).getEncryptionKey(craftingTerminal);
+        final String unParsedKey = ((AbstractWirelessTerminalItem) craftingTerminal.getItem()).getEncryptionKey(craftingTerminal);
         if(unParsedKey.isEmpty()) return null;
         final long parsedKey = Long.parseLong(unParsedKey);
         return securityStation = Api.instance().registries().locatable().getLocatableBy(parsedKey);

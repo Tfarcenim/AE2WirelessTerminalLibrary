@@ -11,6 +11,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
+import java.util.List;
+
 public class ItemButton extends Button implements ITooltip {
 
     private final ResourceLocation texture;
@@ -71,11 +73,6 @@ public class ItemButton extends Button implements ITooltip {
                 renderToolTip(matrices, mouseX, mouseY);
             }
         }
-    }
-
-    @Override
-    public ITextComponent getTooltipMessage() {
-        return getMessage();
     }
 
     @Override

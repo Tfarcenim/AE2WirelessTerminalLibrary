@@ -8,9 +8,9 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
-import tfar.ae2wt.wirelessinterfaceterminal.WITContainer;
-import tfar.ae2wt.wpt.WPatternTContainer;
+import tfar.ae2wt.wirelesscraftingterminal.WirelessCraftingTerminalContainer;
+import tfar.ae2wt.wirelessinterfaceterminal.WirelessInterfaceTerminalContainer;
+import tfar.ae2wt.wpt.WirelessPatternTerminalContainer;
 
 import java.util.function.Supplier;
 
@@ -49,13 +49,13 @@ public class C2SSwitchGuiPacket {
                 }
                 switch(id) {
                     case "wireless_crafting_terminal":
-                        WCTContainer.openServer(player, locator);
+                        WirelessCraftingTerminalContainer.openServer(player, locator);
                         break;
                     case "wireless_pattern_terminal":
-                        WPatternTContainer.openServer(player, locator);
+                        WirelessPatternTerminalContainer.openServer(player, locator);
                         break;
                     case "wireless_interface_terminal":
-                        WITContainer.openServer(player, locator);
+                        WirelessInterfaceTerminalContainer.openServer(player, locator);
                         break;
                     case "wireless_crafting_status":
                         WirelessCraftingStatusContainer.openServer(player, locator);

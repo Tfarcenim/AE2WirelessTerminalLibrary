@@ -24,7 +24,7 @@ import appeng.util.item.AEItemStack;
 import appeng.util.prioritylist.IPartitionList;
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Pair;
-import tfar.ae2wt.wpt.WPatternTContainer;
+import tfar.ae2wt.wpt.WirelessPatternTerminalContainer;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.item.ItemStack;
@@ -299,8 +299,8 @@ public class REIRecipePacket {
     }
 
     private void handleProcessing(ScreenHandler con, IContainerCraftingPacket cct, Recipe<?> recipe) {
-        if(con instanceof WPatternTContainer) {
-            WPatternTContainer patternTerm = (WPatternTContainer) con;
+        if(con instanceof WirelessPatternTerminalContainer) {
+            WirelessPatternTerminalContainer patternTerm = (WirelessPatternTerminalContainer) con;
             if(!patternTerm.craftingMode) {
                 final FixedItemInv output = cct.getInventoryByName("output");
                 ItemHandlerUtil.setStackInSlot(output, 0, recipe.getOutput());

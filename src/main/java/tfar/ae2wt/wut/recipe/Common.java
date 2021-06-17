@@ -3,11 +3,11 @@ package tfar.ae2wt.wut.recipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.util.ResourceLocation;
-import tfar.ae2wt.AE2WirelessTerminals;
+import tfar.ae2wt.init.ModItems;
 
 public abstract class Common implements ICraftingRecipe {
 
-    protected final ItemStack outputStack = new ItemStack(AE2WirelessTerminals.UNIVERSAL_TERMINAL);
+    protected final ItemStack outputStack = new ItemStack(ModItems.UNIVERSAL_TERMINAL);
     protected final ResourceLocation id;
 
     protected Common(ResourceLocation id) {

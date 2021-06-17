@@ -8,8 +8,6 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.util.text.ITextComponent;
 import tfar.ae2wt.wirelesscraftingterminal.WCTGuiObject;
-import tfar.ae2wt.wirelessinterfaceterminal.WITContainer;
-import tfar.ae2wt.wirelessinterfaceterminal.WITGuiObject;
 
 import javax.annotation.Nullable;
 

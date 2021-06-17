@@ -5,7 +5,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import tfar.ae2wt.wirelesscraftingterminal.WCTContainer;
+import tfar.ae2wt.wirelesscraftingterminal.WirelessCraftingTerminalContainer;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.MagnetMode;
 
 import java.util.function.Supplier;
@@ -37,8 +37,8 @@ public class C2SSetMagnetModePacket {
         MinecraftServer server = player.getServer();
         server.execute(() -> {
             final Container c = player.openContainer;
-            if (c instanceof WCTContainer) {
-                final WCTContainer container = (WCTContainer) c;
+            if (c instanceof WirelessCraftingTerminalContainer) {
+                final WirelessCraftingTerminalContainer container = (WirelessCraftingTerminalContainer) c;
                     container.getMagnetSettings().magnetMode = mode;
                     container.saveMagnetSettings();
                 }

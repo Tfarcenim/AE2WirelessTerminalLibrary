@@ -1,10 +1,13 @@
 package tfar.ae2wt.wpt;
 
 import appeng.api.config.ActionItems;
-import appeng.client.gui.implementations.MEMonitorableScreen;
+import appeng.client.gui.me.common.MEMonitorableScreen;
+import appeng.client.gui.me.items.ItemTerminalScreen;
+import appeng.client.gui.style.ScreenStyle;
 import appeng.client.gui.widgets.AETextField;
 import appeng.client.gui.widgets.ActionButton;
 import appeng.client.gui.widgets.TabButton;
+import appeng.container.me.items.PatternTermContainer;
 import appeng.core.localization.GuiText;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.text.ITextComponent;
@@ -18,7 +21,7 @@ import net.minecraft.item.ItemStack;
 
 import java.lang.reflect.Field;
 
-public class WPTScreen extends MEMonitorableScreen<WPatternTContainer> implements IUniversalTerminalCapable {
+public class WirelessPatternTerminalScreen extends ItemTerminalScreen<WirelessPatternTerminalContainer> implements IUniversalTerminalCapable {
 
     private int rows = 0;
     private AETextField searchField;
@@ -35,8 +38,8 @@ public class WPTScreen extends MEMonitorableScreen<WPatternTContainer> implement
     private ActionButton substitutionsEnabledBtn;
     private ActionButton substitutionsDisabledBtn;
 
-    public WPTScreen(WPatternTContainer container, PlayerInventory playerInventory, ITextComponent title) {
-        super(container, playerInventory, title);
+    public WirelessPatternTerminalScreen(WirelessPatternTerminalContainer container, PlayerInventory playerInventory, ITextComponent title, ScreenStyle style) {
+        super(container, playerInventory, title,style);
         reservedSpace = 81;
 
         try {
@@ -51,28 +54,32 @@ public class WPTScreen extends MEMonitorableScreen<WPatternTContainer> implement
     public void init() {
         super.init();
 
-        tabCraftButton = new TabButton(guiLeft + 173, guiTop + ySize - 177,
+        tabCraftButton = new TabButton(//guiLeft + 173, guiTop + ySize - 177,
                 new ItemStack(Blocks.CRAFTING_TABLE), GuiText.CraftingPattern.text(), itemRenderer,
                 btn -> toggleCraftMode(CRAFTMODE_PROCESSING));
         addButton(tabCraftButton);
 
-        tabProcessButton = new TabButton(guiLeft + 173, guiTop + ySize - 177,
+        tabProcessButton = new TabButton(//guiLeft + 173, guiTop + ySize - 177,
                 new ItemStack(Blocks.FURNACE), GuiText.ProcessingPattern.text(), itemRenderer,
                 btn -> toggleCraftMode(CRAFTMODE_CRAFTING));
         addButton(tabProcessButton);
 
-        substitutionsEnabledBtn = new ActionButton(guiLeft + 84, guiTop + ySize - 165, ActionItems.ENABLE_SUBSTITUTION, act -> toggleSubstitutions(SUBSITUTION_DISABLE));
+        substitutionsEnabledBtn = new ActionButton(//guiLeft + 84, guiTop + ySize - 165,
+                ActionItems.ENABLE_SUBSTITUTION, act -> toggleSubstitutions(SUBSITUTION_DISABLE));
         substitutionsEnabledBtn.setHalfSize(true);
         addButton(substitutionsEnabledBtn);
 
-        substitutionsDisabledBtn = new ActionButton(guiLeft + 84, guiTop + ySize - 165, ActionItems.DISABLE_SUBSTITUTION, act -> toggleSubstitutions(SUBSITUTION_ENABLE));
+        substitutionsDisabledBtn = new ActionButton(//guiLeft + 84, guiTop + ySize - 165,
+                ActionItems.DISABLE_SUBSTITUTION, act -> toggleSubstitutions(SUBSITUTION_ENABLE));
         substitutionsDisabledBtn.setHalfSize(true);
         addButton(substitutionsDisabledBtn);
 
-        ActionButton clearBtn = addButton(new ActionButton(guiLeft + 74, guiTop + ySize - 165, ActionItems.CLOSE, btn -> clear()));
+        ActionButton clearBtn = addButton(new ActionButton(//guiLeft + 74, guiTop + ySize - 165,
+                ActionItems.CLOSE, btn -> clear()));
         clearBtn.setHalfSize(true);
 
-        ActionButton encodeBtn = new ActionButton(guiLeft + 147, guiTop + ySize - 144, ActionItems.ENCODE, act -> encode());
+        ActionButton encodeBtn = new ActionButton(//guiLeft + 147, guiTop + ySize - 144,
+                ActionItems.ENCODE, act -> encode());
         addButton(encodeBtn);
 
         if(container.isWUT()) addButton(new CycleTerminalButton(guiLeft - 18, guiTop + 88, btn -> cycleTerminal()));
@@ -148,7 +155,6 @@ public class WPTScreen extends MEMonitorableScreen<WPatternTContainer> implement
         font.drawText(matrices, GuiText.PatternTerminal.text(), 8, ySize - 96 + 1 - reservedSpace, 4210752);
     }
 
-    @Override
     protected String getBackground() {
         return "wtlib/gui/pattern.png";
     }
