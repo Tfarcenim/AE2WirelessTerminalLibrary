@@ -14,6 +14,8 @@ import appeng.container.slot.CraftingMatrixSlot;
 import appeng.container.slot.CraftingTermSlot;
 import appeng.core.localization.PlayerMessages;
 import appeng.helpers.IContainerCraftingPacket;
+import appeng.util.inv.IAEAppEngInventory;
+import appeng.util.inv.InvOperation;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -34,6 +36,8 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import tfar.ae2wt.WTConfig;
 import tfar.ae2wt.init.Menus;
 import tfar.ae2wt.terminal.AbstractWirelessTerminalItem;
+import tfar.ae2wt.terminal.InternalInventory;
+import tfar.ae2wt.terminal.SlotType;
 import tfar.ae2wt.terminal.WTInventoryHandler;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.ItemMagnetCard;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.MagnetSettings;
@@ -41,10 +45,7 @@ import tfar.ae2wt.wut.WUTItem;
 
 import java.util.List;
 
-public class WirelessCraftingTerminalContainer extends ItemTerminalContainer implements IContainerCraftingPacket {
-
-    private final ISegmentedInventory craftingInventoryHost;
-
+public class WirelessCraftingTerminalContainer extends ItemTerminalContainer implements IContainerCraftingPacket, IAEAppEngInventory {
 
     public static WirelessCraftingTerminalContainer openClient(int windowId, PlayerInventory inv) {
         PlayerEntity player = inv.player;
@@ -74,14 +75,14 @@ public class WirelessCraftingTerminalContainer extends ItemTerminalContainer imp
     public WirelessCraftingTerminalContainer(int id, final PlayerInventory ip, final WCTGuiObject gui) {
         super(Menus.WCT, id, ip, gui, true);
         wctGUIObject = gui;
-        this.craftingInventoryHost = (ISegmentedInventory)gui;
 
         final int slotIndex = ((IInventorySlotAware) wctGUIObject).getInventorySlot();
         lockPlayerInventorySlot(slotIndex);
 
         wtInventoryHandler = new WTInventoryHandler(getPlayerInventory(), wctGUIObject.getItemStack(), this);
 
-        craftingGridInv = this.craftingInventoryHost.getInventoryByName("crafting");
+        craftingGridInv = new InternalInventory(this, 9, SlotType.crafting, wctGUIObject.getItemStack());
+
 
         for(int i = 0; i < 9; ++i) {
             this.addSlot(this.craftingSlots[i] = new CraftingMatrixSlot(this, craftingGridInv, i), SlotSemantic.CRAFTING_GRID);
@@ -96,25 +97,25 @@ public class WirelessCraftingTerminalContainer extends ItemTerminalContainer imp
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET);
             }
-        });
+        },SlotSemantic.MACHINE_INPUT);
         addSlot(new AppEngSlot(wtInventoryHandler, 2) {//, 8, -58
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE);
             }
-        });
+        },SlotSemantic.MACHINE_PROCESSING);
         addSlot(new AppEngSlot(wtInventoryHandler, 1) {//, 8, -40
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS);
             }
-        });
+        },SlotSemantic.MACHINE_OUTPUT);
         addSlot(new AppEngSlot(wtInventoryHandler, 0) {//, 8, -22
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
                 return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS);
             }
-        });
+        },SlotSemantic.MACHINE_CRAFTING_GRID);
 
         addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.OFFHAND) {//, 80, -22
             @OnlyIn(Dist.CLIENT)
@@ -126,7 +127,7 @@ public class WirelessCraftingTerminalContainer extends ItemTerminalContainer imp
         addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.INFINITY_BOOSTER_CARD));//, 134, -20
         addSlot(new AppEngSlot(wtInventoryHandler, WTInventoryHandler.MAGNET_CARD));//TODO fetch texture for card background , 152, -20
 
-        onCraftMatrixChanged(null);
+        //onCraftMatrixChanged(null);
 
     }
 
@@ -247,5 +248,15 @@ public class WirelessCraftingTerminalContainer extends ItemTerminalContainer imp
     @Override
     public List<ItemStack> getViewCells() {
         return wctGUIObject.getViewCellStorage().getViewCells();
+    }
+
+    @Override
+    public void saveChanges() {
+
+    }
+
+    @Override
+    public void onChangeInventory(IItemHandler iItemHandler, int i, InvOperation invOperation, ItemStack itemStack, ItemStack itemStack1) {
+
     }
 }
