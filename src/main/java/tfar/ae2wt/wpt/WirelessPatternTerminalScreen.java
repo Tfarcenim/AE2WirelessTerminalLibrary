@@ -82,7 +82,7 @@ public class WirelessPatternTerminalScreen extends ItemTerminalScreen<WirelessPa
                 ActionItems.ENCODE, act -> encode());
         addButton(encodeBtn);
 
-        if(container.isWUT()) addButton(new CycleTerminalButton(guiLeft - 18, guiTop + 88, btn -> cycleTerminal()));
+        if(container.isWUT()) addButton(new CycleTerminalButton(btn -> cycleTerminal()));
 
         try {
             Field field = MEMonitorableScreen.class.getDeclaredField("rows");

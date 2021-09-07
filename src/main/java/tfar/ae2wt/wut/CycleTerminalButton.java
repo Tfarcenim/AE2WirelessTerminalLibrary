@@ -12,8 +12,8 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class CycleTerminalButton extends Button implements ITooltip {
 
-    public CycleTerminalButton(int x, int y, IPressable onPress) {
-        super(x, y, 16, 16, new TranslationTextComponent("gui.ae2wtlib.cycle_terminal"), onPress);
+    public CycleTerminalButton(IPressable onPress) {
+        super(0, 0, 16, 16, new TranslationTextComponent("gui.ae2wtlib.cycle_terminal"), onPress);
         visible = true;
         active = true;
     }

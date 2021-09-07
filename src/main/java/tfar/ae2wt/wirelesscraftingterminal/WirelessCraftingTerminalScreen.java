@@ -1,10 +1,10 @@
 package tfar.ae2wt.wirelesscraftingterminal;
 
 import appeng.api.config.ActionItems;
-import appeng.client.gui.me.common.MEMonitorableScreen;
+import appeng.client.gui.Icon;
 import appeng.client.gui.me.items.ItemTerminalScreen;
 import appeng.client.gui.style.ScreenStyle;
-import appeng.client.gui.widgets.AETextField;
+import appeng.client.gui.style.StyleManager;
 import appeng.client.gui.widgets.ActionButton;
 import appeng.client.gui.widgets.IconButton;
 import appeng.container.slot.CraftingMatrixSlot;
@@ -19,8 +19,8 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import tfar.ae2wt.net.server.C2SDeleteTrashPacket;
 import tfar.ae2wt.net.PacketHandler;
+import tfar.ae2wt.net.server.C2SDeleteTrashPacket;
 import tfar.ae2wt.net.server.C2SSetMagnetModePacket;
 import tfar.ae2wt.util.ItemButton;
 import tfar.ae2wt.wirelesscraftingterminal.magnet_card.MagnetMode;
@@ -28,88 +28,61 @@ import tfar.ae2wt.wirelesscraftingterminal.magnet_card.MagnetSettings;
 import tfar.ae2wt.wut.CycleTerminalButton;
 import tfar.ae2wt.wut.IUniversalTerminalCapable;
 
-import java.lang.reflect.Field;
+import java.io.IOException;
 
 public class WirelessCraftingTerminalScreen extends ItemTerminalScreen<WirelessCraftingTerminalContainer> implements IUniversalTerminalCapable {
 
     private int rows = 0;
-    private AETextField searchField;
-    private final int reservedSpace;
     ItemButton magnetCardToggleButton;
 
-    public WirelessCraftingTerminalScreen(WirelessCraftingTerminalContainer container, PlayerInventory playerInventory, ITextComponent title, ScreenStyle style) {
-        super(container, playerInventory, title,style);
-        reservedSpace = 73;
+    private static final ScreenStyle STYLE;
+
+    static {
+        ScreenStyle STYLE1;
+        try {
+            STYLE1 = StyleManager.loadStyleDoc("/screens/wtlib/wireless_crafting_terminal.json");
+        } catch(IOException ignored) {
+            STYLE1 = null;
+        }
+        STYLE = STYLE1;
     }
 
-    @Override
-    public void init() {
-        super.init();
-        ActionButton clearBtn = addButton(new ActionButton(ActionItems.STASH, btn -> clear()));//guiLeft+ 92 + 43, guiTop+ySize - 156 - 4,
+    public WirelessCraftingTerminalScreen(WirelessCraftingTerminalContainer container, PlayerInventory playerInventory, ITextComponent title, ScreenStyle style) {
+        super(container, playerInventory, title,STYLE);
+        ActionButton clearBtn = new ActionButton(ActionItems.STASH, (btn) -> container.clearCraftingGrid());
         clearBtn.setHalfSize(true);
+        widgets.add("clearCraftingGrid", clearBtn);
+        IconButton deleteButton = new IconButton(btn -> delete()) {
+            @Override
+            protected Icon getIcon() {
+                return Icon.CONDENSER_OUTPUT_TRASH;
+            }
+        };
+        deleteButton.setHalfSize(true);
+        deleteButton.setMessage(new TranslationTextComponent("gui.ae2wtlib.emptytrash").appendString("\n")
+                .appendSibling(new TranslationTextComponent("gui.ae2wtlib.emptytrash.desc")));
+        widgets.add("emptyTrash", deleteButton);
 
-       // IconButton deleteButton = addButton(new ActionButton(guiLeft+ 92 + 25, guiTop+ySize - 104, btn -> delete()));
-       // deleteButton.setHalfSize(true);
-       // deleteButton.setMessage(new TranslationTextComponent("gui.ae2wtlib.emptytrash").appendString("\n").appendSibling(new TranslationTextComponent("gui.ae2wtlib.emptytrash.desc")));
-
-        magnetCardToggleButton = addButton(new ItemButton(guiLeft + 92 + 60, guiTop + ySize - 114, btn -> setMagnetMode(), new ResourceLocation("ae2wtlib", "textures/magnet_card.png")));
-
+        magnetCardToggleButton = new ItemButton(new ResourceLocation("ae2wtlib", "textures/magnet_card.png"),btn -> setMagnetMode());
         magnetCardToggleButton.setHalfSize(true);
-        container.setScreen(this);
+        widgets.add("magnetCardToggleButton", magnetCardToggleButton);
+        resetMagnetSettings();
+        getContainer().setScreen(this);
 
-        if(container.isWUT()) addButton(new CycleTerminalButton(guiLeft- 18, guiTop+ 88, btn -> cycleTerminal()));
+        if(getContainer().isWUT()) widgets.add("cycleTerminal", new CycleTerminalButton(btn -> cycleTerminal()));
 
-        try {
-            Field field = MEMonitorableScreen.class.getDeclaredField("rows");
-            field.setAccessible(true);
-            Object value = field.get(this);
-            rows = (int) value;
-        } catch(IllegalAccessException | NoSuchFieldException ignored) {}
-        try {
-            Field field = MEMonitorableScreen.class.getDeclaredField("searchField");
-            field.setAccessible(true);
-            Object value = field.get(this);
-            searchField = (AETextField) value;
-        } catch(IllegalAccessException | NoSuchFieldException ignored) {}
+        //widgets.add("player", new PlayerEntityWidget(MinecraftClient.getInstance().player));
     }
 
     @Override
     public void drawBG(MatrixStack matrices, final int offsetX, final int offsetY, final int mouseX, final int mouseY, float partialTicks) {
-
-        bindTexture(getBackground());
-        final int x_width = 197;
-        blit(matrices, offsetX, offsetY, 0, 0, x_width, 18);
-
-        for(int x = 0; x < this.rows; x++) {
-            blit(matrices, offsetX, offsetY + 18 + x * 18, 0, 18, x_width, 18);
-        }
-
-        blit(matrices, offsetX, offsetY + 16 + rows * 18, 0, 106 - 18 - 18, x_width, 99 + reservedSpace);
-
-        searchField.render(matrices, mouseX, mouseY, partialTicks);
-
-        if(minecraft.player != null)
-            InventoryScreen.drawEntityOnScreen(offsetX + 52, offsetY + 94 + rows * 18, 30, (float) (offsetX + 52) - mouseX, (float) offsetY + 55 + rows * 18 - mouseY, minecraft.player);
+        super.drawBG(matrices, offsetX, offsetY, mouseX, mouseY, partialTicks);
+        InventoryScreen.drawEntityOnScreen(offsetX + 52, offsetY + 150 + rows * 18, 30, (float) (offsetX + 52) - mouseX, (float) offsetY + 95 + rows * 18 - mouseY, minecraft.player);
     }
 
     @Override
     public void drawFG(MatrixStack matrices, final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         super.drawFG(matrices, offsetX, offsetY, mouseX, mouseY);
-        font.drawText(matrices, GuiText.CraftingTerminal.text(), 8,ySize - 96 + 1 - reservedSpace, 4210752);
-    }
-
-    private void clear() {
-        Slot s = null;
-        for(final Slot j : container.inventorySlots) {
-            if(j instanceof CraftingMatrixSlot) {
-                s = j;
-            }
-        }
-
-        if(s != null) {
-            final InventoryActionPacket p = new InventoryActionPacket(InventoryAction.MOVE_REGION, s.slotNumber, 0);
-            NetworkHandler.instance().sendToServer(p);
-        }
     }
 
     private void delete() {

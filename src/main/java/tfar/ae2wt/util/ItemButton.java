@@ -19,8 +19,8 @@ public class ItemButton extends Button implements ITooltip {
     public static final ResourceLocation TEXTURE_STATES = new ResourceLocation("appliedenergistics2", "textures/guis/states.png");
     private boolean halfSize = false;
 
-    public ItemButton(final int x, final int y, Button.IPressable onPress, ResourceLocation texture) {
-        super(x, y, 16, 16, StringTextComponent.EMPTY, onPress);
+    public ItemButton(ResourceLocation texture, Button.IPressable onPress) {
+        super(0, 0, 16, 16, StringTextComponent.EMPTY, onPress);
         this.texture = texture;
     }
 
