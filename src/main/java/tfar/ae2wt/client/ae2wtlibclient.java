@@ -28,8 +28,8 @@ import java.io.FileNotFoundException;
 public class ae2wtlibclient {
 
     public static void setup(FMLClientSetupEvent e) {
-        register(Menus.WCT, WirelessCraftingTerminalScreen::new,"/screens/terminals/crafting_terminal.json");
-        register(Menus.PATTERN, WirelessPatternTerminalScreen::new,"/screens/terminals/pattern_terminal.json");
+        register(Menus.WCT, WirelessCraftingTerminalScreen::new,"/screens/wtlib/wireless_crafting_terminal.json");
+        register(Menus.PATTERN, WirelessPatternTerminalScreen::new,"/screens/wtlib/wireless_pattern_terminal.json");
         register(Menus.WIT, WITScreen::new,"/screens/terminals/interface_terminal.json");
         register(Menus.WCS, WirelessCraftingStatusScreen::new,"/screens/terminals/crafting_status.json");
         register(Menus.WCA, WirelessCraftAmountScreen::new,"/screens/terminals/fluid_terminal.json");

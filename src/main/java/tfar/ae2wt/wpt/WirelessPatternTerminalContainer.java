@@ -18,7 +18,6 @@ import appeng.container.me.items.ItemTerminalContainer;
 import appeng.container.slot.*;
 import appeng.core.Api;
 import appeng.core.localization.PlayerMessages;
-import appeng.core.sync.packets.PatternSlotPacket;
 import appeng.helpers.IContainerCraftingPacket;
 import appeng.items.storage.ViewCellItem;
 import appeng.me.helpers.MachineSource;
@@ -92,7 +91,7 @@ public class WirelessPatternTerminalContainer extends ItemTerminalContainer impl
     public boolean substitute;
 
     public WirelessPatternTerminalContainer(int id, final PlayerInventory ip, final WPTGuiObject gui) {
-        super(Menus.PATTERN, id, ip, gui, true);
+        super(Menus.PATTERN, id, ip, gui, false);
         wptGUIObject = gui;
 
         final int slotIndex = ((IInventorySlotAware) wptGUIObject).getInventorySlot();
