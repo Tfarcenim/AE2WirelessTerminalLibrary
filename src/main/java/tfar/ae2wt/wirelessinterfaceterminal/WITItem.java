@@ -16,6 +16,6 @@ public class WITItem extends AbstractWirelessTerminalItem implements IInfinityBo
 
     @Override
     public void open(final PlayerEntity player, final ContainerLocator locator) {
-        WirelessFluidTerminalContainer.openServer(player, locator);
+        WirelessInterfaceTerminalContainer.openServer(player, locator);
     }
 }
