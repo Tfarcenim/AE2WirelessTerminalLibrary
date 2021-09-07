@@ -8,20 +8,11 @@ import appeng.container.AEBaseContainer;
 import net.minecraft.inventory.container.ContainerType;
 import tfar.ae2wt.init.Menus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import tfar.ae2wt.net.C2SHotkeyPacket;
-import tfar.ae2wt.net.PacketHandler;
-import tfar.ae2wt.util.WirelessCraftAmountScreen;
-import tfar.ae2wt.util.WirelessCraftConfirmScreen;
-import tfar.ae2wt.util.WirelessCraftingStatusScreen;
 import tfar.ae2wt.wirelesscraftingterminal.WirelessCraftingTerminalScreen;
 import tfar.ae2wt.wirelessfluidterminal.WirelessFluidTerminalScreen;
 import tfar.ae2wt.wirelessinterfaceterminal.WITScreen;
 import tfar.ae2wt.wpt.WirelessPatternTerminalScreen;
 import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.FileNotFoundException;
 
@@ -31,9 +22,6 @@ public class ae2wtlibclient {
         register(Menus.WCT, WirelessCraftingTerminalScreen::new,"/screens/wtlib/wireless_crafting_terminal.json");
         register(Menus.PATTERN, WirelessPatternTerminalScreen::new,"/screens/wtlib/wireless_pattern_terminal.json");
         register(Menus.WIT, WITScreen::new,"/screens/wtlib/wireless_interface_terminal.json");
-        register(Menus.WCS, WirelessCraftingStatusScreen::new,"/screens/terminals/crafting_status.json");
-        register(Menus.WCA, WirelessCraftAmountScreen::new,"/screens/terminals/fluid_terminal.json");
-        register(Menus.WCC, WirelessCraftConfirmScreen::new,"/screens/terminals/fluid_terminal.json");
         register(Menus.WIRELESS_FLUID_TERMINAL, WirelessFluidTerminalScreen::new,"/screens/terminals/fluid_terminal.json");
 
   /*      ClientPlayNetworking.registerGlobalReceiver(new Identifier("ae2wtlib", "interface_terminal"), (client, handler, buf, responseSender) -> {
@@ -86,7 +74,7 @@ public class ae2wtlibclient {
                                                                                         ScreenRegistration.StyledScreenFactory<M, U> factory,
                                                                                         String stylePath) {
        // CONTAINER_STYLES.put(type, stylePath);
-        ScreenManager.<M, U>registerFactory(type, (container, playerInv, title) -> {
+        ScreenManager.<M,U>registerFactory(type, (container, playerInv, title) -> {
             ScreenStyle style;
             try {
                 style = StyleManager.loadStyleDoc(stylePath);

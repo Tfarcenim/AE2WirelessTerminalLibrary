@@ -5,14 +5,15 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "ae2wtlib.refmap.json",
   "mixins": [
-    "CfgValuePacket",
+    "AEBaseContainerAccess",
     "ContainerAccess",
+    "CraftConfirmContainerMixin",
     "InvActionPacketMixin",
     "PlayerInventoryMixin",
     "SlotAccess"
   ],
   "client": [
-    "MEInvUpdatePacket",
+    "AESubScreenMixin",
     "MeMonitorableScreenWireless"
   ],
   "injectors": {

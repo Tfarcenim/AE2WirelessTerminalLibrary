@@ -9,7 +9,10 @@ import appeng.core.Api;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.InvOperation;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraftforge.items.IItemHandler;
+import tfar.ae2wt.init.Menus;
+import tfar.ae2wt.init.ModItems;
 import tfar.ae2wt.terminal.SlotType;
 import tfar.ae2wt.terminal.WTGuiObject;
 import tfar.ae2wt.terminal.InternalInventory;
@@ -92,5 +95,10 @@ public class WPTGuiObject extends WTGuiObject implements IPortableCell, IAEAppEn
             final ItemStack is = crafting.getStackInSlot(x);
             if(!is.isEmpty()) is.setCount(1);
         }
+    }
+
+    @Override
+    public ContainerType<?> getType() {
+        return Menus.PATTERN;
     }
 }

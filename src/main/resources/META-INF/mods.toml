@@ -27,12 +27,11 @@ displayName="AE2 Wireless Terminals" #mandatory
 # A text field displayed in the mod UI
 #credits="Thanks for this example mod goes to Java" #optional
 # A text field displayed in the mod UI
-authors="Tfarecnim" #optional
+authors="mari_023,Tfarecnim" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
 
-More AE2 Terminals
-
+A Library which provides basic functions to create AE2 Wireless Terminals with infinite range capabilities
 '''
 [[dependencies.ae2twlib]] #optional
 # the modid of the dependency

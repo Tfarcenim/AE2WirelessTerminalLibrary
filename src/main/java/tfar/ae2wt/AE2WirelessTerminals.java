@@ -40,7 +40,7 @@ public class AE2WirelessTerminals {
         MinecraftForge.EVENT_BUS.addListener(Events::serverTick);
         bus.addListener(this::common);
         if (FMLEnvironment.dist.isClient()) {
-            MinecraftForge.EVENT_BUS.addListener(ae2wtlibclient::clientTick);
+           // MinecraftForge.EVENT_BUS.addListener(ae2wtlibclient::clientTick);
             bus.addListener(ae2wtlibclient::setup);
         }
     }

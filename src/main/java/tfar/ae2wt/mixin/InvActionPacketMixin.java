@@ -1,14 +1,8 @@
 package tfar.ae2wt.mixin;
 
-import appeng.container.AEBaseContainer;
-import appeng.container.ContainerLocator;
 import appeng.core.sync.network.INetworkInfo;
 import appeng.core.sync.packets.InventoryActionPacket;
 import appeng.helpers.InventoryAction;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import tfar.ae2wt.wirelesscraftingterminal.WirelessCraftingTerminalContainer;
-import tfar.ae2wt.wpt.WirelessPatternTerminalContainer;
-import tfar.ae2wt.util.WirelessCraftAmountContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

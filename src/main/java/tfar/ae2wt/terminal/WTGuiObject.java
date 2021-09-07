@@ -27,10 +27,11 @@ import appeng.container.interfaces.IInventorySlotAware;
 import appeng.core.Api;
 import appeng.tile.networking.WirelessTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-public class WTGuiObject implements IGuiItemObject, IEnergySource, IActionHost, IInventorySlotAware {
+public abstract class WTGuiObject implements IGuiItemObject, IEnergySource, IActionHost, IInventorySlotAware {
 
     private final FixedViewCellInventory fixedViewCellInventory;
     private final ItemStack effectiveItem;
@@ -274,4 +275,8 @@ public class WTGuiObject implements IGuiItemObject, IEnergySource, IActionHost, 
     public FixedViewCellInventory getViewCellStorage() { //FIXME viemcells
         return fixedViewCellInventory;
     }
+
+
+    public abstract ContainerType<?> getType();
+
 }

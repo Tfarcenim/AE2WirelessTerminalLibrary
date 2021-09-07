@@ -2,7 +2,6 @@ package tfar.ae2wt.net;
 
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerLocator;
-import tfar.ae2wt.util.WirelessCraftingStatusContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
@@ -57,8 +56,6 @@ public class C2SSwitchGuiPacket {
                     case "wireless_interface_terminal":
                         WirelessInterfaceTerminalContainer.openServer(player, locator);
                         break;
-                    case "wireless_crafting_status":
-                        WirelessCraftingStatusContainer.openServer(player, locator);
                 }
             });
         });

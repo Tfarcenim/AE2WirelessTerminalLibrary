@@ -7,7 +7,6 @@ import appeng.api.config.YesNo;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionHost;
-import appeng.client.gui.me.interfaceterminal.InterfaceSlot;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerLocator;
 import appeng.container.slot.AppEngSlot;
@@ -40,8 +39,8 @@ import tfar.ae2wt.WTConfig;
 import tfar.ae2wt.init.Menus;
 import tfar.ae2wt.net.PacketHandler;
 import tfar.ae2wt.net.client.S2CInterfaceTerminalPacket;
-import tfar.ae2wt.terminal.WTGuiObject;
 import tfar.ae2wt.terminal.AbstractWirelessTerminalItem;
+import tfar.ae2wt.terminal.WTGuiObject;
 import tfar.ae2wt.terminal.WTInventoryHandler;
 import tfar.ae2wt.wut.WUTItem;
 
@@ -54,14 +53,14 @@ public class WirelessInterfaceTerminalContainer extends AEBaseContainer {
         PlayerEntity player = inv.player;
         ItemStack it = inv.player.getHeldItem(Hand.MAIN_HAND);
         ContainerLocator locator = ContainerLocator.forHand(inv.player, Hand.MAIN_HAND);
-        WTGuiObject host = new WTGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
+        WTGuiObject host = new WITGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
         return new WirelessInterfaceTerminalContainer(windowId, inv, host);
     }
 
     public static void openServer(PlayerEntity player, ContainerLocator locator) {
 
         ItemStack it = player.inventory.getStackInSlot(locator.getItemIndex());
-        WTGuiObject accessInterface = new WTGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
+        WTGuiObject accessInterface = new WITGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
 
         if (locator.hasItemIndex()) {
             player.openContainer(new TermFactory(accessInterface,locator));
