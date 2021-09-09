@@ -45,8 +45,6 @@ public class WirelessCraftingTerminalScreen extends ItemTerminalScreen<WirelessC
         magnetCardToggleButton.setHalfSize(true);
         widgets.add("magnetCardToggleButton", magnetCardToggleButton);
         resetMagnetSettings();
-        getContainer().setScreen(this);
-
         if(getContainer().isWUT()) widgets.add("cycleTerminal", new CycleTerminalButton(btn -> cycleTerminal()));
 
         //widgets.add("player", new PlayerEntityWidget(MinecraftClient.getInstance().player));

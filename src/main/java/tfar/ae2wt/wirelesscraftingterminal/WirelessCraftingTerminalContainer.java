@@ -235,15 +235,16 @@ public class WirelessCraftingTerminalContainer extends ItemTerminalContainer imp
 
     public MagnetSettings reloadMagnetSettings() {
         magnetSettings = ItemMagnetCard.loadMagnetSettings(wctGUIObject.getItemStack());
-        if(isClient() && screen != null) screen.resetMagnetSettings();
+        //todo, this needs to be done another way
+  //      if(isClient() && screen != null) screen.resetMagnetSettings();
         return magnetSettings;
     }
 
-    private WirelessCraftingTerminalScreen screen;
+  //  private WirelessCraftingTerminalScreen screen;
 
-    public void setScreen(WirelessCraftingTerminalScreen screen) {
-        this.screen = screen;
-    }
+  //  public void setScreen(WirelessCraftingTerminalScreen screen) {
+  //      this.screen = screen;
+   // }
 
     public boolean isWUT() {
         return wctGUIObject.getItemStack().getItem() instanceof WUTItem;
