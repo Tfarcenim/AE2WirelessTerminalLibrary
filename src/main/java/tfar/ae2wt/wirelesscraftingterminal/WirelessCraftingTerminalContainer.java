@@ -2,7 +2,6 @@ package tfar.ae2wt.wirelesscraftingterminal;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
-import appeng.api.implementations.tiles.ISegmentedInventory;
 import appeng.api.networking.IGridNode;
 import appeng.container.ContainerLocator;
 import appeng.container.ContainerNull;

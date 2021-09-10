@@ -7,6 +7,7 @@ import appeng.client.gui.style.ScreenStyle;
 import appeng.client.gui.widgets.ActionButton;
 import appeng.client.gui.widgets.IconButton;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
@@ -47,13 +48,12 @@ public class WirelessCraftingTerminalScreen extends ItemTerminalScreen<WirelessC
         resetMagnetSettings();
         if(getContainer().isWUT()) widgets.add("cycleTerminal", new CycleTerminalButton(btn -> cycleTerminal()));
 
-        //widgets.add("player", new PlayerEntityWidget(MinecraftClient.getInstance().player));
+        widgets.add("player", new PlayerWidget());
     }
 
     @Override
     public void drawBG(MatrixStack matrices, final int offsetX, final int offsetY, final int mouseX, final int mouseY, float partialTicks) {
         super.drawBG(matrices, offsetX, offsetY, mouseX, mouseY, partialTicks);
-        InventoryScreen.drawEntityOnScreen(offsetX + 52, offsetY + 150, 30, (float) (offsetX + 52) - mouseX, (float) offsetY + 95 - mouseY, minecraft.player);
     }
 
     @Override
