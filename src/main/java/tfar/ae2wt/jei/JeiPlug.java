@@ -13,6 +13,7 @@ import tfar.ae2wt.wpt.WirelessPatternTerminalContainer;
 public class JeiPlug implements IModPlugin {
 
     public static final ResourceLocation UNIVERSAL_RECIPE_TRANSFER_UID = new ResourceLocation("jei", "universal_recipe_transfer_handler");
+    public static final ResourceLocation CRAFTING = new ResourceLocation("minecraft", "crafting");
 
 
     @Override
@@ -22,10 +23,9 @@ public class JeiPlug implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        registration.addRecipeTransferHandler(new RecipeTransferHandler(), UNIVERSAL_RECIPE_TRANSFER_UID);
+        registration.addRecipeTransferHandler(new CraftingRecipeTransferHandler(WirelessCraftingTerminalContainer.class, registration.getTransferHelper()), this.CRAFTING);
         registration.addUniversalRecipeTransferHandler(new PatternRecipeTransferHandler(WirelessPatternTerminalContainer.class, registration.getTransferHelper()));
     }
-
 
     public static class RecipeTransferHandler implements IRecipeTransferHandler<WirelessCraftingTerminalContainer> {
         @Override
