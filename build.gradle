@@ -3,6 +3,10 @@ buildscript {
         maven { url = 'https://files.minecraftforge.net/maven' }
         mavenCentral()
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        maven {
+            name "Modmaven"
+            url "https://modmaven.dev/"
+        }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
