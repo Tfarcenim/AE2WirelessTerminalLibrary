@@ -38,15 +38,15 @@ abstract class CraftConfirmContainerMixin {
 
     @Inject(method = "startJob", at = @At(value = "HEAD"), cancellable = true)
     public void serverPacketData(CallbackInfo ci) {
-        ContainerType<?> originalGui = null;
         IActionHost ah = ((AEBaseContainerAccess) this).invokeGetActionHost();
-        if(ah instanceof WCTGuiObject) originalGui = Menus.WCT;
-
-        if(result == null || result.isSimulation()) return;
-
-        ICraftingLink g = ((ICraftingGrid) getGrid().getCache(ICraftingGrid.class)).submitJob(result, null, selectedCpu, true, getActionSrc());
-        setAutoStart(false);
-        if(g != null && originalGui != null && ((AEBaseContainer) (Object) this).getLocator() != null)
-            ContainerOpener.openContainer(originalGui, ((AEBaseContainer) (Object) this).getPlayerInventory().player, ((AEBaseContainer) (Object) this).getLocator());
+        if(ah instanceof WCTGuiObject) {
+            ContainerType<?> originalGui = Menus.WCT;
+            if(result == null || result.isSimulation()) return;
+            ICraftingLink g = ((ICraftingGrid) getGrid().getCache(ICraftingGrid.class)).submitJob(result, null, selectedCpu, true, getActionSrc());
+            setAutoStart(false);
+            if(g != null && originalGui != null && ((AEBaseContainer) (Object) this).getLocator() != null)
+                ContainerOpener.openContainer(originalGui, ((AEBaseContainer) (Object) this).getPlayerInventory().player, ((AEBaseContainer) (Object) this).getLocator());
+            ci.cancel();
+        }
     }
 }
