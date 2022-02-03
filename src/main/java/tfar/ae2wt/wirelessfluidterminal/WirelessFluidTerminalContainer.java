@@ -24,6 +24,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.IItemHandler;
 import tfar.ae2wt.init.Menus;
 import tfar.ae2wt.terminal.AbstractWirelessTerminalItem;
@@ -45,7 +46,7 @@ public class WirelessFluidTerminalContainer extends MEMonitorableContainer<IAEFl
         WFluidTGuiObject accessInterface = new WFluidTGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
 
         if (locator.hasItemIndex()) {
-            player.openContainer(new TermFactory(accessInterface,locator));
+            NetworkHooks.openGui((ServerPlayerEntity) player, new TermFactory(accessInterface,locator));
         }
     }
 

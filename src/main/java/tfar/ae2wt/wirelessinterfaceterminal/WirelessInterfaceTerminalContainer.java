@@ -33,6 +33,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.IItemHandler;
 import tfar.ae2wt.WTConfig;
@@ -63,7 +64,7 @@ public class WirelessInterfaceTerminalContainer extends AEBaseContainer {
         WTGuiObject accessInterface = new WITGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
 
         if (locator.hasItemIndex()) {
-            player.openContainer(new TermFactory(accessInterface,locator));
+            NetworkHooks.openGui((ServerPlayerEntity) player, new TermFactory(accessInterface,locator));
         }
 
     }
