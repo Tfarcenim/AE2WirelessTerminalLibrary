@@ -42,6 +42,7 @@ import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import tfar.ae2wt.WTConfig;
@@ -79,7 +80,7 @@ public class WirelessPatternTerminalContainer extends ItemTerminalContainer impl
         WPTGuiObject accessInterface = new WPTGuiObject((AbstractWirelessTerminalItem) it.getItem(), it, player, locator.getItemIndex());
 
         if (locator.hasItemIndex()) {
-            player.openContainer(new TermFactory(accessInterface,locator));
+            NetworkHooks.openGui((ServerPlayerEntity) player, new TermFactory(accessInterface,locator));
         }
     }
 
