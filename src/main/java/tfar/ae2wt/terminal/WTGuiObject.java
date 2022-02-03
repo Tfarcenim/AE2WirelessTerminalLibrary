@@ -148,6 +148,12 @@ public abstract class WTGuiObject implements IGuiItemObject, IEnergySource, IAct
         if(myWap != null) {
             return myWap.getActionableNode();
         }
+        Item item = effectiveItem.getItem();
+        if (item instanceof IInfinityBoosterCardHolder && ((IInfinityBoosterCardHolder) item).hasBoosterCard(effectiveItem)) {
+            if (targetGrid != null) {
+                return targetGrid.getPivot();
+            }
+        }
         return null;
     }
 
