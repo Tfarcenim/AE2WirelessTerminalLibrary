@@ -4,7 +4,7 @@
 
 Applied Energistics 2 Wireless Terminals
 ========================================
-This is a FOrge Port of the Fabric port
+This is a Forge Port of the Fabric port
 of [Wireless Crafting Terminal](https://www.curseforge.com/minecraft/mc-mods/wireless-crafting-terminal)
 , [Wireless Pattern Terminal](https://www.curseforge.com/minecraft/mc-mods/wireless-pattern-terminal)
 , [Wireless Interface Terminal](https://www.curseforge.com/minecraft/mc-mods/wireless-interface-terminal), [~~Wireless
