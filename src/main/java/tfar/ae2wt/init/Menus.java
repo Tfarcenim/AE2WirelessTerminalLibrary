@@ -1,7 +1,11 @@
 package tfar.ae2wt.init;
 
+import appeng.container.ContainerLocator;
+import appeng.container.ContainerOpener;
 import appeng.core.Api;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.extensions.IForgeContainerType;
@@ -30,10 +34,41 @@ public class Menus {
         WUTHandler.addTerminal("pattern", ModItems.PATTERN_TERMINAL::open);
         WUTHandler.addTerminal("interface", ModItems.INTERFACE_TERMINAL::open);
 
+        ContainerOpener.addOpener(WCT, (new CheckedOpener(WirelessCraftingTerminalContainer::openServer))::open);
+        ContainerOpener.addOpener(PATTERN, (new CheckedOpener(WirelessPatternTerminalContainer::openServer))::open);
+        ContainerOpener.addOpener(WIT, (new CheckedOpener(WirelessInterfaceTerminalContainer::openServer))::open);
+        ContainerOpener.addOpener(WIRELESS_FLUID_TERMINAL, (new CheckedOpener(WirelessFluidTerminalContainer::openServer))::open);
+
         Api.instance().registries().charger().addChargeRate(ModItems.CRAFTING_TERMINAL, WTConfig.getChargeRate());
         Api.instance().registries().charger().addChargeRate(ModItems.PATTERN_TERMINAL, WTConfig.getChargeRate());
         Api.instance().registries().charger().addChargeRate(ModItems.INTERFACE_TERMINAL, WTConfig.getChargeRate());
         Api.instance().registries().charger().addChargeRate(ModItems.UNIVERSAL_TERMINAL, WTConfig.getChargeRate() * WTConfig.WUTChargeRateMultiplier());
         Api.instance().registries().charger().addChargeRate(ModItems.WIRELESS_FLUID_TERMINAL, WTConfig.getChargeRate());
+    }
+
+    private static class CheckedOpener {
+        private final UncheckedOpener opener;
+        public CheckedOpener(UncheckedOpener opener) {
+            this.opener = opener;
+        }
+
+        public boolean open(PlayerEntity player, ContainerLocator locator) {
+            if (!(player instanceof ServerPlayerEntity)) {
+                // Cannot open containers on the client or for non-players
+                return false;
+            }
+
+            if (!locator.hasItemIndex()) {
+                return false;
+            }
+
+            opener.open(player, locator);
+            return true;
+        }
+    }
+
+    @FunctionalInterface
+    public interface UncheckedOpener {
+        void open(PlayerEntity player, ContainerLocator locator);
     }
 }
