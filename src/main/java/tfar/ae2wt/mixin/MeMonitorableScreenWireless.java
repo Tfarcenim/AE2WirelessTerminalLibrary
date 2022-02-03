@@ -15,9 +15,10 @@ import tfar.ae2wt.wpt.WirelessPatternTerminalScreen;
 @Mixin(MEMonitorableScreen.class)
 public class MeMonitorableScreenWireless {
 
-    @Inject(method = "showCraftingStatus", at = @At(value = "INVOKE"), cancellable = true, remap = false)
+    @Inject(method = "showCraftingStatus", at = @At(value = "HEAD"), remap = false, cancellable = true)
     private void showWirelessCraftingStatus(CallbackInfo ci) {
         if(!((Object) this instanceof WirelessCraftingTerminalScreen) && !((Object) this instanceof WirelessPatternTerminalScreen)) return;
         PacketHandler.INSTANCE.sendToServer(new C2SSwitchGuiPacket(Registry.MENU.getKey(Menus.WIRELESS_FLUID_TERMINAL).getPath()));
+        ci.cancel();
     }
 }

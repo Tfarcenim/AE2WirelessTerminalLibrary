@@ -10,8 +10,7 @@
     "ContainerTypeBuilderMixin",
     "CraftConfirmContainerMixin",
     "InvActionPacketMixin",
-    "PlayerInventoryMixin",
-    "SlotAccess"
+    "PlayerInventoryMixin"
   ],
   "client": [
     "AESubScreenMixin",
